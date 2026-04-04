@@ -6,10 +6,6 @@
 # ============================================
 
 # Torneo 1 - Primer torneo de hockey de mesa (3/5/2025)
-Chama,Rafa,G,7-2,Primer torneo de hockey de mesa,3/5/2025,Final
-Tomy,Rafa,P,5-7,Primer torneo de hockey de mesa,3/5/2025,Semifinal
-Chama,Marco,G,7-5,Primer torneo de hockey de mesa,3/5/2025,Semifinal
-Tomy,Marco,G,7-5,Primer torneo de hockey de mesa,3/5/2025,Tercer Puesto
 Chama,Facu,G,7-5,Primer torneo de hockey de mesa,3/5/2025,Fase de Liga
 Tomy,Santi,P,5-7,Primer torneo de hockey de mesa,3/5/2025,Fase de Liga
 Marco,Rafa,G,7-5,Primer torneo de hockey de mesa,3/5/2025,Fase de Liga
@@ -31,12 +27,12 @@ Marco,Tomy,P,5-7,Primer torneo de hockey de mesa,3/5/2025,Fase de Liga
 Santi,Chama,P,5-7,Primer torneo de hockey de mesa,3/5/2025,Fase de Liga
 Facu,Rafa,G,7-6,Primer torneo de hockey de mesa,3/5/2025,Fase de Liga
 Hector,Marco,P,6-7,Primer torneo de hockey de mesa,3/5/2025,Fase de Liga
+Tomy,Rafa,P,5-7,Primer torneo de hockey de mesa,3/5/2025,Semifinal
+Chama,Marco,G,7-5,Primer torneo de hockey de mesa,3/5/2025,Semifinal
+Tomy,Marco,G,7-5,Primer torneo de hockey de mesa,3/5/2025,Tercer Puesto
+Chama,Rafa,G,7-2,Primer torneo de hockey de mesa,3/5/2025,Final
 
 # Torneo 2 - Segundo torneo de hockey de mesa (11/01/2026)
-Tomy,Chama,P,6-7,Segundo torneo de hockey de mesa,11/01/2026,Final
-Santi,Tomy,P,2-7,Segundo torneo de hockey de mesa,11/01/2026,Semifinal
-Chama,Facu,G,7-6,Segundo torneo de hockey de mesa,11/01/2026,Semifinal
-Facu,Santi,G,7-6,Segundo torneo de hockey de mesa,11/01/2026,Tercer Puesto
 Santi,Rafa,G,7-4,Segundo torneo de hockey de mesa,11/01/2026,Fase de Grupos (A)
 Lucas,Facu,P,2-7,Segundo torneo de hockey de mesa,11/01/2026,Fase de Grupos (A)
 Facu,Rafa,G,7-5,Segundo torneo de hockey de mesa,11/01/2026,Fase de Grupos (A)
@@ -49,6 +45,10 @@ Tomy,Kovic,G,7-2,Segundo torneo de hockey de mesa,11/01/2026,Fase de Grupos (B)
 Chama,Pedro,G,7-6,Segundo torneo de hockey de mesa,11/01/2026,Fase de Grupos (B)
 Pedro,Kovic,G,7-3,Segundo torneo de hockey de mesa,11/01/2026,Fase de Grupos (B)
 Tomy,Chama,G,7-4,Segundo torneo de hockey de mesa,11/01/2026,Fase de Grupos (B)
+Santi,Tomy,P,2-7,Segundo torneo de hockey de mesa,11/01/2026,Semifinal
+Chama,Facu,G,7-6,Segundo torneo de hockey de mesa,11/01/2026,Semifinal
+Facu,Santi,G,7-6,Segundo torneo de hockey de mesa,11/01/2026,Tercer Puesto
+Tomy,Chama,P,6-7,Segundo torneo de hockey de mesa,11/01/2026,Final
 
 # Amistosos
 Chama,Rafa,G,7-3,Amistoso,11/01/2026,Amistoso
