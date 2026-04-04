@@ -144,6 +144,11 @@
     color: white;
 }
 
+.nav-link.pink {
+    background: #e91e63;
+    color: white;
+}
+
 /* Barra de probabilidad */
 .probabilidad-container {
     margin: 25px 0;

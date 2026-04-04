@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playoffs — Air Hockey</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/playoffs.css">
+</head>
+<body>
+    <div class="container">
+        <h1>⚔️ Playoffs</h1>
+        <p class="page-subtitle">Elegí los 4 clasificados, definí los cruces y visualizá las probabilidades de cada partido y del campeón</p>
+
+        <div class="controls">
+            <button id="randomSelectBtn" title="Seleccionar jugadores aleatoriamente">🔀 Seleccionar aleatoriamente</button>
+
+            <a href="index.html" title="Simulador de Torneo" style="display:inline-block; margin-left:8px; padding:8px 12px; background:#667eea; color:white; border-radius:6px; text-decoration:none; font-weight:700;">🎲 Simulador</a>
+            <a href="montecarlo.html" title="Cálculo de predicciones Monte Carlo" style="display:inline-block; margin-left:4px; padding:8px 12px; background:#667eea; color:white; border-radius:6px; text-decoration:none; font-weight:700;">📊 Predicciones</a>
+            <a href="partido.html" title="Simulador de Partido 1vs1" style="display:inline-block; margin-left:4px; padding:8px 12px; background:#e91e63; color:white; border-radius:6px; text-decoration:none; font-weight:700;">⚔️ Partido 1vs1</a>
+            <a href="torneo.html" title="Creador de Torneo" style="display:inline-block; margin-left:4px; padding:8px 12px; background:#11998e; color:white; border-radius:6px; text-decoration:none; font-weight:700;">🏆 Creador de Torneo</a>
+        </div>
+
+        <!-- Selección de 4 jugadores -->
+        <div id="playerSelection"></div>
+
+        <!-- Configuración del bracket (aparece cuando se seleccionan 4 jugadores) -->
+        <div id="bracketConfigContainer" style="display:none;">
+            <div class="bracket-config-box">
+                <h3>Configuración del Bracket</h3>
+
+                <!-- Selector de modo -->
+                <div class="bracket-config-row">
+                    <label for="modoBracket">Modo:</label>
+                    <select id="modoBracket">
+                        <option value="aleatorio">🎲 Sorteo Aleatorio</option>
+                        <option value="manual">✋ Armado Manual</option>
+                    </select>
+                </div>
+
+                <!-- Configuración manual de SF1 (se muestra solo en modo manual) -->
+                <div id="manualBracketContainer" style="display:none;">
+                    <div class="bracket-config-row">
+                        <label>Semifinal 1:</label>
+                        <select id="manualSF1J1">
+                            <option value="">-- Jugador 1 --</option>
+                        </select>
+                        <span style="font-weight:700; color:#888;">vs</span>
+                        <select id="manualSF1J2">
+                            <option value="">-- Jugador 2 --</option>
+                        </select>
+                    </div>
+                    <div class="sf2-auto-display">
+                        <strong>Semifinal 2 (automática):</strong>
+                        <span id="sf2AutoLabel" style="color:#aaa;">Se define según SF1</span>
+                    </div>
+                </div>
+
+                <!-- Botón principal -->
+                <div style="text-align:center; margin-top:16px;">
+                    <button id="bracketBtn" class="btn-bracket" disabled>🎲 Sortear Bracket</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resultado: cruces + probabilidades -->
+        <div id="resultado"></div>
+    </div>
+
+    <script src="js/playoffs.js"></script>
+</body>
+</html>

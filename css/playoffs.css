@@ -1,0 +1,526 @@
+/* ================================================
+   SIMULADOR DE PLAYOFFS — ESTILOS
+   ================================================ */
+
+/* --- Subtítulo de página --- */
+.page-subtitle {
+    text-align: center;
+    color: #777;
+    font-size: 1.05em;
+    margin: -15px 0 25px 0;
+    font-style: italic;
+}
+
+/* ================================================
+   SELECCIÓN DE JUGADORES (reutiliza torneo.css)
+   ================================================ */
+.player-selection-container {
+    margin: 20px 0;
+}
+
+.selection-instruccion {
+    font-size: 1em;
+    color: #555;
+    margin-bottom: 12px;
+}
+
+.player-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.player-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: white;
+    min-width: 155px;
+    user-select: none;
+}
+
+.player-label:hover {
+    border-color: #e91e63;
+    background: #fff5f8;
+}
+
+.player-label:has(input:checked) {
+    border-color: #e91e63;
+    background: #ffeef4;
+}
+
+.player-label input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: #e91e63;
+    flex-shrink: 0;
+}
+
+.player-name-text {
+    font-weight: 600;
+    color: #333;
+    flex: 1;
+    font-size: 0.95em;
+}
+
+.player-pts-text {
+    font-size: 0.78em;
+    color: #aaa;
+    white-space: nowrap;
+}
+
+.selection-count {
+    font-size: 0.9em;
+    color: #e91e63;
+    font-weight: 600;
+    margin-top: 8px;
+    display: block;
+}
+
+/* ================================================
+   CONFIGURACIÓN DEL BRACKET
+   ================================================ */
+.bracket-config-box {
+    background: #f8f9ff;
+    border: 2px solid #dde;
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 18px 0;
+}
+
+.bracket-config-box h3 {
+    margin: 0 0 14px 0;
+    color: #444;
+    font-size: 1em;
+}
+
+.bracket-config-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.bracket-config-row label {
+    font-weight: 600;
+    color: #555;
+    white-space: nowrap;
+}
+
+.bracket-config-row select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 0.95em;
+    min-width: 130px;
+    cursor: pointer;
+}
+
+.sf2-auto-display {
+    background: #e8f5e9;
+    border: 1px solid #a5d6a7;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 0.93em;
+    color: #2e7d32;
+}
+
+.sf2-auto-display strong {
+    display: inline-block;
+    margin-right: 8px;
+    color: #1b5e20;
+}
+
+/* ================================================
+   BOTONES
+   ================================================ */
+.btn-bracket {
+    background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+    color: white;
+    border: none;
+    padding: 13px 36px;
+    font-size: 1.1em;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(233, 30, 99, 0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+    letter-spacing: 0.02em;
+}
+
+.btn-bracket:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 22px rgba(233, 30, 99, 0.5);
+}
+
+.btn-bracket:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-nuevo-sorteo {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1em;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-nuevo-sorteo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 22px rgba(102, 126, 234, 0.5);
+}
+
+/* ================================================
+   TARJETAS DE SEMIFINAL
+   ================================================ */
+.sf-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.sf-card {
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid #eee;
+}
+
+.sf-card-header {
+    background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+    color: white;
+    padding: 12px 18px;
+    font-size: 1.1em;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.03em;
+}
+
+.sf-matchup {
+    padding: 16px 18px;
+}
+
+.sf-player {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.sf-player-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.sf-player-name {
+    font-weight: 700;
+    font-size: 1.1em;
+    color: #222;
+}
+
+.sf-ranking-badge {
+    font-size: 0.77em;
+    color: #999;
+    background: #f0f0f0;
+    padding: 2px 7px;
+    border-radius: 8px;
+    display: inline-block;
+    width: fit-content;
+}
+
+.sf-prob-badge {
+    font-size: 1.15em;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    min-width: 64px;
+    text-align: center;
+}
+
+.sf-prob-badge.alta       { color: #388e3c; background: #e8f5e9; }
+.sf-prob-badge.media-alta { color: #689f38; background: #f1f8e9; }
+.sf-prob-badge.media      { color: #ef6c00; background: #fff3e0; }
+.sf-prob-badge.baja       { color: #c62828; background: #ffebee; }
+
+/* Barra dividida de probabilidad */
+.sf-split-bar {
+    display: flex;
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 6px 0;
+    background: #f0f0f0;
+}
+
+.split-segment {
+    height: 100%;
+    transition: width 0.6s ease;
+}
+
+.split-segment.alta       { background: linear-gradient(90deg, #388e3c, #66bb6a); }
+.split-segment.media-alta { background: linear-gradient(90deg, #689f38, #9ccc65); }
+.split-segment.media      { background: linear-gradient(90deg, #ef6c00, #ffa726); }
+.split-segment.baja       { background: linear-gradient(90deg, #c62828, #ef5350); }
+
+.sf-insight {
+    text-align: center;
+    font-size: 0.85em;
+    color: #888;
+    font-style: italic;
+    padding: 8px 16px 14px;
+    border-top: 1px solid #f5f5f5;
+    margin-top: 6px;
+}
+
+/* ================================================
+   PROBABILIDADES DE CAMPEÓN
+   ================================================ */
+.champion-card {
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid #eee;
+    margin: 16px 0;
+}
+
+.champion-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f5f5f5;
+    transition: background 0.15s;
+}
+
+.champion-row:last-child {
+    border-bottom: none;
+}
+
+.champion-row:first-child {
+    background: linear-gradient(to right, #fffde7, #ffffff);
+}
+
+.champion-row:hover {
+    background: #fafafa;
+}
+
+.champion-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    min-width: 180px;
+}
+
+.champion-medal {
+    font-size: 1.5em;
+    width: 28px;
+    text-align: center;
+}
+
+.champion-player-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.champion-name {
+    font-weight: 700;
+    font-size: 1em;
+    color: #222;
+}
+
+.champion-subfact {
+    font-size: 0.77em;
+    color: #999;
+}
+
+.champion-bar-area {
+    flex: 1;
+}
+
+/* ================================================
+   BARRAS DE PROBABILIDAD (compartidas)
+   ================================================ */
+.prob-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.prob-bar-track {
+    flex: 1;
+    height: 10px;
+    background: #ebebeb;
+    border-radius: 5px;
+    overflow: hidden;
+    min-width: 50px;
+}
+
+.prob-bar-track.wide {
+    height: 12px;
+}
+
+.prob-bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.6s ease;
+}
+
+.prob-bar-fill.alta       { background: linear-gradient(90deg, #388e3c, #66bb6a); }
+.prob-bar-fill.media-alta { background: linear-gradient(90deg, #689f38, #9ccc65); }
+.prob-bar-fill.media      { background: linear-gradient(90deg, #ef6c00, #ffa726); }
+.prob-bar-fill.baja       { background: linear-gradient(90deg, #c62828, #ef5350); }
+
+.prob-label {
+    font-size: 0.9em;
+    font-weight: 700;
+    min-width: 52px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.prob-label.alta       { color: #388e3c; }
+.prob-label.media-alta { color: #689f38; }
+.prob-label.media      { color: #ef6c00; }
+.prob-label.baja       { color: #c62828; }
+
+/* ================================================
+   FINALES MÁS PROBABLES
+   ================================================ */
+.finals-posibles-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+}
+
+.final-posible {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    border: 1px solid #eee;
+}
+
+.final-posible.top-final {
+    border-color: #ffd54f;
+    box-shadow: 0 4px 16px rgba(255, 193, 7, 0.25);
+}
+
+.final-pos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 14px;
+    background: #f8f9ff;
+    border-bottom: 1px solid #eee;
+    font-size: 0.85em;
+}
+
+.final-posible.top-final .final-pos-header {
+    background: linear-gradient(to right, #fff8e1, #f8f9ff);
+}
+
+.final-pos-label {
+    font-weight: 700;
+    color: #555;
+}
+
+.final-prob-badge {
+    color: #888;
+    font-size: 0.85em;
+}
+
+.final-matchup {
+    padding: 12px 14px;
+}
+
+.final-player {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 8px 0;
+}
+
+.final-player-name {
+    font-weight: 700;
+    color: #222;
+    font-size: 0.95em;
+}
+
+.final-prob-text {
+    font-size: 0.9em;
+    font-weight: 700;
+}
+
+.final-prob-text.alta       { color: #388e3c; }
+.final-prob-text.media-alta { color: #689f38; }
+.final-prob-text.media      { color: #ef6c00; }
+.final-prob-text.baja       { color: #c62828; }
+
+.final-split-bar {
+    display: flex;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 4px 0;
+    background: #f0f0f0;
+}
+
+/* ================================================
+   RESPONSIVE
+   ================================================ */
+@media (max-width: 768px) {
+    .sf-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .finals-posibles-card {
+        grid-template-columns: 1fr;
+    }
+
+    .champion-left {
+        min-width: 140px;
+    }
+
+    .player-list {
+        gap: 6px;
+    }
+
+    .player-label {
+        min-width: 140px;
+        padding: 8px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .champion-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .champion-bar-area {
+        width: 100%;
+    }
+}
