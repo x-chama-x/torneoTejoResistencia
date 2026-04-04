@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creador de Torneo — Air Hockey</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/torneo.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🏆 Creador de Torneo</h1>
+        <p class="page-subtitle">Sorteá los grupos y visualizá las probabilidades de clasificación en tiempo real</p>
+
+        <div class="controls">
+            <label for="numPlayers" style="align-self:center; font-weight:600; color:#333; margin-right:6px;">Formato:</label>
+            <select id="numPlayers" aria-label="Formato de torneo">
+                <option value="7">7 Jugadores</option>
+                <option value="8">8 Jugadores</option>
+                <option value="9">9 Jugadores</option>
+                <option value="10">10 Jugadores</option>
+            </select>
+
+            <button id="randomSelectBtn" title="Seleccionar jugadores aleatoriamente">🔀 Seleccionar aleatoriamente</button>
+
+            <a href="index.html" title="Simulador de Torneo" style="display:inline-block; margin-left:8px; padding:8px 12px; background:#667eea; color:white; border-radius:6px; text-decoration:none; font-weight:700;">🎲 Simulador</a>
+            <a href="montecarlo.html" title="Cálculo de predicciones Monte Carlo" style="display:inline-block; margin-left:4px; padding:8px 12px; background:#667eea; color:white; border-radius:6px; text-decoration:none; font-weight:700;">📊 Predicciones</a>
+            <a href="partido.html" title="Simulador de Partido 1vs1" style="display:inline-block; margin-left:4px; padding:8px 12px; background:#e91e63; color:white; border-radius:6px; text-decoration:none; font-weight:700;">⚔️ Partido 1vs1</a>
+        </div>
+
+        <!-- Selección de jugadores (se renderiza dinámicamente) -->
+        <div id="playerSelection"></div>
+
+        <!-- Botón sortear (aparece cuando se seleccionan los jugadores correctos) -->
+        <div id="sortearContainer" style="display:none; text-align:center; margin:20px 0;">
+            <button id="sortearBtn" class="btn-sortear">🎲 Sortear Grupos</button>
+        </div>
+
+        <!-- Resultado: grupos + probabilidades -->
+        <div id="resultado"></div>
+    </div>
+
+    <script src="js/torneo.js"></script>
+</body>
+</html>
