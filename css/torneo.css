@@ -1,0 +1,404 @@
+/* ================================================
+   CREADOR DE TORNEO — ESTILOS ESPECÍFICOS
+   ================================================ */
+
+/* --- Subtítulo de página --- */
+.page-subtitle {
+    text-align: center;
+    color: #777;
+    font-size: 1.05em;
+    margin: -15px 0 25px 0;
+    font-style: italic;
+}
+
+/* ================================================
+   SELECCIÓN DE JUGADORES
+   ================================================ */
+.player-selection-container {
+    margin: 20px 0;
+}
+
+.selection-instruccion {
+    font-size: 1em;
+    color: #555;
+    margin-bottom: 12px;
+}
+
+.player-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.player-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: white;
+    min-width: 155px;
+    user-select: none;
+}
+
+.player-label:hover {
+    border-color: #667eea;
+    background: #f8f9ff;
+}
+
+.player-label:has(input:checked) {
+    border-color: #667eea;
+    background: #eff1ff;
+}
+
+.player-label input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: #667eea;
+    flex-shrink: 0;
+}
+
+.player-name-text {
+    font-weight: 600;
+    color: #333;
+    flex: 1;
+    font-size: 0.95em;
+}
+
+.player-pts-text {
+    font-size: 0.78em;
+    color: #aaa;
+    white-space: nowrap;
+}
+
+.selection-count {
+    font-size: 0.9em;
+    color: #667eea;
+    font-weight: 600;
+    margin-top: 8px;
+    display: block;
+}
+
+/* ================================================
+   BOTONES DE ACCIÓN
+   ================================================ */
+.btn-sortear {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+    border: none;
+    padding: 14px 40px;
+    font-size: 1.1em;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(17, 153, 142, 0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+    letter-spacing: 0.02em;
+}
+
+.btn-sortear:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 22px rgba(17, 153, 142, 0.5);
+}
+
+.btn-sortear:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-nuevo-sorteo {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1em;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-nuevo-sorteo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 22px rgba(102, 126, 234, 0.5);
+}
+
+/* ================================================
+   TEXTOS AUXILIARES
+   ================================================ */
+.prob-subtitulo {
+    text-align: center;
+    color: #777;
+    font-size: 0.93em;
+    margin: -10px 0 22px 0;
+    font-style: italic;
+}
+
+.clasifican-note {
+    text-align: center;
+    color: #43a047;
+    font-weight: 600;
+    margin-top: 12px;
+    font-size: 0.95em;
+}
+
+/* ================================================
+   CONTENEDOR DE GRUPOS
+   ================================================ */
+.grupos-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+/* ================================================
+   TARJETA DE GRUPO
+   ================================================ */
+.grupo-card {
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid #eee;
+}
+
+.grupo-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 13px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.15em;
+    font-weight: 700;
+}
+
+.clasifican-badge {
+    font-size: 0.7em;
+    background: rgba(255, 255, 255, 0.22);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ================================================
+   FILAS DE JUGADORES
+   ================================================ */
+.jugadores-list {
+    padding: 4px 0;
+}
+
+.jugador-row {
+    padding: 13px 16px;
+    border-bottom: 1px solid #f3f3f3;
+    transition: background 0.15s;
+}
+
+.jugador-row:last-child {
+    border-bottom: none;
+}
+
+.jugador-row:hover {
+    background: #fafafa;
+}
+
+.jugador-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.jugador-nombre {
+    font-weight: 700;
+    color: #222;
+    font-size: 1em;
+}
+
+.jugador-ranking-badge {
+    font-size: 0.78em;
+    color: #888;
+    background: #f0f0f0;
+    padding: 2px 8px;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+
+/* ================================================
+   BARRAS DE PROBABILIDAD
+   ================================================ */
+.prob-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.prob-bar-track {
+    flex: 1;
+    height: 10px;
+    background: #ebebeb;
+    border-radius: 5px;
+    overflow: hidden;
+    min-width: 50px;
+}
+
+.prob-bar-track.small {
+    height: 7px;
+}
+
+.prob-bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.6s ease;
+}
+
+/* Colores por nivel de probabilidad */
+.prob-bar-fill.alta {
+    background: linear-gradient(90deg, #388e3c, #66bb6a);
+}
+
+.prob-bar-fill.media-alta {
+    background: linear-gradient(90deg, #689f38, #9ccc65);
+}
+
+.prob-bar-fill.media {
+    background: linear-gradient(90deg, #ef6c00, #ffa726);
+}
+
+.prob-bar-fill.baja {
+    background: linear-gradient(90deg, #c62828, #ef5350);
+}
+
+.prob-label {
+    font-size: 0.9em;
+    font-weight: 700;
+    min-width: 50px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.prob-label.alta       { color: #388e3c; }
+.prob-label.media-alta { color: #689f38; }
+.prob-label.media      { color: #ef6c00; }
+.prob-label.baja       { color: #c62828; }
+
+/* ================================================
+   DESGLOSE PARA 9 JUGADORES (REPECHAJE)
+   ================================================ */
+.prob-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.prob-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.prob-type {
+    font-size: 0.79em;
+    color: #888;
+    width: 74px;
+    flex-shrink: 0;
+}
+
+.prob-value-small {
+    font-size: 0.79em;
+    font-weight: 600;
+    color: #666;
+    min-width: 42px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.prob-total-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 1px dashed #e0e0e0;
+}
+
+/* ================================================
+   CAJA INFORMATIVA DE REPECHAJE (9 JUGADORES)
+   ================================================ */
+.repechaje-info {
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin: 16px 0;
+    font-size: 0.9em;
+    color: #5d4037;
+    line-height: 1.6;
+}
+
+.repechaje-info strong {
+    display: block;
+    color: #e65100;
+    font-size: 1em;
+    margin-bottom: 8px;
+}
+
+.repechaje-info p {
+    margin: 4px 0;
+}
+
+/* ================================================
+   TABLA DE 7 JUGADORES
+   ================================================ */
+.ranking-col {
+    color: #999;
+    font-size: 0.88em;
+    white-space: nowrap;
+}
+
+.prob-col {
+    min-width: 210px;
+}
+
+/* ================================================
+   RESPONSIVE
+   ================================================ */
+@media (max-width: 768px) {
+    .grupos-container {
+        grid-template-columns: 1fr;
+    }
+
+    .prob-col {
+        min-width: 160px;
+    }
+
+    .player-list {
+        gap: 6px;
+    }
+
+    .player-label {
+        min-width: 140px;
+        padding: 8px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .grupo-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .prob-type {
+        width: 62px;
+    }
+}

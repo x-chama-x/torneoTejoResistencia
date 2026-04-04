@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l /c/Users/Francisco/Desktop/simuladorTorneoTejo/js/*.js /c/Users/Francisco/Desktop/simuladorTorneoTejo/css/*.css)"
+    ]
+  }
+}
