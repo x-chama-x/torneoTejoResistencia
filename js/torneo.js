@@ -199,7 +199,7 @@ function renderFormatoConfig(numJugadores) {
     
     container.style.display = 'block';
 
-    let html = '<div class="phase-title">Ÿ“‹ FORMATO DEL TORNEO</div>';
+    let html = '<div class="phase-title">📋 FORMATO DEL TORNEO</div>';
 
     if (numJugadores === 7) {
         html += `
