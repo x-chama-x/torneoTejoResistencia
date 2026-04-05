@@ -1,6 +1,6 @@
 // Variables para almacenar el historial de enfrentamientos directos
-let enfrentamientosDirectos = {}; // Calculado automáticamente desde los partidos
-let partidosDetallados = []; // Array con todos los partidos individuales
+// let enfrentamientosDirectos = {}; // Definido mundialmente en simulador.js
+// let partidosDetallados = []; // Definido mundialmente en simulador.js
 
 // Función para cargar partidos y calcular estadísticas automáticamente
 async function cargarHistorialCompleto() {
