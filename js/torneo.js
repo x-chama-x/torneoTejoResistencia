@@ -192,6 +192,119 @@ function getBarClass(prob) {
     return 'baja';
 }
 
+// ---- Renderizar formato de torneo (como en simulador.js) ----
+function renderFormatoConfig(numJugadores) {
+    const container = document.getElementById('formatoContainer');
+    if (!container) return;
+
+    let html = '<div class="phase-title">📋 FORMATO DEL TORNEO</div>';
+
+    if (numJugadores === 7) {
+        html += `
+            <h3>Liga (Round Robin) — 7 Jugadores</h3>
+            <p>Estructura: Todos contra todos, cada jugador enfrenta a los demás una vez.</p>
+            <ul>
+                <li>Partidos totales (fase): 21</li>
+                <li>Clasificación: Los 4 primeros avanzan a playoff (semifinales + final + 3° puesto)</li>
+                <li>Formato final: Semifinales, tercer puesto y final</li>
+            </ul>
+            <p>Notas: Ideal para medir resultados de forma completa entre todos los participantes.</p>
+        `;
+    } else if (numJugadores === 8) {
+        html += `
+            <h3>Grupos (2 grupos de 4) — 8 Jugadores</h3>
+            <p>Estructura: 2 grupos (A y B) de 4 jugadores; todos contra todos dentro de cada grupo.</p>
+            <ul>
+                <li>Partidos totales (fase de grupos): 12</li>
+                <li>Clasificación: Los 2 primeros de cada grupo avanzan a playoffs (4 clasificados)</li>
+                <li>Formato final: Semifinales, tercer puesto y final</li>
+            </ul>
+            <p>Notas: Menos partidos que una liga completa, permite fases más rápidas y balanceadas por sorteo o siembra.</p>
+        `;
+    } else if (numJugadores === 9) {
+        html += `
+            <h3>Grupos (3 grupos de 3) + Repechajes — 9 Jugadores</h3>
+            <p>Estructura: 3 grupos (A, B, C) de 3 jugadores; todos contra todos dentro del grupo.</p>
+            
+            <h4>📊 Fase de Grupos (9 partidos)</h4>
+            <ul>
+                <li>Los <strong>1° de cada grupo</strong> clasifican directo a playoffs.</li>
+            </ul>
+            
+            <h4>⚖️ Repechaje 2° Puestos - Mini-Liga (3 partidos)</h4>
+            <ul>
+                <li>Los 3 segundos juegan todos contra todos.</li>
+                <li><strong>Solo el 1°</strong> avanza al partido eliminatorio.</li>
+                <li>2° y 3° quedan <strong>eliminados</strong>.</li>
+            </ul>
+            
+            <h4>⚖️ Repechaje 3° Puestos - Mini-Liga (3 partidos)</h4>
+            <ul>
+                <li>Los 3 terceros juegan todos contra todos.</li>
+                <li><strong>Solo el 1°</strong> avanza al partido eliminatorio.</li>
+                <li>2° y 3° quedan <strong>eliminados</strong>.</li>
+            </ul>
+            
+            <h4>⚔️ Partido Eliminatorio Pre-Playoffs (1 partido)</h4>
+            <ul>
+                <li>1° del repechaje de segundos vs 1° del repechaje de terceros.</li>
+                <li>El <strong>ganador clasifica</strong> como 4° a playoffs.</li>
+            </ul>
+            
+            <h4>🏆 Playoffs (4 partidos)</h4>
+            <ul>
+                <li><strong>Clasifican:</strong> 3 primeros de grupos + ganador del eliminatorio.</li>
+                <li>Semifinales, tercer puesto y final.</li>
+            </ul>
+            
+            <p><strong>Total: 20 partidos</strong></p>
+        `;
+    } else if (numJugadores === 10) {
+        html += `
+            <h3>Grupos (2 grupos de 5) — 10 Jugadores</h3>
+            <p>Estructura: 2 grupos (A y B) de 5 jugadores; todos contra todos dentro de cada grupo.</p>
+            <ul>
+                <li>Partidos totales (fase de grupos): 20</li>
+                <li>Clasificación: Los 2 primeros de cada grupo avanzan a playoffs (4 clasificados)</li>
+                <li>Formato final: Semifinales, tercer puesto y final</li>
+            </ul>
+            <p>Notas: Requiere más tiempo; se usa cuando hay gran cantidad de participantes y se desea más competencia por grupo.</p>
+        `;
+    }
+
+    // Agregar sección del ranking FIFA actual
+    html += `
+        <div class="phase-title" style="margin-top: 20px;">🏆 RANKING FIFA ACTUAL</div>
+        <div class="standings" style="margin-bottom: 20px;">
+            <table>
+                <tr>
+                    <th>Pos</th>
+                    <th>Jugador</th>
+                    <th>Puntos</th>
+                </tr>
+    `;
+
+    // Ordenar jugadores por ranking (mayor a menor)
+    const jugadoresOrdenados = [...jugadoresDisponibles].sort((a, b) => b.ranking - a.ranking);
+    jugadoresOrdenados.forEach((j, index) => {
+        const medalla = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+        html += `
+            <tr>
+                <td class="position">${index + 1}° ${medalla}</td>
+                <td><strong>${j.nombre}</strong></td>
+                <td>${j.ranking} pts</td>
+            </tr>
+        `;
+    });
+
+    html += `
+            </table>
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
 // ---- Sortear grupos y calcular probabilidades ----
 function sortearGrupos() {
     const numJugadores = parseInt(document.getElementById('numPlayers').value);
@@ -426,9 +539,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (numSelect) {
         numSelect.addEventListener('change', () => {
             document.getElementById('resultado').innerHTML = '';
-            renderPlayerSelection(parseInt(numSelect.value));
+            document.getElementById('formatoContainer').innerHTML = '';
+            const num = parseInt(numSelect.value);
+            renderFormatoConfig(num);
+            renderPlayerSelection(num);
         });
-        renderPlayerSelection(parseInt(numSelect.value));
+        const num = parseInt(numSelect.value);
+        renderFormatoConfig(num);
+        renderPlayerSelection(num);
     }
 
     const randomBtn = document.getElementById('randomSelectBtn');
