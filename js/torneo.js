@@ -10,6 +10,10 @@ let jugadoresBase = [];
 let nuevosJugadores = [];
 let jugadoresDisponibles = [];
 
+// Variables para almacenar el historial de enfrentamientos directos
+let enfrentamientosDirectos = {};
+let partidosDetallados = [];
+
 // ---- Carga de jugadores desde ranking.txt ----
 async function cargarJugadoresDesdeArchivo() {
     try {
@@ -44,6 +48,75 @@ async function cargarJugadoresDesdeArchivo() {
     }
 }
 
+// Función para cargar partidos y calcular estadísticas automáticamente
+async function cargarHistorialCompleto() {
+    try {
+        const response = await fetch('enfrentamientos_directos.txt');
+        if (!response.ok) {
+            throw new Error('No se pudo cargar el archivo enfrentamientos_directos.txt');
+        }
+        const texto = await response.text();
+        const lineas = texto.split('\n');
+
+        partidosDetallados = [];
+        enfrentamientosDirectos = {};
+
+        // Cargar todos los partidos
+        for (const linea of lineas) {
+            const lineaTrimmed = linea.trim();
+
+            // Ignorar líneas vacías y comentarios
+            if (lineaTrimmed === '' || lineaTrimmed.startsWith('#') || lineaTrimmed.startsWith('=')) {
+                continue;
+            }
+
+            const partes = lineaTrimmed.split(',');
+
+            if (partes.length >= 7) {
+                const jugador1 = partes[0].trim();
+                const jugador2 = partes[1].trim();
+                const resultado = partes[2].trim(); // G o P para jugador1
+                const marcador = partes[3].trim();
+                const [goles1, goles2] = marcador.split('-').map(g => parseInt(g.trim()));
+
+                const partido = {
+                    jugador1,
+                    jugador2,
+                    ganador: resultado === 'G' ? jugador1 : jugador2,
+                    goles1,
+                    goles2
+                };
+
+                partidosDetallados.push(partido);
+
+                // Calcular estadísticas del enfrentamiento automáticamente
+                const clave = [jugador1, jugador2].sort().join('_vs_');
+
+                if (!enfrentamientosDirectos[clave]) {
+                    enfrentamientosDirectos[clave] = {
+                        jugadores: [jugador1, jugador2].sort(),
+                        victorias: {}
+                    };
+                    enfrentamientosDirectos[clave].victorias[jugador1] = 0;
+                    enfrentamientosDirectos[clave].victorias[jugador2] = 0;
+                }
+
+                // Sumar victoria al ganador
+                enfrentamientosDirectos[clave].victorias[partido.ganador]++;
+            }
+        }
+        return true;
+    } catch (error) {
+        console.error('❌ Error al cargar historial:', error);
+        return false;
+    }
+}
+
+function obtenerHistorialEnfrentamiento(nombreJ1, nombreJ2) {
+    const clave = [nombreJ1, nombreJ2].sort().join('_vs_');
+    return enfrentamientosDirectos[clave] || null;
+}
+
 // ---- Utilidades ----
 function shuffleArray(arr) {
     const a = arr.slice();
@@ -56,8 +129,30 @@ function shuffleArray(arr) {
 
 // ---- Simulación de partido (idéntica a simulador.js) ----
 function simularPartido(jugador1, jugador2) {
-    const fuerza1 = (jugador1.ranking * 0.4) + (jugador1.winRate * 100 * 0.6);
-    const fuerza2 = (jugador2.ranking * 0.4) + (jugador2.winRate * 100 * 0.6);
+    let fuerza1 = (jugador1.ranking * 0.4) + (jugador1.winRate * 100 * 0.6);
+    let fuerza2 = (jugador2.ranking * 0.4) + (jugador2.winRate * 100 * 0.6);
+
+    // Ajuste por historial de enfrentamientos directos (si existe)
+    const historial = obtenerHistorialEnfrentamiento(jugador1.nombre, jugador2.nombre);
+    if (historial) {
+        const totalEnfrentamientos = (historial.victorias[jugador1.nombre] || 0) + (historial.victorias[jugador2.nombre] || 0);
+
+        if (totalEnfrentamientos > 0) {
+            // Calcular winrate del enfrentamiento directo
+            const winRateDirecto1 = (historial.victorias[jugador1.nombre] || 0) / totalEnfrentamientos;
+            const winRateDirecto2 = (historial.victorias[jugador2.nombre] || 0) / totalEnfrentamientos;
+
+            // El historial directo tiene un peso del 20% adicional
+            const pesoHistorial = Math.min(0.2, totalEnfrentamientos * 0.02);
+
+            const ajusteHistorial1 = (winRateDirecto1 - 0.5) * 100 * pesoHistorial;
+            const ajusteHistorial2 = (winRateDirecto2 - 0.5) * 100 * pesoHistorial;
+
+            fuerza1 += ajusteHistorial1;
+            fuerza2 += ajusteHistorial2;
+        }
+    }
+
     const k = 30;
     const probFinal = 1 / (1 + Math.exp(-(fuerza1 - fuerza2) / k));
     const gana1 = Math.random() < probFinal;
@@ -541,6 +636,7 @@ function updateSortearButtonState() {
 // ---- Inicialización ----
 document.addEventListener('DOMContentLoaded', async () => {
     await cargarJugadoresDesdeArchivo();
+    await cargarHistorialCompleto();
 
     const numSelect = document.getElementById('numPlayers');
     if (numSelect) {
