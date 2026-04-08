@@ -120,16 +120,6 @@ function pct(prob) {
     return (prob * 100).toFixed(1) + '%';
 }
 
-function insightPartido(pJ1, nombreJ1, nombreJ2) {
-    const diff = Math.abs(pJ1 - 0.5);
-    if (diff < 0.05) return '⚖️ Partido muy parejo';
-    const fav = pJ1 > 0.5 ? nombreJ1 : nombreJ2;
-    const pFav = Math.max(pJ1, 1 - pJ1) * 100;
-    if (pFav >= 80) return `${fav} es amplio favorito`;
-    if (pFav >= 65) return `${fav} es favorito`;
-    return `${fav} tiene leve ventaja`;
-}
-
 // ---- Sortear o confirmar bracket ----
 function definirBracket() {
     const modo = document.getElementById('modoBracket').value;
@@ -192,7 +182,6 @@ function mostrarResultados(bracket, probs) {
         const { j1, j2, pJ1, pJ2 } = match;
         const clase1 = getBarClass(pJ1);
         const clase2 = getBarClass(pJ2);
-        const insight = insightPartido(pJ1, j1.nombre, j2.nombre);
 
         html += `<div class="sf-card">
             <div class="sf-card-header">${label}</div>
@@ -216,7 +205,7 @@ function mostrarResultados(bracket, probs) {
                     <span class="sf-prob-badge ${clase2}">${pct(pJ2)}</span>
                 </div>
             </div>
-            <div class="sf-insight">${insight}</div>
+            <div class="sf-insight">Probabilidad de ganar</div>
         </div>`;
     });
 
