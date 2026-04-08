@@ -1684,6 +1684,20 @@ if (simBtn) {
         }
 
         // Ejecutar la simulación (usa la variable jugadoresBase modificada)
+
+        // Ocultar controles y selección de jugadores, dejando solo los nav-links
+        const controls = document.querySelector('.controls');
+        if (controls) {
+            Array.from(controls.children).forEach(child => {
+                if (!child.classList.contains('nav-links')) {
+                    child.style.display = 'none';
+                }
+            });
+        }
+        document.getElementById('playerSelection').style.display = 'none';
+        const gruposManualContainer = document.getElementById('gruposManualContainer');
+        if (gruposManualContainer) gruposManualContainer.style.display = 'none';
+
         simularTorneo();
 
         // Restaurar jugadoresBase original

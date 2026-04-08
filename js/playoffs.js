@@ -281,10 +281,6 @@ function mostrarResultados(bracket, probs) {
 
     html += '</div>';
 
-    // Botón de nuevo sorteo
-    html += `<div style="text-align:center; margin-top:25px;">
-        <button class="btn-nuevo-sorteo" onclick="definirBracket()">🔄 Nuevo Sorteo</button>
-    </div>`;
 
     resultado.innerHTML = html;
 }

@@ -412,6 +412,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         const nombreJ1 = document.getElementById('jugador1').value;
         const nombreJ2 = document.getElementById('jugador2').value;
 
+        // Ocultar controles y selección de jugadores, dejando solo los nav-links
+        const controls = document.querySelector('.controls');
+        if (controls) {
+            Array.from(controls.children).forEach(child => {
+                if (!child.classList.contains('nav-links')) {
+                    child.style.display = 'none';
+                }
+            });
+        }
+
         const jugador1 = obtenerJugadorPorNombre(nombreJ1);
         const jugador2 = obtenerJugadorPorNombre(nombreJ2);
 

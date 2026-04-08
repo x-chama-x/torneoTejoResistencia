@@ -569,9 +569,6 @@ function mostrarResultados(grupos, probs, numJugadores) {
         }
     }
 
-    html += `<div style="text-align:center; margin-top:25px;">
-        <button class="btn-nuevo-sorteo" onclick="sortearGrupos()">🔄 Nuevo Sorteo</button>
-    </div>`;
 
     resultado.innerHTML = html;
 }

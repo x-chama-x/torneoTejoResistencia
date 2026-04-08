@@ -319,6 +319,21 @@ async function simularMonteCarlo() {
     document.getElementById('resultado').innerHTML = '';
     document.getElementById('btnSimular').disabled = true;
 
+    // Ocultar controles y selección de jugadores, dejando solo los nav-links
+    const controls = document.querySelector('.controls');
+    if (controls) {
+        Array.from(controls.children).forEach(child => {
+            if (!child.classList.contains('nav-links')) {
+                child.style.display = 'none';
+            }
+        });
+    }
+    document.getElementById('playerSelection').style.display = 'none';
+    const gruposManualContainer = document.getElementById('gruposManualContainer');
+    if (gruposManualContainer) gruposManualContainer.style.display = 'none';
+    const topWarn = document.getElementById('topSelectionWarning');
+    if (topWarn) topWarn.style.display = 'none';
+
     // Inicializar contadores
     const estadisticas = {};
 
