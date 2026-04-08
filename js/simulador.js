@@ -1555,11 +1555,20 @@ function renderPlayerSelection(numJugadores) {
     container.style.display = '';
 
     const needed = numJugadores;
-    let html = `<p>Seleccioná exactamente ${needed} jugadores:</p><div class="player-list">`;
+    let html = `<div class="player-selection-container">
+        <p class="selection-instruccion">Seleccioná exactamente <strong>${needed}</strong> jugadores:</p>
+        <div class="player-list">`;
+
     jugadoresDisponibles.forEach(j => {
-        html += `<label style="display:inline-block; width:200px; margin:4px;"><input type="checkbox" class="player-checkbox" data-nombre="${j.nombre}" /> ${j.nombre}</label>`;
+        html += `<label class="player-label">
+            <input type="checkbox" class="player-checkbox" data-nombre="${j.nombre}" />
+            <span class="player-name-text">${j.nombre}</span>
+        </label>`;
     });
-    html += '</div>';
+
+    html += `</div>
+        <p class="selection-count" id="selectionCount">0 / ${needed} seleccionados</p>
+    </div>`;
 
     // Cartel de advertencia si no se llega a la cantidad requerida
     html += '<p id="selectionWarning" style="color:#c0392b; font-weight:600; display:none; margin-top:8px;"></p>';
@@ -1571,9 +1580,12 @@ function renderPlayerSelection(numJugadores) {
         const checked = checkboxes.filter(c => c.checked);
         if (checked.length > needed) {
             cb.checked = false;
-            alert(`Sólo podés seleccionar ${needed} jugadores.`);
             return;
         }
+
+        const countEl = document.getElementById('selectionCount');
+        if (countEl) countEl.textContent = `${checked.length} / ${needed} seleccionados`;
+
         // actualizar global cuando coincida la cantidad
         if (checked.length === needed) {
             window.jugadoresSeleccionadosGlobal = checked.map(c => c.getAttribute('data-nombre'));
@@ -1726,6 +1738,8 @@ if (randomSelectBtn) {
                 const nombre = cb.getAttribute('data-nombre');
                 cb.checked = seleccionAuto.includes(nombre);
             });
+            const countEl = document.getElementById('selectionCount');
+            if (countEl) countEl.textContent = `${num} / ${num} seleccionados`;
         }
 
         // Resetear grupos manuales y actualizar UI

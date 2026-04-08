@@ -605,7 +605,6 @@ function renderPlayerSelection(numJugadores) {
         html += `<label class="player-label">
             <input type="checkbox" class="player-checkbox" data-nombre="${j.nombre}" />
             <span class="player-name-text">${j.nombre}</span>
-            <span class="player-pts-text">${j.ranking} pts</span>
         </label>`;
     });
 
