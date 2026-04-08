@@ -486,3 +486,76 @@ select:hover {
     width: 100%;
     min-width: 0; /* permitir que ocupe todo el ancho sin dejar espacios en blanco */
 }
+
+/* ================================================
+   SELECCIÓN DE JUGADORES (GLOBAL)
+   ================================================ */
+.player-selection-container {
+    margin: 20px 0;
+}
+
+.selection-instruccion {
+    font-size: 1em;
+    color: #555;
+    margin-bottom: 12px;
+}
+
+.player-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.player-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: white;
+    min-width: 155px;
+    user-select: none;
+}
+
+.player-label:hover {
+    border-color: #667eea;
+    background: #f8f9ff;
+}
+
+.player-label:has(input:checked) {
+    border-color: #667eea;
+    background: #eff1ff;
+}
+
+.player-label input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: #667eea;
+    flex-shrink: 0;
+}
+
+.player-name-text {
+    font-weight: 600;
+    color: #333;
+    flex: 1;
+    font-size: 0.95em;
+}
+
+.player-pts-text {
+    font-size: 0.78em;
+    color: #aaa;
+    white-space: nowrap;
+}
+
+.selection-count {
+    font-size: 0.9em;
+    color: #667eea;
+    font-weight: 600;
+    margin-top: 8px;
+    display: block;
+}

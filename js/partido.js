@@ -271,20 +271,47 @@ function mostrarResultadoPartido(jugador1, jugador2, resultado) {
     `;
 }
 
+// Función para obtener jugadores seleccionados
+function getJugadoresSeleccionados() {
+    return Array.from(document.querySelectorAll('#playerSelection .player-checkbox:checked'))
+        .map(cb => cb.getAttribute('data-nombre'));
+}
 
 // Función para poblar los selectores con jugadores
 function poblarSelectores() {
-    const select1 = document.getElementById('jugador1');
-    const select2 = document.getElementById('jugador2');
+    const container = document.getElementById('playerSelection');
+    if (!container) return;
 
-    // Limpiar opciones existentes
-    select1.innerHTML = '<option value="">Seleccionar jugador...</option>';
-    select2.innerHTML = '<option value="">Seleccionar jugador...</option>';
+    let html = `<div class="player-selection-container">
+        <p class="selection-instruccion">Seleccioná exactamente <strong>2</strong> jugadores para el partido:</p>
+        <div class="player-list">`;
 
-    // Agregar jugadores
-    jugadoresDisponibles.forEach(jugador => {
-        select1.innerHTML += `<option value="${jugador.nombre}">${jugador.nombre} (${jugador.ranking} pts)</option>`;
-        select2.innerHTML += `<option value="${jugador.nombre}">${jugador.nombre} (${jugador.ranking} pts)</option>`;
+    jugadoresDisponibles.forEach(j => {
+        html += `<label class="player-label">
+            <input type="checkbox" class="player-checkbox" data-nombre="${j.nombre}" />
+            <span class="player-name-text">${j.nombre}</span>
+        </label>`;
+    });
+
+    html += `</div>
+        <p class="selection-count" id="selectionCount">0 / 2 seleccionados</p>
+    </div>`;
+
+    container.innerHTML = html;
+
+    const checkboxes = Array.from(container.querySelectorAll('.player-checkbox'));
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+            const checked = checkboxes.filter(c => c.checked);
+            if (checked.length > 2) {
+                cb.checked = false;
+                return;
+            }
+            const countEl = document.getElementById('selectionCount');
+            if (countEl) countEl.textContent = `${checked.length} / 2 seleccionados`;
+            actualizarBotones();
+            document.getElementById('resultado').innerHTML = '';
+        });
     });
 }
 
@@ -366,15 +393,15 @@ function mostrarProbabilidad(nombreJ1, nombreJ2) {
 
 // Función para actualizar el estado de los botones
 function actualizarBotones() {
-    const jugador1 = document.getElementById('jugador1').value;
-    const jugador2 = document.getElementById('jugador2').value;
+    const seleccionados = getJugadoresSeleccionados();
     const btnSimular = document.getElementById('simularPartidoBtn');
 
-    const habilitado = jugador1 && jugador2 && jugador1 !== jugador2;
-    btnSimular.disabled = !habilitado;
+    const habilitado = seleccionados.length === 2;
+    if (btnSimular) btnSimular.disabled = !habilitado;
 
     // Mostrar probabilidad e historial si ambos jugadores están seleccionados
     if (habilitado) {
+        const [jugador1, jugador2] = seleccionados;
         mostrarProbabilidad(jugador1, jugador2);
         mostrarHistorial(jugador1, jugador2);
     } else {
@@ -394,40 +421,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Poblar selectores
     poblarSelectores();
 
-    // Eventos de cambio en selectores
-    document.getElementById('jugador1').addEventListener('change', () => {
-        actualizarBotones();
-        // Limpiar resultados anteriores
-        document.getElementById('resultado').innerHTML = '';
-    });
-
-    document.getElementById('jugador2').addEventListener('change', () => {
-        actualizarBotones();
-        // Limpiar resultados anteriores
-        document.getElementById('resultado').innerHTML = '';
-    });
-
     // Evento de simular partido
-    document.getElementById('simularPartidoBtn').addEventListener('click', () => {
-        const nombreJ1 = document.getElementById('jugador1').value;
-        const nombreJ2 = document.getElementById('jugador2').value;
+    const btnSimular = document.getElementById('simularPartidoBtn');
+    if (btnSimular) {
+        btnSimular.addEventListener('click', () => {
+            const seleccionados = getJugadoresSeleccionados();
+            if (seleccionados.length !== 2) return;
 
-        // Ocultar controles y selección de jugadores, dejando solo los nav-links
-        const controls = document.querySelector('.controls');
-        if (controls) {
-            Array.from(controls.children).forEach(child => {
-                if (!child.classList.contains('nav-links')) {
-                    child.style.display = 'none';
-                }
-            });
-        }
+            const nombreJ1 = seleccionados[0];
+            const nombreJ2 = seleccionados[1];
 
-        const jugador1 = obtenerJugadorPorNombre(nombreJ1);
-        const jugador2 = obtenerJugadorPorNombre(nombreJ2);
+            // Ocultar controles y selección de jugadores, dejando solo los nav-links
+            const controls = document.querySelector('.controls');
+            if (controls) {
+                Array.from(controls.children).forEach(child => {
+                    if (!child.classList.contains('nav-links')) {
+                        child.style.display = 'none';
+                    }
+                });
+            }
 
-        if (jugador1 && jugador2) {
-            const resultado = simularPartidoConHistorial(jugador1, jugador2);
-            mostrarResultadoPartido(jugador1, jugador2, resultado);
-        }
-    });
+            const jugador1 = obtenerJugadorPorNombre(nombreJ1);
+            const jugador2 = obtenerJugadorPorNombre(nombreJ2);
+
+            if (jugador1 && jugador2) {
+                const resultado = simularPartidoConHistorial(jugador1, jugador2);
+                mostrarResultadoPartido(jugador1, jugador2, resultado);
+            }
+        });
+    }
 });

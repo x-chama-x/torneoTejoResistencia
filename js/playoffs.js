@@ -305,24 +305,23 @@ function getJugadoresSeleccionados() {
         .map(cb => cb.getAttribute('data-nombre'));
 }
 
-function renderPlayerSelection() {
+function renderPlayerSelection(numJugadores) {
     const container = document.getElementById('playerSelection');
     if (!container) return;
 
     let html = `<div class="player-selection-container">
-        <p class="selection-instruccion">Seleccioná exactamente <strong>4</strong> jugadores para el playoff:</p>
+        <p class="selection-instruccion">Seleccioná exactamente <strong>${numJugadores}</strong> jugadores:</p>
         <div class="player-list">`;
 
     jugadoresDisponibles.forEach(j => {
         html += `<label class="player-label">
             <input type="checkbox" class="player-checkbox" data-nombre="${j.nombre}" />
             <span class="player-name-text">${j.nombre}</span>
-            <span class="player-pts-text">${j.ranking} pts</span>
         </label>`;
     });
 
     html += `</div>
-        <p class="selection-count" id="selectionCount">0 / 4 seleccionados</p>
+        <p class="selection-count" id="selectionCount">0 / ${numJugadores} seleccionados</p>
     </div>`;
 
     container.innerHTML = html;
@@ -336,7 +335,7 @@ function renderPlayerSelection() {
                 return;
             }
             const countEl = document.getElementById('selectionCount');
-            if (countEl) countEl.textContent = `${checked.length} / 4 seleccionados`;
+            if (countEl) countEl.textContent = `${checked.length} / ${numJugadores} seleccionados`;
             updateBracketUI();
         });
     });

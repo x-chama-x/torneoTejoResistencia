@@ -13,30 +13,6 @@
         <p class="subtitle">Simula un enfrentamiento directo entre dos jugadores</p>
 
         <div class="controls">
-            <div class="player-selectors">
-                <div class="player-select-box blue-box">
-                    <label for="jugador1">🔵 Jugador Azul</label>
-                    <select id="jugador1">
-                        <option value="">Seleccionar jugador...</option>
-                    </select>
-                </div>
-
-                <div class="vs-divider">
-                    <span>VS</span>
-                </div>
-
-                <div class="player-select-box red-box">
-                    <label for="jugador2">🔴 Jugador Rojo</label>
-                    <select id="jugador2">
-                        <option value="">Seleccionar jugador...</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="buttons-row">
-                <button id="simularPartidoBtn" disabled>🎲 Simular Partido</button>
-            </div>
-
             <!-- Navigation Links -->
             <div class="nav-links" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; width: 100%;">
                 <a href="index.html" title="Simulador" style="padding:8px 12px; background:#43a047; color:white; border-radius:6px; text-decoration:none; font-weight:700;">🏠 Simulador</a>
@@ -44,6 +20,12 @@
                 <a href="partido.html" title="Simulador de Partido 1vs1" style="padding:8px 12px; background:#e91e63; color:white; border-radius:6px; text-decoration:none; font-weight:700;">⚔️ Partido 1vs1</a>
                 <a href="torneo.html" title="Creador de Torneo" style="padding:8px 12px; background:#11998e; color:white; border-radius:6px; text-decoration:none; font-weight:700;">🏆 Creador de Torneo</a>
                 <a href="playoffs.html" title="Playoffs" style="padding:8px 12px; background:#9c27b0; color:white; border-radius:6px; text-decoration:none; font-weight:700;">🏅 Playoffs</a>
+            </div>
+
+            <div id="playerSelection" style="width: 100%; margin-top: 20px;"></div>
+
+            <div class="buttons-row" style="margin-top: 15px;">
+                <button id="simularPartidoBtn" disabled>🎲 Simular Partido</button>
             </div>
         </div>
 
