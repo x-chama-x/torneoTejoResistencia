@@ -426,6 +426,15 @@ select:hover {
     .podium-place {
         width: 80%;
     }
+
+    .player-list {
+        gap: 6px;
+    }
+
+    .player-label {
+        min-width: 140px;
+        padding: 8px 10px;
+    }
 }
 
 /* Ajustes adicionales para pantallas muy pequeñas */
@@ -447,6 +456,12 @@ select:hover {
 
     h1 {
         font-size: 1.8em;
+    }
+
+    .player-label {
+        width: 100%;
+        min-width: unset;
+        justify-content: flex-start;
     }
 }
 
@@ -558,4 +573,23 @@ select:hover {
     font-weight: 600;
     margin-top: 8px;
     display: block;
+}
+
+@media (max-width: 768px) {
+    .player-list {
+        gap: 6px;
+    }
+
+    .player-label {
+        min-width: 140px;
+        padding: 8px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .player-label {
+        width: 100%;
+        min-width: unset;
+        justify-content: flex-start;
+    }
 }
