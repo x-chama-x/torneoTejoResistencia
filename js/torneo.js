@@ -128,7 +128,7 @@ function shuffleArray(arr) {
 }
 
 // ---- Simulación de partido (idéntica a simulador.js) ----
-function simularPartido(jugador1, jugador2) {
+function calcularProbabilidadGana1(jugador1, jugador2) {
     let fuerza1 = (jugador1.ranking * 0.4) + (jugador1.winRate * 100 * 0.6);
     let fuerza2 = (jugador2.ranking * 0.4) + (jugador2.winRate * 100 * 0.6);
 
@@ -154,7 +154,11 @@ function simularPartido(jugador1, jugador2) {
     }
 
     const k = 30;
-    const probFinal = 1 / (1 + Math.exp(-(fuerza1 - fuerza2) / k));
+    return 1 / (1 + Math.exp(-(fuerza1 - fuerza2) / k));
+}
+
+function simularPartido(jugador1, jugador2) {
+    const probFinal = calcularProbabilidadGana1(jugador1, jugador2);
     const gana1 = Math.random() < probFinal;
 
     const promGanador = gana1 ? jugador1.promedioGoles : jugador2.promedioGoles;
@@ -582,6 +586,54 @@ function mostrarResultados(grupos, probs, numJugadores) {
             </div>`;
         }
     }
+
+    // Mostrar los partidos que se juegan con probabilidades (como playoffs)
+    html += '<div class="phase-title" style="margin-top: 30px;">⚔️ PARTIDOS DE LA FASE Y PROBABILIDADES</div>';
+    
+    Object.keys(grupos).forEach(nombreGrupo => {
+        const jugadoresGrupo = grupos[nombreGrupo];
+        if (Object.keys(grupos).length > 1) {
+            html += `<h3 style="margin-top: 15px; margin-bottom: 10px; color: #333; font-weight: 700; text-align: center;">Partidos del Grupo ${nombreGrupo}</h3>`;
+        } else {
+            html += `<h3 style="margin-top: 15px; margin-bottom: 10px; color: #333; font-weight: 700; text-align: center;">Todos los partidos</h3>`;
+        }
+        html += '<div class="sf-grid">';
+
+        for (let i = 0; i < jugadoresGrupo.length; i++) {
+            for (let j = i + 1; j < jugadoresGrupo.length; j++) {
+                const j1 = jugadoresGrupo[i];
+                const j2 = jugadoresGrupo[j];
+                const pJ1 = calcularProbabilidadGana1(j1, j2);
+                const pJ2 = 1 - pJ1;
+                const clase1 = getBarClass(pJ1 * 100);
+                const clase2 = getBarClass(pJ2 * 100);
+                const pct = prob => (prob * 100).toFixed(1) + '%';
+
+                html += `<div class="sf-card">
+                    <div class="sf-card-header">Partido</div>
+                    <div class="sf-matchup">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                            <div class="sf-player-info">
+                                <span class="sf-player-name">${j1.nombre}</span>
+                            </div>
+                            <div class="sf-player-info" style="align-items: flex-end;">
+                                <span class="sf-player-name">${j2.nombre}</span>
+                            </div>
+                        </div>
+                        <div class="sf-split-bar">
+                            <div class="split-segment ${clase1}" style="width:${pJ1 * 100}%"></div>
+                            <div class="split-segment ${clase2}" style="width:${pJ2 * 100}%"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 6px;">
+                            <span class="sf-prob-badge ${clase1}">${pct(pJ1)}</span>
+                            <span class="sf-prob-badge ${clase2}">${pct(pJ2)}</span>
+                        </div>
+                    </div>
+                </div>`;
+            }
+        }
+        html += '</div>';
+    });
 
 
     resultado.innerHTML = html;
