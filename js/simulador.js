@@ -363,7 +363,7 @@ function simularTorneo() {
         html += '<tr><th>Pos</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>DIF</th><th>Pts</th></tr>';
 
         rankingGrupo.forEach(r => {
-            const clasificaClass = r.pos <= 4 ? 'style="background: #e8f5e9;"' : '';
+            const clasificaClass = r.pos <= 4 ? 'style="background: rgba(46, 160, 67, 0.15);"' : '';
             html += `<tr ${clasificaClass}>
                 <td class="position">${r.pos}°</td>
                 <td><strong>${r.nombre}</strong></td>
@@ -446,7 +446,7 @@ function simularTorneo() {
         html += `<div class="standings"><div class="standings-inner"><h4 class="standings-title" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:10px 12px; margin:0 0 8px 0; border-top-left-radius:10px; border-top-right-radius:10px;">Grupo A</h4><table>`;
         html += '<tr><th>Pos</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>Pts</th></tr>';
         resultadoA.rankingGrupo.forEach(r => {
-            const clasificaClass = r.pos <= 2 ? 'style="background: #e8f5e9;"' : '';
+            const clasificaClass = r.pos <= 2 ? 'style="background: rgba(46, 160, 67, 0.15);"' : '';
             html += `<tr ${clasificaClass}>
                 <td class="position">${r.pos}°</td>
                 <td><strong>${r.nombre}</strong></td>
@@ -464,7 +464,7 @@ function simularTorneo() {
         html += `<div class="standings"><div class="standings-inner"><h4 class="standings-title" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:10px 12px; margin:0 0 8px 0; border-top-left-radius:10px; border-top-right-radius:10px;">Grupo B</h4><table>`;
         html += '<tr><th>Pos</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>Pts</th></tr>';
         resultadoB.rankingGrupo.forEach(r => {
-            const clasificaClass = r.pos <= 2 ? 'style="background: #e8f5e9;"' : '';
+            const clasificaClass = r.pos <= 2 ? 'style="background: rgba(46, 160, 67, 0.15);"' : '';
             html += `<tr ${clasificaClass}>
                 <td class="position">${r.pos}°</td>
                 <td><strong>${r.nombre}</strong></td>
@@ -571,7 +571,7 @@ function simularTorneo() {
             html += `<div class="standings"><div class="standings-inner"><h4 class="standings-title" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:10px 12px; margin:0 0 8px 0; border-top-left-radius:10px; border-top-right-radius:10px;">Grupo ${nombreGrupo}</h4><table>`;
             html += '<tr><th>Pos</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>Pts</th></tr>';
             resultado.rankingGrupo.forEach(r => {
-                const clasificaClass = r.pos === 1 ? 'style="background: #e8f5e9;"' : '';
+                const clasificaClass = r.pos === 1 ? 'style="background: rgba(46, 160, 67, 0.15);"' : '';
                 html += `<tr ${clasificaClass}>
                     <td class="position">${r.pos}°</td>
                     <td><strong>${r.nombre}</strong></td>
@@ -843,7 +843,7 @@ function simularTorneo() {
         html += '<tr><th>Clasificación</th><th>Jugador</th><th>Vía</th></tr>';
 
         primeros.forEach((r) => {
-            html += `<tr style="background: #e8f5e9;">
+            html += `<tr style="background: rgba(46, 160, 67, 0.15);">
                 <td><strong>1° Grupo ${r.grupo}</strong></td>
                 <td><strong>${r.nombre}</strong></td>
                 <td>Directo</td>
@@ -924,7 +924,7 @@ function simularTorneo() {
         html += `<div class="standings"><div class="standings-inner"><h4 class="standings-title" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:10px 12px; margin:0 0 8px 0; border-top-left-radius:10px; border-top-right-radius:10px;">Grupo A</h4><table>`;
         html += '<tr><th>Pos</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>Pts</th></tr>';
         resultadoA.rankingGrupo.forEach(r => {
-            const clasificaClass = r.pos <= 2 ? 'style="background: #e8f5e9;"' : '';
+            const clasificaClass = r.pos <= 2 ? 'style="background: rgba(46, 160, 67, 0.15);"' : '';
             html += `<tr ${clasificaClass}>
                 <td class="position">${r.pos}°</td>
                 <td><strong>${r.nombre}</strong></td>
@@ -942,7 +942,7 @@ function simularTorneo() {
         html += `<div class="standings"><div class="standings-inner"><h4 class="standings-title" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:10px 12px; margin:0 0 8px 0; border-top-left-radius:10px; border-top-right-radius:10px;">Grupo B</h4><table>`;
         html += '<tr><th>Pos</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>Pts</th></tr>';
         resultadoB.rankingGrupo.forEach(r => {
-            const clasificaClass = r.pos <= 2 ? 'style="background: #e8f5e9;"' : '';
+            const clasificaClass = r.pos <= 2 ? 'style="background: rgba(46, 160, 67, 0.15);"' : '';
             html += `<tr ${clasificaClass}>
                 <td class="position">${r.pos}°</td>
                 <td><strong>${r.nombre}</strong></td>
