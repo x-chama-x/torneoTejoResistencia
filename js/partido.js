@@ -182,95 +182,6 @@ function mostrarHistorial(nombreJ1, nombreJ2) {
     }
 }
 
-// Función para simular un partido con el historial de enfrentamientos
-function simularPartidoConHistorial(jugador1, jugador2) {
-    // Obtener historial de enfrentamientos
-    const historial = obtenerHistorialEnfrentamiento(jugador1.nombre, jugador2.nombre);
-
-    // FÓRMULA LOGÍSTICA (SIGMOIDE) - Base del simulador
-    // Factor de fuerza combinado: 40% ranking + 60% winRate
-    let fuerza1 = (jugador1.ranking * 0.4) + (jugador1.winRate * 100 * 0.6);
-    let fuerza2 = (jugador2.ranking * 0.4) + (jugador2.winRate * 100 * 0.6);
-
-    // Ajuste por historial de enfrentamientos directos (si existe)
-    if (historial) {
-        const totalEnfrentamientos = historial.victorias[jugador1.nombre] + historial.victorias[jugador2.nombre];
-
-        if (totalEnfrentamientos > 0) {
-            // Calcular winrate del enfrentamiento directo
-            const winRateDirecto1 = historial.victorias[jugador1.nombre] / totalEnfrentamientos;
-            const winRateDirecto2 = historial.victorias[jugador2.nombre] / totalEnfrentamientos;
-
-            // El historial directo tiene un peso del 20% adicional
-            // Esto afecta la fuerza de cada jugador
-            const pesoHistorial = Math.min(0.2, totalEnfrentamientos * 0.02); // Máximo 20%, más partidos = más peso
-
-            const ajusteHistorial1 = (winRateDirecto1 - 0.5) * 100 * pesoHistorial;
-            const ajusteHistorial2 = (winRateDirecto2 - 0.5) * 100 * pesoHistorial;
-
-            fuerza1 += ajusteHistorial1;
-            fuerza2 += ajusteHistorial2;
-
-            console.log(`📊 Historial aplicado: ${jugador1.nombre} (${historial.victorias[jugador1.nombre]} victorias) vs ${jugador2.nombre} (${historial.victorias[jugador2.nombre]} victorias)`);
-            console.log(`   Ajuste: ${jugador1.nombre} +${ajusteHistorial1.toFixed(2)}, ${jugador2.nombre} +${ajusteHistorial2.toFixed(2)}`);
-        }
-    }
-
-    // Diferencia de fuerza
-    const diffFuerza = fuerza1 - fuerza2;
-
-    // Función sigmoide: prob = 1 / (1 + e^(-x/k))
-    const k = 30;
-    const probFinal = 1 / (1 + Math.exp(-diffFuerza / k));
-
-    const gana1 = Math.random() < probFinal;
-
-    let goles1, goles2;
-
-    // Calcular diferencia de goles basada en promedioGoles
-    const promGanador = gana1 ? jugador1.promedioGoles : jugador2.promedioGoles;
-    const promPerdedor = gana1 ? jugador2.promedioGoles : jugador1.promedioGoles;
-
-    const diffPromedio = promGanador - promPerdedor;
-    const bonusDiff = Math.max(0, Math.min(2, diffPromedio));
-    const diffBase = Math.floor(Math.random() * 4) + 1;
-    const diffFinal = Math.min(7, Math.round(diffBase + bonusDiff));
-
-    if (gana1) {
-        goles1 = 7;
-        goles2 = Math.max(0, 7 - diffFinal);
-    } else {
-        goles2 = 7;
-        goles1 = Math.max(0, 7 - diffFinal);
-    }
-
-    return {
-        ganador: gana1 ? jugador1.nombre : jugador2.nombre,
-        goles1: goles1,
-        goles2: goles2,
-        resultado: `${goles1}-${goles2}`,
-        probabilidadJ1: probFinal
-    };
-}
-
-// Función para mostrar el resultado del partido
-function mostrarResultadoPartido(jugador1, jugador2, resultado) {
-    const resultadoDiv = document.getElementById('resultado');
-
-    resultadoDiv.innerHTML = `
-        <div class="resultado-partido">
-            <div class="match-header">🏆 Resultado del Partido</div>
-            <div class="players-display">
-                <span class="player-name blue">${jugador1.nombre}</span>
-                <span style="font-size: 1.5em; color: #666;">vs</span>
-                <span class="player-name red">${jugador2.nombre}</span>
-            </div>
-            <div class="score-display">${resultado.goles1} - ${resultado.goles2}</div>
-            <div class="winner-announcement">🏆 ¡${resultado.ganador} gana!</div>
-        </div>
-    `;
-}
-
 // Función para obtener jugadores seleccionados
 function getJugadoresSeleccionados() {
     return Array.from(document.querySelectorAll('#playerSelection .player-checkbox:checked'))
@@ -310,7 +221,6 @@ function poblarSelectores() {
             const countEl = document.getElementById('selectionCount');
             if (countEl) countEl.textContent = `${checked.length} / 2 seleccionados`;
             actualizarBotones();
-            document.getElementById('resultado').innerHTML = '';
         });
     });
 }
@@ -354,7 +264,19 @@ function calcularProbabilidad(jugador1, jugador2) {
     };
 }
 
-// Función para mostrar la barra de probabilidad
+// Helpers de probabilidades
+function getBarClass(prob) {
+    if (prob >= 0.65) return 'alta';
+    if (prob >= 0.45) return 'media-alta';
+    if (prob >= 0.25) return 'media';
+    return 'baja';
+}
+
+function pct(prob) {
+    return (prob * 100).toFixed(1) + '%';
+}
+
+// Función para mostrar la barra de probabilidad con el diseño de playoffs
 function mostrarProbabilidad(nombreJ1, nombreJ2) {
     const container = document.getElementById('probabilidadContainer');
     const content = document.getElementById('probabilidadContent');
@@ -368,35 +290,44 @@ function mostrarProbabilidad(nombreJ1, nombreJ2) {
     }
 
     const prob = calcularProbabilidad(jugador1, jugador2);
+    const pJ1 = prob.probJ1 / 100;
+    const pJ2 = prob.probJ2 / 100;
+    const clase1 = getBarClass(pJ1);
+    const clase2 = getBarClass(pJ2);
 
     content.innerHTML = `
-        <div class="probabilidad-barra-container">
-            <div class="probabilidad-labels">
-                <span class="prob-label blue">🔵 ${nombreJ1}</span>
-                <span class="prob-label red">🔴 ${nombreJ2}</span>
-            </div>
-            <div class="probabilidad-barra">
-                <div class="prob-fill blue" style="width: ${prob.probJ1}%;">
-                    <span class="prob-percent">${prob.probJ1}%</span>
+        <div class="sf-card" style="margin: 0;">
+            <div class="sf-matchup">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                    <div class="sf-player-info">
+                        <span class="sf-player-name">${jugador1.nombre}</span>
+                        <span class="sf-ranking-badge">${jugador1.ranking} pts</span>
+                    </div>
+                    <div class="sf-player-info" style="align-items: flex-end;">
+                        <span class="sf-player-name">${jugador2.nombre}</span>
+                        <span class="sf-ranking-badge">${jugador2.ranking} pts</span>
+                    </div>
                 </div>
-                <div class="prob-fill red" style="width: ${prob.probJ2}%;">
-                    <span class="prob-percent">${prob.probJ2}%</span>
+                <div class="sf-split-bar">
+                    <div class="split-segment ${clase1}" style="width:${prob.probJ1}%"></div>
+                    <div class="split-segment ${clase2}" style="width:${prob.probJ2}%"></div>
                 </div>
-            </div>
-            <div class="favorito-label">
-                ⭐ Favorito: <strong>${parseFloat(prob.probJ1) > parseFloat(prob.probJ2) ? nombreJ1 : nombreJ2}</strong>
+                <div style="display: flex; justify-content: space-between; margin-top: 6px;">
+                    <span class="sf-prob-badge ${clase1}">${prob.probJ1}%</span>
+                    <span class="sf-prob-badge ${clase2}">${prob.probJ2}%</span>
+                </div>
             </div>
         </div>
     `;
     container.style.display = 'block';
 }
 
-// Función para actualizar el estado de los botones
+// Función para actualizar el estado de los botones y mostrar secciones
 function actualizarBotones() {
     const seleccionados = getJugadoresSeleccionados();
+    const habilitado = seleccionados.length === 2;
     const btnSimular = document.getElementById('simularPartidoBtn');
 
-    const habilitado = seleccionados.length === 2;
     if (btnSimular) btnSimular.disabled = !habilitado;
 
     // Mostrar probabilidad e historial si ambos jugadores están seleccionados
@@ -421,33 +352,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Poblar selectores
     poblarSelectores();
 
-    // Evento de simular partido
-    const btnSimular = document.getElementById('simularPartidoBtn');
-    if (btnSimular) {
-        btnSimular.addEventListener('click', () => {
-            const seleccionados = getJugadoresSeleccionados();
-            if (seleccionados.length !== 2) return;
-
-            const nombreJ1 = seleccionados[0];
-            const nombreJ2 = seleccionados[1];
-
-            // Ocultar controles y selección de jugadores, dejando solo los nav-links
-            const controls = document.querySelector('.controls');
-            if (controls) {
-                Array.from(controls.children).forEach(child => {
-                    if (!child.classList.contains('nav-links')) {
-                        child.style.display = 'none';
-                    }
-                });
-            }
-
-            const jugador1 = obtenerJugadorPorNombre(nombreJ1);
-            const jugador2 = obtenerJugadorPorNombre(nombreJ2);
-
-            if (jugador1 && jugador2) {
-                const resultado = simularPartidoConHistorial(jugador1, jugador2);
-                mostrarResultadoPartido(jugador1, jugador2, resultado);
-            }
-        });
-    }
+    // Evento de simular partido ha sido removido
 });
