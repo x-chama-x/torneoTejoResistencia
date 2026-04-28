@@ -688,7 +688,7 @@ function simularTorneo() {
         html += '<div class="standings"><table>';
         html += '<tr><th>Pos</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>Pts</th></tr>';
         rankingSegundos.forEach((r, index) => {
-            const highlight = index === 0 ? 'style="background: #fff9c4;"' : '';
+            const highlight = index === 0 ? 'style="background: rgba(212, 175, 55, 0.15);"' : '';
             html += `<tr ${highlight}>
                 <td class="position">${index + 1}°</td>
                 <td><strong>${r.nombre}</strong></td>
@@ -785,7 +785,7 @@ function simularTorneo() {
         html += '<div class="standings"><table>';
         html += '<tr><th>Pos</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>Pts</th></tr>';
         rankingTerceros.forEach((r, index) => {
-            const highlight = index === 0 ? 'style="background: #fff9c4;"' : '';
+            const highlight = index === 0 ? 'style="background: rgba(212, 175, 55, 0.15);"' : '';
             html += `<tr ${highlight}>
                 <td class="position">${index + 1}°</td>
                 <td><strong>${r.nombre}</strong></td>
@@ -850,7 +850,7 @@ function simularTorneo() {
             </tr>`;
         });
 
-        html += `<tr style="background: #fff9c4;">
+        html += `<tr style="background: rgba(212, 175, 55, 0.15);">
             <td><strong>4° Clasificado</strong></td>
             <td><strong>${cuartoClasificado.nombre}</strong></td>
             <td>Partido Eliminatorio</td>
