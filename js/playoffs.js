@@ -203,11 +203,9 @@ function mostrarResultados(bracket, probs) {
                 <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
                     <div class="sf-player-info">
                         <span class="sf-player-name">${j1.nombre}</span>
-                        <span class="sf-ranking-badge">${j1.ranking} pts</span>
                     </div>
                     <div class="sf-player-info" style="align-items: flex-end;">
                         <span class="sf-player-name">${j2.nombre}</span>
-                        <span class="sf-ranking-badge">${j2.ranking} pts</span>
                     </div>
                 </div>
                 <div class="sf-split-bar">
