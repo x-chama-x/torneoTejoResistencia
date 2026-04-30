@@ -296,19 +296,18 @@ function mostrarProbabilidad(nombreJ1, nombreJ2) {
     const clase2 = getBarClass(pJ2);
 
     content.innerHTML = `
-        <div class="sf-card" style="margin: 0 auto; max-width: 420px; width: 100%;">
-            <div class="sf-card-header">Partido</div>
-            <div class="sf-matchup">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                    <div class="sf-player-info">
-                        <span class="sf-player-name">${jugador1.nombre}</span>
-                        <span class="sf-ranking-badge">${jugador1.ranking} pts</span>
+        <div class="sf-grid" style="justify-content: center;">
+            <div class="sf-card">
+                <div class="sf-card-header">Partido</div>
+                <div class="sf-matchup">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <div class="sf-player-info">
+                            <span class="sf-player-name">${jugador1.nombre}</span>
+                        </div>
+                        <div class="sf-player-info" style="align-items: flex-end;">
+                            <span class="sf-player-name">${jugador2.nombre}</span>
+                        </div>
                     </div>
-                    <div class="sf-player-info" style="align-items: flex-end;">
-                        <span class="sf-player-name">${jugador2.nombre}</span>
-                        <span class="sf-ranking-badge">${jugador2.ranking} pts</span>
-                    </div>
-                </div>
                 <div class="sf-split-bar">
                     <div class="split-segment ${clase1}" style="width:${prob.probJ1}%"></div>
                     <div class="split-segment ${clase2}" style="width:${prob.probJ2}%"></div>
@@ -319,6 +318,7 @@ function mostrarProbabilidad(nombreJ1, nombreJ2) {
                 </div>
             </div>
             <div class="sf-insight">Probabilidad de ganar</div>
+        </div>
         </div>
     `;
     container.style.display = 'block';
