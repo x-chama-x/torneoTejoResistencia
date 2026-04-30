@@ -254,16 +254,17 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 20px;
+    flex-wrap: nowrap; /* cambiado para forzar visión horizontal */
+    gap: 10px; /* gap reducido en caso de pantallas pequeñas */
 }
 
 .historial-player {
     text-align: center;
-    padding: 15px 25px;
+    padding: 15px 20px; /* slightly reduced padding */
     background: #21262d;
     border-radius: 12px;
-    min-width: 150px;
+    min-width: unset; /* removed min-width to avoid wrapping */
+    flex: 1; /* evenly distribute */
     box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     border: 1px solid #30363d;
 }
@@ -632,11 +633,11 @@
     }
 
     .partido-resultado {
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
     }
 
     .partido-resultado .jugador-nombre {
-        min-width: 60px;
+        min-width: unset;
         font-size: 0.9em;
     }
 
@@ -644,5 +645,43 @@
         flex-direction: column;
         align-items: center;
         gap: 5px;
+    }
+
+    /* Reducir tamaño de fuentes para el historial en móviles y mantenerlo horizontal */
+    .historial-player {
+        padding: 10px 5px;
+    }
+
+    .historial-player .nombre {
+        font-size: 0.9em;
+        margin-bottom: 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 90px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .historial-player .victorias {
+        font-size: 1.8em;
+    }
+
+    .historial-player .goles {
+        font-size: 0.7em;
+    }
+
+    .historial-middle {
+        padding: 5px;
+    }
+
+    .historial-middle .total-partidos {
+        font-size: 1.5em;
+    }
+
+    .historial-middle .subtitulo {
+        font-size: 0.7em;
+        max-width: 60px;
+        margin: 0 auto;
     }
 }
