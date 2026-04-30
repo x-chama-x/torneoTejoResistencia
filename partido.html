@@ -10,20 +10,20 @@
     <link rel="stylesheet" href="css/playoffs.css">
 </head>
 <body>
+    <button id="menu-toggle" class="menu-toggle" title="Abrir Menú">☰</button>
+    <nav id="sidebar" class="sidebar">
+        <h2>Opciones</h2>
+        <a href="index.html" title="Simulador">🏠 Simulador</a>
+        <a href="montecarlo.html" title="Cálculo de predicciones">📊 Predicciones</a>
+        <a href="partido.html" title="Simulador de Partido 1vs1">⚔️ Partido 1vs1</a>
+        <a href="torneo.html" title="Creador de Torneo">🏆 Creador de Torneo</a>
+        <a href="playoffs.html" title="Playoffs">🏅 Playoffs</a>
+    </nav>
     <div class="container">
         <h1><img src="img/favicon.png" alt="logo" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 5px;"> Simulador de Partido 1vs1</h1>
         <p class="subtitle">Simula un enfrentamiento directo entre dos jugadores</p>
 
         <div class="controls">
-            <!-- Navigation Links -->
-            <div class="nav-links" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; width: 100%;">
-                <a href="index.html" title="Simulador" style="padding:8px 12px; background:#43a047; color:white; border-radius:6px; text-decoration:none; font-weight:700;">🏠 Simulador</a>
-                <a href="montecarlo.html" title="Cálculo de predicciones" style="padding:8px 12px; background:#667eea; color:white; border-radius:6px; text-decoration:none; font-weight:700;">📊 Predicciones</a>
-                <a href="partido.html" title="Simulador de Partido 1vs1" style="padding:8px 12px; background:#e91e63; color:white; border-radius:6px; text-decoration:none; font-weight:700;">⚔️ Partido 1vs1</a>
-                <a href="torneo.html" title="Creador de Torneo" style="padding:8px 12px; background:#11998e; color:white; border-radius:6px; text-decoration:none; font-weight:700;">🏆 Creador de Torneo</a>
-                <a href="playoffs.html" title="Playoffs" style="padding:8px 12px; background:#9c27b0; color:white; border-radius:6px; text-decoration:none; font-weight:700;">🏅 Playoffs</a>
-            </div>
-
             <div id="playerSelection" style="width: 100%; margin-top: 20px;"></div>
         </div>
 
@@ -43,6 +43,7 @@
         <div id="resultado"></div>
     </div>
 
+    <script src="js/menu.js"></script>
     <script src="js/simulador.js"></script>
     <script src="js/partido.js"></script>
 </body>

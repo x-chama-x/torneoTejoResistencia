@@ -9,21 +9,21 @@
     <link rel="stylesheet" href="css/playoffs.css">
 </head>
 <body>
+    <button id="menu-toggle" class="menu-toggle" title="Abrir Menú">☰</button>
+    <nav id="sidebar" class="sidebar">
+        <h2>Opciones</h2>
+        <a href="index.html" title="Simulador">🏠 Simulador</a>
+        <a href="montecarlo.html" title="Cálculo de predicciones">📊 Predicciones</a>
+        <a href="partido.html" title="Simulador de Partido 1vs1">⚔️ Partido 1vs1</a>
+        <a href="torneo.html" title="Creador de Torneo">🏆 Creador de Torneo</a>
+        <a href="playoffs.html" title="Playoffs">🏅 Playoffs</a>
+    </nav>
     <div class="container">
         <h1>⚔️ Playoffs</h1>
         <p class="page-subtitle">Elegí los 4 clasificados, definí los cruces y visualizá las probabilidades de cada partido y del campeón</p>
 
         <div class="controls">
             <button id="randomSelectBtn" title="Seleccionar jugadores aleatoriamente">🔀 Seleccionar aleatoriamente</button>
-
-            <!-- Navigation Links -->
-            <div class="nav-links" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; width: 100%;">
-                <a href="index.html" title="Simulador" style="padding:8px 12px; background:#43a047; color:white; border-radius:6px; text-decoration:none; font-weight:700;">🏠 Simulador</a>
-                <a href="montecarlo.html" title="Cálculo de predicciones" style="padding:8px 12px; background:#667eea; color:white; border-radius:6px; text-decoration:none; font-weight:700;">📊 Predicciones</a>
-                <a href="partido.html" title="Simulador de Partido 1vs1" style="padding:8px 12px; background:#e91e63; color:white; border-radius:6px; text-decoration:none; font-weight:700;">⚔️ Partido 1vs1</a>
-                <a href="torneo.html" title="Creador de Torneo" style="padding:8px 12px; background:#11998e; color:white; border-radius:6px; text-decoration:none; font-weight:700;">🏆 Creador de Torneo</a>
-                <a href="playoffs.html" title="Playoffs" style="padding:8px 12px; background:#9c27b0; color:white; border-radius:6px; text-decoration:none; font-weight:700;">🏅 Playoffs</a>
-            </div>
         </div>
 
         <!-- Selección de 4 jugadores -->
@@ -72,6 +72,7 @@
         <div id="resultado"></div>
     </div>
 
+    <script src="js/menu.js"></script>
     <script src="js/playoffs.js"></script>
 </body>
 </html>

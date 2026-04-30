@@ -8,7 +8,7 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #0d1117;
     color: #c9d1d9;
-    padding: 20px;
+    padding: 20px 20px 20px 270px; /* modified to make room for sidebar */
     min-height: 100vh;
 }
 
@@ -598,5 +598,85 @@ select:hover {
         min-width: unset;
         justify-content: flex-start;
         padding: 8px 6px;
+    }
+}
+
+/* ================================================
+   SIDEBAR MENU
+   ================================================ */
+.sidebar {
+    width: 250px;
+    background: #161b22;
+    border-right: 1px solid #30363d;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+}
+
+.sidebar h2 {
+    color: #c9d1d9;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+}
+
+.sidebar a {
+    padding: 12px 15px;
+    text-decoration: none;
+    color: white;
+    border-radius: 8px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.sidebar a:hover {
+    transform: translateX(5px);
+}
+
+.sidebar a[href="index.html"] { background: #43a047; }
+.sidebar a[href="montecarlo.html"] { background: #667eea; }
+.sidebar a[href="partido.html"] { background: #e91e63; }
+.sidebar a[href="torneo.html"] { background: #11998e; }
+.sidebar a[href="playoffs.html"] { background: #9c27b0; }
+
+.menu-toggle {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1001;
+    background: #238636;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 1.5em;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+@media (max-width: 900px) {
+    body {
+        padding: 70px 20px 20px 20px; /* space for toggle button */
+    }
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+    }
+    .menu-toggle {
+        display: block;
     }
 }
