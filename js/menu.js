@@ -9,10 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <a href="partido.html" title="Simulador de Partido 1vs1">⚔️ Partido 1vs1</a>
         <a href="torneo.html" title="Creador de Torneo">🏆 Creador de Torneo</a>
         <a href="playoffs.html" title="Playoffs">🏅 Playoffs</a>
-        
-        <h3 style="color: #888; font-size: 0.8rem; margin: 15px 0 5px 20px; text-transform: uppercase;">🏆 Torneos Jugados</h3>
-        <a href="torneo1.html" title="Primer Torneo" style="padding-left: 2rem; font-size: 0.9em;">Primer Torneo</a>
-        <a href="torneo2.html" title="Segundo Torneo" style="padding-left: 2rem; font-size: 0.9em;">Segundo Torneo</a>
+        <a href="torneo1.html" title="Primer Torneo">Primer Torneo</a>
+        <a href="torneo2.html" title="Segundo Torneo">Segundo Torneo</a>
     </nav>
     `;
 

@@ -650,6 +650,8 @@ select:hover {
 .sidebar a[href="partido.html"] { background: #e91e63; }
 .sidebar a[href="torneo.html"] { background: #11998e; }
 .sidebar a[href="playoffs.html"] { background: #9c27b0; }
+.sidebar a[href="torneo1.html"] { background: #2196f3; }
+.sidebar a[href="torneo2.html"] { background: #ff5722; }
 
 .menu-toggle {
     display: none;
