@@ -18,47 +18,67 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .panel {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
         .ranking-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 1rem;
-            background: rgba(30, 30, 40, 0.95);
+            background: #161b22;
             border-radius: 8px;
             overflow: hidden;
+            font-size: 0.95rem;
         }
         .ranking-table th, .ranking-table td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid #30363d;
         }
         .ranking-table th {
             background-color: #2c2f3f;
-            color: #4da6ff;
+            color: #58a6ff;
             font-weight: 600;
         }
         .ranking-table tr:hover {
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: #30363d;
         }
+
         .format-section {
-            background: rgba(30, 30, 40, 0.95);
+            background: #161b22;
+            border: 1px solid #30363d;
             padding: 20px;
             border-radius: 8px;
-            border-left: 4px solid #4da6ff;
+            border-left: 4px solid #58a6ff;
+            margin-bottom: 1rem;
         }
         .format-section h3 {
-            color: #4da6ff;
+            color: #58a6ff;
             margin-top: 0;
-        }
-        .format-section h4 {
-            color: #ffd700;
-            margin-bottom: 5px;
-        }
-        .format-section p, .format-section ul {
-            font-size: 0.95rem;
-            color: #e0e0e0;
+            margin-bottom: 10px;
+            font-size: 1.1em;
         }
         .format-section ul {
             padding-left: 20px;
+            color: #c9d1d9;
+            font-size: 0.95rem;
+        }
+        .format-section li {
+            margin-bottom: 6px;
+        }
+        .format-section strong {
+            color: #ffffff;
+        }
+
+        /* Ajuste de scroll solo para la tabla en móviles */
+        .table-responsive {
+            overflow-x: auto;
         }
     </style>
 </head>
@@ -67,27 +87,30 @@
         <h1><img src="img/favicon.png" alt="logo" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 5px;"> Inicio - Torneo Air Hockey</h1>
         <div class="home-container">
             <!-- Ranking de Jugadores -->
-            <div>
+            <div class="panel">
                 <h2>🏆 Ranking FIFA Air Hockey</h2>
-                <table class="ranking-table" id="ranking-table">
-                    <thead>
-                        <tr>
-                            <th>Pos.</th>
-                            <th>Jugador</th>
-                            <th>Puntos</th>
-                            <th>Win Rate</th>
-                            <th>Prom. Goles</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Poblado por JS -->
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="ranking-table" id="ranking-table">
+                        <thead>
+                            <tr>
+                                <th>Pos.</th>
+                                <th>Jugador</th>
+                                <th>Puntos</th>
+                                <th>Win Rate</th>
+                                <th>Prom. Goles</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Poblado por JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <!-- Formatos de Torneo -->
-            <div>
+            <div class="panel">
                 <h2>📋 Formatos de Torneo</h2>
-                <div class="format-section" style="margin-bottom: 1rem;">
+                <br>
+                <div class="format-section">
                     <h3>1. Liga (Round Robin) - 7 Jugadores</h3>
                     <ul>
                         <li><strong>Estructura:</strong> Todos contra todos. 21 partidos en total.</li>
@@ -166,13 +189,29 @@
                         jugadores.forEach((j, index) => {
                             const wrDisplay = (j.winRate * 100).toFixed(1) + '%';
                             const tr = document.createElement('tr');
-                            tr.innerHTML = \
-                                <td>\</td>
-                                <td><strong>\</strong></td>
-                                <td>\</td>
-                                <td>\</td>
-                                <td>\</td>
-                            \;
+
+                            const tdPos = document.createElement('td');
+                            tdPos.textContent = index + 1;
+                            tr.appendChild(tdPos);
+
+                            const tdNombre = document.createElement('td');
+                            const strong = document.createElement('strong');
+                            strong.textContent = j.nombre;
+                            tdNombre.appendChild(strong);
+                            tr.appendChild(tdNombre);
+
+                            const tdRanking = document.createElement('td');
+                            tdRanking.textContent = j.ranking;
+                            tr.appendChild(tdRanking);
+
+                            const tdWinRate = document.createElement('td');
+                            tdWinRate.textContent = wrDisplay;
+                            tr.appendChild(tdWinRate);
+
+                            const tdGoles = document.createElement('td');
+                            tdGoles.textContent = j.promedioGoles.toFixed(2);
+                            tr.appendChild(tdGoles);
+
                             tbody.appendChild(tr);
                         });
                     }
