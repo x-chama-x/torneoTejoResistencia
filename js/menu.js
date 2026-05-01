@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuHTML = `
     <button id="menu-toggle" class="menu-toggle" title="Abrir Menú">☰</button>
     <nav id="sidebar" class="sidebar">
-        <h2>Tejo La Resistencia</h2>
+        <h2>Tejo</h2>
         <a href="index.html" title="Simulador">🏠 Simulador</a>
         <a href="montecarlo.html" title="Cálculo de predicciones">📊 Predicciones</a>
         <a href="partido.html" title="Simulador de Partido 1vs1">⚔️ Partido 1vs1</a>
