@@ -417,6 +417,21 @@ select:hover {
     justify-content: space-around;
     align-items: center;
     gap: 20px;
+    width: 100%;
+}
+
+.bracket-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    min-width: 0;
+    align-items: center;
+}
+
+.bracket-column .round-title {
+    text-align: center;
+    color: #aaa;
 }
 
 @media (max-width: 768px) {
@@ -461,7 +476,13 @@ select:hover {
 
     /* Ajustes menores de tarjetas y textos para móviles */
     .match-card {
-        padding: 16px;
+        padding: 12px;
+        max-width: 100%;
+    }
+
+    .match-players {
+        flex-direction: column;
+        gap: 5px;
     }
 
     h1 {
@@ -696,11 +717,18 @@ select:hover {
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
     margin-top: 2rem;
+    align-items: start;
 }
+
+.home-container > div {
+    min-width: 0;
+    width: 100%;
+}
+
 @media (max-width: 900px) {
     .home-container {
         grid-template-columns: 1fr;
-        gap: 1rem;
+        gap: 1.5rem;
     }
     .panel {
         padding: 15px;
@@ -761,6 +789,13 @@ select:hover {
     background-color: #30363d;
 }
 
+/* Ajuste de scroll solo para la tabla en móviles */
+.table-responsive {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+
 .format-section {
     background: #161b22;
     border: 1px solid #30363d;
@@ -787,7 +822,3 @@ select:hover {
     color: #ffffff;
 }
 
-/* Ajuste de scroll solo para la tabla en móviles */
-.table-responsive {
-    overflow-x: auto;
-}

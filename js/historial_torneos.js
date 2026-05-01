@@ -216,13 +216,13 @@ function renderPlayoffs(semis, final, tercerPuesto) {
     if (bracket) {
         bracket.innerHTML = `
             <div class="bracket-round">
-                <div style="display: flex; flex-direction: column; gap: 20px; width: 100%;">
-                    <h3 class="round-title" style="text-align: center; color: #aaa;">Semifinales</h3>
+                <div class="bracket-column">
+                    <h3 class="round-title">Semifinales</h3>
                     ${semis.length > 0 ? createMatchCard(semis[0], "Semifinal 1") : ""}
                     ${semis.length > 1 ? createMatchCard(semis[1], "Semifinal 2") : ""}
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 20px; width: 100%;">
-                    <h3 class="round-title" style="text-align: center; color: #aaa;">Final</h3>
+                <div class="bracket-column">
+                    <h3 class="round-title">Final</h3>
                     ${final.length > 0 ? createMatchCard(final[0], "Gran Final") : ""}
                 </div>
             </div>
@@ -233,7 +233,7 @@ function renderPlayoffs(semis, final, tercerPuesto) {
     if (tpc && tercerPuesto.length > 0) {
         tpc.innerHTML = `
             <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">Tercer Puesto</h3>
-            <div style="display: flex; justify-content: center; width: 100%;">
+            <div class="bracket-column" style="align-items: center;">
                 ${createMatchCard(tercerPuesto[0], "Tercer y Cuarto Puesto")}
             </div>
         `;
