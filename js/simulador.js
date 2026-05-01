@@ -1305,9 +1305,6 @@ function mostrarFormato() {
 
     // Actualizar estado del botón simular según la selección
     updateSimularButtonState();
-
-    // Renderizar UI de armado manual si está en modo manual
-    renderGruposManualUI();
 }
 
 // Función para renderizar el UI de armado manual de grupos
@@ -1548,46 +1545,8 @@ function resetearGruposManuales() {
 
 // Render y lógica para selección de jugadores (UI debajo del select)
 function renderPlayerSelection(numJugadores) {
-    const container = document.getElementById('playerSelection');
-    if (!container) return;
-
-    // Asegurar que el contenedor esté visible para todos los formatos
-    container.style.display = '';
-
-    const needed = numJugadores;
-    let html = `<div class="player-selection-container">
-        <p class="selection-instruccion">Seleccioná exactamente <strong>${needed}</strong> jugadores:</p>
-        <div class="player-list">`;
-
-    jugadoresDisponibles.forEach(j => {
-        html += `<label class="player-label">
-            <input type="checkbox" class="player-checkbox" data-nombre="${j.nombre}" />
-            <span class="player-name-text">${j.nombre}</span>
-        </label>`;
-    });
-
-    html += `</div>
-        <p class="selection-count" id="selectionCount">0 / ${needed} seleccionados</p>
-    </div>`;
-
-    // Cartel de advertencia si no se llega a la cantidad requerida
-    html += '<p id="selectionWarning" style="color:#c0392b; font-weight:600; display:none; margin-top:8px;"></p>';
-
-    container.innerHTML = html;
-
-    const checkboxes = Array.from(container.querySelectorAll('.player-checkbox'));
-    checkboxes.forEach(cb => cb.addEventListener('change', (evt) => {
-        const checked = checkboxes.filter(c => c.checked);
-        if (checked.length > needed) {
-            cb.checked = false;
-            return;
-        }
-
-        const countEl = document.getElementById('selectionCount');
-        if (countEl) countEl.textContent = `${checked.length} / ${needed} seleccionados`;
-
-        // actualizar global cuando coincida la cantidad
-        if (checked.length === needed) {
+    inicializarSelectorJugadores(numJugadores, (checked) => {
+        if (checked.length === numJugadores) {
             window.jugadoresSeleccionadosGlobal = checked.map(c => c.getAttribute('data-nombre'));
         } else {
             window.jugadoresSeleccionadosGlobal = null;
@@ -1599,16 +1558,13 @@ function renderPlayerSelection(numJugadores) {
 
         // actualizar estado del botón simular tras cambio manual
         updateSimularButtonState();
-    }));
-
-    // NO seleccionar automáticamente al renderizar (según el requerimiento)
+    });
 
     // Actualizar estado del botón simular al terminar de renderizar
     updateSimularButtonState();
 }
 
 function obtenerJugadoresSeleccionadosPorNombre(numJugadores) {
-
     // Si no hay selección manual, no auto-seleccionar aquí: devolver vacío para forzar validación externa
     if (!window.jugadoresSeleccionadosGlobal || window.jugadoresSeleccionadosGlobal.length !== numJugadores) {
         return [];
@@ -1626,7 +1582,6 @@ function updateSimularButtonState() {
 
     const num = parseInt(numSelectEl.value);
 
-
     // Contar checkboxes marcados en el DOM (si existe el contenedor)
     const container = document.getElementById('playerSelection');
     let selectedCount = 0;
@@ -1637,7 +1592,7 @@ function updateSimularButtonState() {
         selectedCount = window.jugadoresSeleccionadosGlobal.length;
     }
 
-    // Habilitar sólo si la cantidad marcada coincide con la requerida
+    // Habilitar solo si la cantidad marcada coincide con la requerida
     const habilitado = selectedCount === num;
     if (simBtnEl) simBtnEl.disabled = !habilitado;
     mcBtnEl.disabled = !habilitado;
@@ -1653,6 +1608,7 @@ function updateSimularButtonState() {
     }
 }
 
+// ==== MAIN: EVENTOS GLOBALES ====
 // Enlazar botón simular al DOM
 const simBtn = document.getElementById('simularBtn');
 if (simBtn) {

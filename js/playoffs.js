@@ -298,44 +298,9 @@ function mostrarResultados(bracket, probs) {
 }
 
 // ---- Selección de jugadores ----
-function getJugadoresSeleccionados() {
-    return Array.from(document.querySelectorAll('#playerSelection .player-checkbox:checked'))
-        .map(cb => cb.getAttribute('data-nombre'));
-}
-
 function renderPlayerSelection(numJugadores) {
-    const container = document.getElementById('playerSelection');
-    if (!container) return;
-
-    let html = `<div class="player-selection-container">
-        <p class="selection-instruccion">Seleccioná exactamente <strong>${numJugadores}</strong> jugadores:</p>
-        <div class="player-list">`;
-
-    jugadoresDisponibles.forEach(j => {
-        html += `<label class="player-label">
-            <input type="checkbox" class="player-checkbox" data-nombre="${j.nombre}" />
-            <span class="player-name-text">${j.nombre}</span>
-        </label>`;
-    });
-
-    html += `</div>
-        <p class="selection-count" id="selectionCount">0 / ${numJugadores} seleccionados</p>
-    </div>`;
-
-    container.innerHTML = html;
-
-    const checkboxes = Array.from(container.querySelectorAll('.player-checkbox'));
-    checkboxes.forEach(cb => {
-        cb.addEventListener('change', () => {
-            const checked = checkboxes.filter(c => c.checked);
-            if (checked.length > 4) {
-                cb.checked = false;
-                return;
-            }
-            const countEl = document.getElementById('selectionCount');
-            if (countEl) countEl.textContent = `${checked.length} / ${numJugadores} seleccionados`;
-            updateBracketUI();
-        });
+    inicializarSelectorJugadores(numJugadores, () => {
+        updateBracketUI();
     });
 
     updateBracketUI();

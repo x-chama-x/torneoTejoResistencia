@@ -182,46 +182,10 @@ function mostrarHistorial(nombreJ1, nombreJ2) {
     }
 }
 
-// Función para obtener jugadores seleccionados
-function getJugadoresSeleccionados() {
-    return Array.from(document.querySelectorAll('#playerSelection .player-checkbox:checked'))
-        .map(cb => cb.getAttribute('data-nombre'));
-}
-
 // Función para poblar los selectores con jugadores
 function poblarSelectores() {
-    const container = document.getElementById('playerSelection');
-    if (!container) return;
-
-    let html = `<div class="player-selection-container">
-        <p class="selection-instruccion">Seleccioná exactamente <strong>2</strong> jugadores para el partido:</p>
-        <div class="player-list">`;
-
-    jugadoresDisponibles.forEach(j => {
-        html += `<label class="player-label">
-            <input type="checkbox" class="player-checkbox" data-nombre="${j.nombre}" />
-            <span class="player-name-text">${j.nombre}</span>
-        </label>`;
-    });
-
-    html += `</div>
-        <p class="selection-count" id="selectionCount">0 / 2 seleccionados</p>
-    </div>`;
-
-    container.innerHTML = html;
-
-    const checkboxes = Array.from(container.querySelectorAll('.player-checkbox'));
-    checkboxes.forEach(cb => {
-        cb.addEventListener('change', () => {
-            const checked = checkboxes.filter(c => c.checked);
-            if (checked.length > 2) {
-                cb.checked = false;
-                return;
-            }
-            const countEl = document.getElementById('selectionCount');
-            if (countEl) countEl.textContent = `${checked.length} / 2 seleccionados`;
-            actualizarBotones();
-        });
+    inicializarSelectorJugadores(2, () => {
+        actualizarBotones();
     });
 }
 

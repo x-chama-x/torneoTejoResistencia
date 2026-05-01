@@ -1,0 +1,119 @@
+[1mdiff --git a/js/simulador.js b/js/simulador.js[m
+[1mindex 0072d87..5e2df7e 100644[m
+[1m--- a/js/simulador.js[m
+[1m+++ b/js/simulador.js[m
+[36m@@ -1548,46 +1548,8 @@[m [mfunction resetearGruposManuales() {[m
+ [m
+ // Render y lógica para selección de jugadores (UI debajo del select)[m
+ function renderPlayerSelection(numJugadores) {[m
+[31m-    const container = document.getElementById('playerSelection');[m
+[31m-    if (!container) return;[m
+[31m-[m
+[31m-    // Asegurar que el contenedor esté visible para todos los formatos[m
+[31m-    container.style.display = '';[m
+[31m-[m
+[31m-    const needed = numJugadores;[m
+[31m-    let html = `<div class="player-selection-container">[m
+[31m-        <p class="selection-instruccion">Seleccioná exactamente <strong>${needed}</strong> jugadores:</p>[m
+[31m-        <div class="player-list">`;[m
+[31m-[m
+[31m-    jugadoresDisponibles.forEach(j => {[m
+[31m-        html += `<label class="player-label">[m
+[31m-            <input type="checkbox" class="player-checkbox" data-nombre="${j.nombre}" />[m
+[31m-            <span class="player-name-text">${j.nombre}</span>[m
+[31m-        </label>`;[m
+[31m-    });[m
+[31m-[m
+[31m-    html += `</div>[m
+[31m-        <p class="selection-count" id="selectionCount">0 / ${needed} seleccionados</p>[m
+[31m-    </div>`;[m
+[31m-[m
+[31m-    // Cartel de advertencia si no se llega a la cantidad requerida[m
+[31m-    html += '<p id="selectionWarning" style="color:#c0392b; font-weight:600; display:none; margin-top:8px;"></p>';[m
+[31m-[m
+[31m-    container.innerHTML = html;[m
+[31m-[m
+[31m-    const checkboxes = Array.from(container.querySelectorAll('.player-checkbox'));[m
+[31m-    checkboxes.forEach(cb => cb.addEventListener('change', (evt) => {[m
+[31m-        const checked = checkboxes.filter(c => c.checked);[m
+[31m-        if (checked.length > needed) {[m
+[31m-            cb.checked = false;[m
+[31m-            return;[m
+[31m-        }[m
+[31m-[m
+[31m-        const countEl = document.getElementById('selectionCount');[m
+[31m-        if (countEl) countEl.textContent = `${checked.length} / ${needed} seleccionados`;[m
+[31m-[m
+[31m-        // actualizar global cuando coincida la cantidad[m
+[31m-        if (checked.length === needed) {[m
+[32m+[m[32m    inicializarSelectorJugadores(numJugadores, (checked) => {[m
+[32m+[m[32m        if (checked.length === numJugadores) {[m
+             window.jugadoresSeleccionadosGlobal = checked.map(c => c.getAttribute('data-nombre'));[m
+         } else {[m
+             window.jugadoresSeleccionadosGlobal = null;[m
+[36m@@ -1596,63 +1558,10 @@[m [mfunction renderPlayerSelection(numJugadores) {[m
+         // Resetear grupos manuales cuando cambia la selección y actualizar UI[m
+         window.gruposManualConfig = null;[m
+         renderGruposManualUI();[m
+[31m-[m
+[31m-        // actualizar estado del botón simular tras cambio manual[m
+[31m-        updateSimularButtonState();[m
+[31m-    }));[m
+[31m-[m
+[31m-    // NO seleccionar automáticamente al renderizar (según el requerimiento)[m
+[31m-[m
+[31m-    // Actualizar estado del botón simular al terminar de renderizar[m
+[31m-    updateSimularButtonState();[m
+[31m-}[m
+[31m-[m
+[31m-function obtenerJugadoresSeleccionadosPorNombre(numJugadores) {[m
+[31m-[m
+[31m-    // Si no hay selección manual, no auto-seleccionar aquí: devolver vacío para forzar validación externa[m
+[31m-    if (!window.jugadoresSeleccionadosGlobal || window.jugadoresSeleccionadosGlobal.length !== numJugadores) {[m
+[31m-        return [];[m
+[31m-    }[m
+[31m-    return window.jugadoresSeleccionadosGlobal.map(nombre => jugadoresDisponibles.find(j => j.nombre === nombre)).filter(Boolean);[m
+[31m-}[m
+[31m-[m
+[31m-// --- Nuevo: controlar estado del botón 'Simular' y el banner superior ---[m
+[31m-function updateSimularButtonState() {[m
+[31m-    const simBtnEl = document.getElementById('simularBtn'); // puede ser null si la página es solo Monte Carlo[m
+[31m-    const mcBtnEl = document.getElementById('btnSimular');[m
+[31m-    const numSelectEl = document.getElementById('numPlayers');[m
+[31m-    const topWarn = document.getElementById('topSelectionWarning');[m
+[31m-    if (!numSelectEl || !mcBtnEl) return; // sin selector de formato o sin botón Monte Carlo no hay nada que hacer[m
+[31m-[m
+[31m-    const num = parseInt(numSelectEl.value);[m
+[31m-[m
+[31m-[m
+[31m-    // Contar checkboxes marcados en el DOM (si existe el contenedor)[m
+[31m-    const container = document.getElementById('playerSelection');[m
+[31m-    let selectedCount = 0;[m
+[31m-    if (container) {[m
+[31m-        selectedCount = container.querySelectorAll('.player-checkbox:checked').length;[m
+[31m-    } else if (window.jugadoresSeleccionadosGlobal) {[m
+[31m-        // Fallback: usar la selección global[m
+[31m-        selectedCount = window.jugadoresSeleccionadosGlobal.length;[m
+[31m-    }[m
+[31m-[m
+[31m-    // Habilitar sólo si la cantidad marcada coincide con la requerida[m
+[31m-    const habilitado = selectedCount === num;[m
+[31m-    if (simBtnEl) simBtnEl.disabled = !habilitado;[m
+[31m-    mcBtnEl.disabled = !habilitado;[m
+[31m-[m
+[31m-    // Mostrar cartel superior si hay menos seleccionados que los requeridos[m
+[31m-    if (topWarn) {[m
+[31m-        if (selectedCount !== num) {[m
+[31m-            topWarn.textContent = `Por favor seleccioná exactamente ${num} jugadores antes de simular.`;[m
+[31m-            topWarn.style.display = 'block';[m
+[31m-        } else {[m
+[31m-            topWarn.style.display = 'none';[m
+[31m-        }[m
+[31m-    }[m
+[32m+[m[32m    });[m
+ }[m
+ [m
+[32m+[m[32m// ==== MAIN: EVENTOS GLOBALES ====[m
+ // Enlazar botón simular al DOM[m
+ const simBtn = document.getElementById('simularBtn');[m
+ if (simBtn) {[m
