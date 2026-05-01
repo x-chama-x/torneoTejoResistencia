@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Torneo Air Hockey</title>
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1><img src="img/favicon.png" alt="logo" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 5px;"> Simulador de Torneo Air Hockey</h1>
+
+        <div class="controls">
+            <label for="numPlayers" style="align-self:center; font-weight:600; color:#e0e0e0; margin-right:6px;">Formato:</label>
+            <select id="numPlayers" aria-label="Formato de torneo">
+                <option value="7">7 Jugadores</option>
+                <option value="8">8 Jugadores</option>
+                <option value="9">9 Jugadores</option>
+                <option value="10">10 Jugadores</option>
+            </select>
+
+            <!-- Selector de modo de armado de grupos -->
+            <label for="modoGrupos" id="modoGruposLabel" style="align-self:center; font-weight:600; color:#e0e0e0; margin-left:12px; margin-right:6px; display:none;">Armado:</label>
+            <select id="modoGrupos" aria-label="Modo de armado de grupos" style="display:none;">
+                <option value="aleatorio">🎲 Sorteo Aleatorio</option>
+                <option value="manual">✋ Armado Manual</option>
+            </select>
+
+            <button id="randomSelectBtn" title="Seleccionar jugadores aleatoriamente">🔀 Seleccionar aleatoriamente</button>
+            <button id="simularBtn">🎲 Simular Torneo</button>
+        </div>
+
+        <!-- Contenedor dinámico donde se mostrará la selección de jugadores -->
+        <div id="playerSelection"></div>
+
+        <!-- Contenedor para el armado manual de grupos -->
+        <div id="gruposManualContainer" style="display:none; margin-top:15px;"></div>
+
+        <div id="resultado"></div>
+    </div>
+
+    <script src="js/menu.js"></script>
+    <script src="js/playerSelection.js"></script>
+    <script src="js/simulador.js"></script>
+</body>
+</html>
