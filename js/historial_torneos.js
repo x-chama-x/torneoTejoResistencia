@@ -44,20 +44,41 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
     const resultadosContainer = document.getElementById("resultados-fase");
     if (resultadosContainer) {
         resultadosContainer.innerHTML = "";
-        const ul = document.createElement("ul");
-        ul.style.listStyle = "none";
-        ul.style.padding = "0";
-        matches.forEach(m => {
-            const li = document.createElement("li");
-            li.style.marginBottom = "0.5rem";
-            li.style.backgroundColor = "rgba(255,255,255,0.05)";
-            li.style.padding = "0.5rem";
-            li.style.borderRadius = "4px";
-            li.innerHTML = `<strong>${m.j1}</strong> vs <strong>${m.j2}</strong>: ${m.marcador} <span style="font-size: 0.8em; color: #aaa;">(${m.fase})</span>`;
-            ul.appendChild(li);
-        });
-        resultadosContainer.appendChild(ul);
+        const divResp = document.createElement("div");
+        divResp.className = "table-responsive";
+        
+        const table = document.createElement("table");
+        table.className = "ranking-table align-center"; // Agregamos una posible alineación
+        
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>Fase</th>
+                    <th style="text-align: right;">Local</th>
+                    <th style="text-align: center;">Resultado</th>
+                    <th style="text-align: left;">Visitante</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${matches.map(m => {
+                    const g = m.marcador.split("-").map(Number);
+                    const w1 = g[0] > g[1];
+                    const w2 = g[1] > g[0];
+                    return `
+                    <tr>
+                        <td style="font-size: 0.85em; color: #bbb;">${m.fase}</td>
+                        <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #4CAF50;' : ''}">${m.j1}</td>
+                        <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${m.marcador}</td>
+                        <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #4CAF50;' : ''}">${m.j2}</td>
+                    </tr>
+                    `;
+                }).join("")}
+            </tbody>
+        `;
+        divResp.appendChild(table);
+        resultadosContainer.appendChild(divResp);
     }
+
     if (nombreTorneo.includes("Primer")) {
         // Liga
         const stdgs = processStandings(matches);
@@ -131,45 +152,55 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
         }
     }
 }
-function createMatchCard(m) {
-    if (!m) return `<div class="match">Por definirse</div>`;
+function createMatchCard(m, matchTitle) {
+    if (!m) return `<div class="match-card"><div class="match-number">${matchTitle}</div><div class="match-players">Por definirse</div></div>`;
     const g = m.marcador.split("-").map(Number);
     const w1 = g[0] > g[1];
     const w2 = g[1] > g[0];
+
+    // Convertirlo a un diseo idntico al de match-card
     return `
-        <div class="playoff-match">
-            <div class="team ${w1 ? "winner" : "loser"}">
-                <span class="name">${m.j1}</span>
-                <span class="score">${g[0]}</span>
-            </div>
-            <div class="team ${w2 ? "winner" : "loser"}">
-                <span class="name">${m.j2}</span>
-                <span class="score">${g[1]}</span>
+        <div class="match-card">
+            <div class="match-number">${matchTitle || m.fase}</div>
+            <div class="match-players">
+                <div class="player ${w1 ? 'blue' : ''}" style="${w1 ? 'font-weight: 900; text-decoration: underline;' : 'color: #888;'}">
+                    ${m.j1}
+                </div>
+                <div style="font-size: 1.5em; font-weight: 900; padding: 0 15px; color: #fff;">
+                    ${g[0]} - ${g[1]}
+                </div>
+                <div class="player ${w2 ? 'red' : ''}" style="${w2 ? 'font-weight: 900; text-decoration: underline;' : 'color: #888;'}">
+                    ${m.j2}
+                </div>
             </div>
         </div>
     `;
 }
+
 function renderPlayoffs(semis, final, tercerPuesto) {
     const bracket = document.getElementById("playoff-bracket");
     if (bracket) {
         bracket.innerHTML = `
-            <div class="round">
-                <h3 class="round-title">Semifinales</h3>
-                ${semis.length > 0 ? createMatchCard(semis[0]) : ""}
-                ${semis.length > 1 ? createMatchCard(semis[1]) : ""}
-            </div>
-            <div class="round">
-                <h3 class="round-title">Final</h3>
-                ${final.length > 0 ? createMatchCard(final[0]) : ""}
+            <div class="bracket-round">
+                <div style="display: flex; flex-direction: column; gap: 20px; width: 100%;">
+                    <h3 class="round-title" style="text-align: center; color: #aaa;">Semifinales</h3>
+                    ${semis.length > 0 ? createMatchCard(semis[0], "Semifinal 1") : ""}
+                    ${semis.length > 1 ? createMatchCard(semis[1], "Semifinal 2") : ""}
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 20px; width: 100%;">
+                    <h3 class="round-title" style="text-align: center; color: #aaa;">Final</h3>
+                    ${final.length > 0 ? createMatchCard(final[0], "Gran Final") : ""}
+                </div>
             </div>
         `;
     }
+
     const tpc = document.getElementById("tercer-puesto-container");
     if (tpc && tercerPuesto.length > 0) {
         tpc.innerHTML = `
-            <h3 style="margin-bottom: 0.5rem; color:#f39c12">Tercer Puesto</h3>
-            <div style="display:inline-block; text-align:left;">
-                ${createMatchCard(tercerPuesto[0])}
+            <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">Tercer Puesto</h3>
+            <div style="display: flex; justify-content: center; width: 100%;">
+                ${createMatchCard(tercerPuesto[0], "Tercer y Cuarto Puesto")}
             </div>
         `;
     }
