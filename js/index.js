@@ -39,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     tdRanking.textContent = j.ranking;
                     tr.appendChild(tdRanking);
 
-
                     tbody.appendChild(tr);
                 });
             }
@@ -47,5 +46,67 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => {
             console.error('Error al cargar ranking.txt:', error);
         });
-});
 
+    fetch('enfrentamientos_directos.txt')
+        .then(response => response.text())
+        .then(data => {
+            const lines = data.split('\n');
+            const gmap = {}; // Mapa para acumular goles por jugador
+
+            for (const r_line of lines) {
+                const line = r_line.trim();
+                // Ignorar líneas vacías o comentarios
+                if (!line || line.startsWith('#')) continue;
+
+                const parts = line.split(',');
+                if (parts.length >= 4) {
+                    const j1 = parts[0].trim();
+                    const j2 = parts[1].trim();
+                    const marcador = parts[3].trim();
+
+                    const goles = marcador.split('-');
+                    if (goles.length === 2) {
+                        const g1 = parseInt(goles[0], 10);
+                        const g2 = parseInt(goles[1], 10);
+
+                        if (!isNaN(g1)) {
+                            gmap[j1] = (gmap[j1] || 0) + g1;
+                        }
+                        if (!isNaN(g2)) {
+                            gmap[j2] = (gmap[j2] || 0) + g2;
+                        }
+                    }
+                }
+            }
+
+            // Convertir a array y ordenar
+            const arr = Object.keys(gmap).map(nombre => ({ nombre, goles: gmap[nombre] }));
+            arr.sort((a, b) => b.goles - a.goles);
+
+            const tbodyGoals = document.querySelector('#goals-ranking-table tbody');
+            if(tbodyGoals) {
+                arr.forEach((j, index) => {
+                    const tr = document.createElement('tr');
+
+                    const tdPos = document.createElement('td');
+                    tdPos.textContent = index + 1;
+                    tr.appendChild(tdPos);
+
+                    const tdNombre = document.createElement('td');
+                    const strong = document.createElement('strong');
+                    strong.textContent = j.nombre;
+                    tdNombre.appendChild(strong);
+                    tr.appendChild(tdNombre);
+
+                    const tdGoles = document.createElement('td');
+                    tdGoles.textContent = j.goles;
+                    tr.appendChild(tdGoles);
+
+                    tbodyGoals.appendChild(tr);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar enfrentamientos_directos.txt:', error);
+        });
+});
