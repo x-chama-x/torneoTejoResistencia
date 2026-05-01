@@ -680,3 +680,107 @@ select:hover {
         display: block;
     }
 }
+
+/* ================================================
+   INDEX / INICIO
+   ================================================ */
+.home-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+@media (max-width: 900px) {
+    .home-container {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    .panel {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.6em;
+    }
+    h2 {
+        font-size: 1.3em;
+        text-align: center;
+    }
+    .ranking-table th, .ranking-table td {
+        padding: 8px 4px;
+        font-size: 0.85rem;
+    }
+    .format-section {
+        padding: 15px;
+    }
+    .panel {
+        padding: 10px;
+    }
+    .container {
+        padding: 15px;
+    }
+}
+
+.panel {
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background: #161b22;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 0.95rem;
+}
+.ranking-table th, .ranking-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #30363d;
+}
+.ranking-table th {
+    background-color: #2c2f3f;
+    color: #58a6ff;
+    font-weight: 600;
+}
+.ranking-table tr:hover {
+    background-color: #30363d;
+}
+
+.format-section {
+    background: #161b22;
+    border: 1px solid #30363d;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #58a6ff;
+    margin-bottom: 1rem;
+}
+.format-section h3 {
+    color: #58a6ff;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+.format-section ul {
+    padding-left: 20px;
+    color: #c9d1d9;
+    font-size: 0.95rem;
+}
+.format-section li {
+    margin-bottom: 6px;
+}
+.format-section strong {
+    color: #ffffff;
+}
+
+/* Ajuste de scroll solo para la tabla en móviles */
+.table-responsive {
+    overflow-x: auto;
+}
