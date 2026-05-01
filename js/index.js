@@ -63,6 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const j1 = parts[0].trim();
                     const j2 = parts[1].trim();
                     const marcador = parts[3].trim();
+                    const torneo = parts.length > 4 ? parts[4].trim() : '';
+
+                    // No contar goles de partidos amistosos
+                    if (torneo.toLowerCase().includes('amistoso')) continue;
 
                     const goles = marcador.split('-');
                     if (goles.length === 2) {
@@ -79,8 +83,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Convertir a array y ordenar
-            const arr = Object.keys(gmap).map(nombre => ({ nombre, goles: gmap[nombre] }));
+            // Convertir a array, filtrar los que tengan 0 goles, y ordenar
+            const arr = Object.keys(gmap)
+                .map(nombre => ({ nombre, goles: gmap[nombre] }))
+                .filter(j => j.goles > 0);
             arr.sort((a, b) => b.goles - a.goles);
 
             const tbodyGoals = document.querySelector('#goals-ranking-table tbody');
