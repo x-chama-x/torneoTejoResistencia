@@ -161,9 +161,9 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                                 <table class="ranking-table align-center">
                                     <thead>
                                         <tr>
-                                            <th style="text-align: right;">Local</th>
+                                            <th style="text-align: right;">Azul</th>
                                             <th style="text-align: center;">Resultado</th>
-                                            <th style="text-align: left;">Visitante</th>
+                                            <th style="text-align: left;">Rojo</th>
                                         </tr>
                                     </thead>
                                     <tbody>
