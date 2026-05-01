@@ -424,6 +424,10 @@ select:hover {
         grid-template-columns: 1fr;
     }
 
+    .bracket-round {
+        flex-direction: column;
+    }
+
     .podium {
         flex-direction: column;
         align-items: center;

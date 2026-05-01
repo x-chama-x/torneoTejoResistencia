@@ -28,12 +28,15 @@ function processStandings(matches) {
         stats[m.j1].p++; stats[m.j2].p++;
         stats[m.j1].gf += g[0]; stats[m.j1].gc += g[1];
         stats[m.j2].gf += g[1]; stats[m.j2].gc += g[0];
+        
+        // Pts son los goles anotados a favor
+        stats[m.j1].pts += g[0];
+        stats[m.j2].pts += g[1];
+
         if (m.res === "G") {
             stats[m.j1].w++; stats[m.j2].l++;
-            stats[m.j1].pts += 3;
         } else {
             stats[m.j2].w++; stats[m.j1].l++;
-            stats[m.j2].pts += 3;
         }
     });
     return Object.values(stats)
@@ -41,8 +44,9 @@ function processStandings(matches) {
         .sort((a, b) => b.pts - a.pts || b.dif - a.dif || b.gf - a.gf);
 }
 function renderGroupMatchesAndStandings(matches, nombreTorneo) {
+    // Si tenemos un contenedor global de resultados (Torneo 1)
     const resultadosContainer = document.getElementById("resultados-fase");
-    if (resultadosContainer) {
+    if (resultadosContainer && nombreTorneo.includes("Primer")) {
         resultadosContainer.innerHTML = "";
         const divResp = document.createElement("div");
         divResp.className = "table-responsive";
@@ -110,41 +114,71 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
             gruposList.forEach(gName => {
                 const gMatches = matches.filter(m => m.fase === gName);
                 const stdgs = processStandings(gMatches);
+                
                 const gDiv = document.createElement("div");
                 gDiv.style.marginBottom = "2rem";
                 gDiv.innerHTML = `
-                    <h3 style="margin-bottom: 1rem;">${gName}</h3>
-                    <div class="table-responsive">
-                        <table class="ranking-table">
-                            <thead>
-                                <tr>
-                                    <th>Pos</th>
-                                    <th>Jugador</th>
-                                    <th>PJ</th>
-                                    <th>G</th>
-                                    <th>P</th>
-                                    <th>GF</th>
-                                    <th>GC</th>
-                                    <th>DIF</th>
-                                    <th>Pts</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${stdgs.map((s, idx) => `
+                    <h3 style="margin-bottom: 1rem; color: #58a6ff;">${gName}</h3>
+                    <div class="home-container">
+                        <div class="table-responsive">
+                            <table class="ranking-table">
+                                <thead>
                                     <tr>
-                                        <td>${idx + 1}</td>
-                                        <td><strong>${s.nombre}</strong></td>
-                                        <td>${s.p}</td>
-                                        <td>${s.w}</td>
-                                        <td>${s.l}</td>
-                                        <td>${s.gf}</td>
-                                        <td>${s.gc}</td>
-                                        <td>${s.dif > 0 ? "+"+s.dif : s.dif}</td>
-                                        <td><strong>${s.pts}</strong></td>
+                                        <th>Pos</th>
+                                        <th>Jugador</th>
+                                        <th>PJ</th>
+                                        <th>G</th>
+                                        <th>P</th>
+                                        <th>GF</th>
+                                        <th>GC</th>
+                                        <th>DIF</th>
+                                        <th>Pts (Goles)</th>
                                     </tr>
-                                `).join("")}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    ${stdgs.map((s, idx) => `
+                                        <tr>
+                                            <td>${idx + 1}</td>
+                                            <td><strong>${s.nombre}</strong></td>
+                                            <td>${s.p}</td>
+                                            <td>${s.w}</td>
+                                            <td>${s.l}</td>
+                                            <td>${s.gf}</td>
+                                            <td>${s.gc}</td>
+                                            <td>${s.dif > 0 ? "+"+s.dif : s.dif}</td>
+                                            <td><strong>${s.pts}</strong></td>
+                                        </tr>
+                                    `).join("")}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div>
+                            <h4 style="margin-bottom: 1rem; text-align: center; color: #8b949e;">Resultados</h4>
+                            <div class="table-responsive">
+                                <table class="ranking-table align-center">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align: right;">Local</th>
+                                            <th style="text-align: center;">Resultado</th>
+                                            <th style="text-align: left;">Visitante</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${gMatches.map(m => {
+                                            const g = m.marcador.split("-").map(Number);
+                                            const w1 = g[0] > g[1];
+                                            const w2 = g[1] > g[0];
+                                            return `
+                                            <tr>
+                                                <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #4CAF50;' : ''}">${m.j1}</td>
+                                                <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${m.marcador}</td>
+                                                <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #4CAF50;' : ''}">${m.j2}</td>
+                                            </tr>`;
+                                        }).join("")}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 `;
                 gCont.appendChild(gDiv);
