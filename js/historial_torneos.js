@@ -120,8 +120,10 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                 gDiv.innerHTML = `
                     <h3 style="margin-bottom: 1rem; color: #58a6ff;">${gName}</h3>
                     <div class="home-container">
-                        <div class="table-responsive">
-                            <table class="ranking-table">
+                        <div>
+                            <h4 style="margin-bottom: 1rem; text-align: center; color: #8b949e;">Posiciones</h4>
+                            <div class="table-responsive">
+                                <table class="ranking-table">
                                 <thead>
                                     <tr>
                                         <th>Pos</th>
@@ -151,6 +153,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                                     `).join("")}
                                 </tbody>
                             </table>
+                        </div>
                         </div>
                         <div>
                             <h4 style="margin-bottom: 1rem; text-align: center; color: #8b949e;">Resultados</h4>
