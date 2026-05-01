@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torneo 2 - Air Hockey</title>
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/torneo.css">
+    <link rel="stylesheet" href="css/playoffs.css">
+</head>
+<body>
+    <div class="container">
+        <h1><img src="img/favicon.png" alt="logo" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 5px;"> Segundo torneo de hockey de mesa</h1>
+        <div class="panel">
+            <h2>🏆 Fase de Grupos</h2>
+            <div id="grupos-container">
+                <!-- Tablas de grupos pobladas por JS -->
+            </div>
+            <h3 style="margin-top: 1.5rem;">Resultados Fase de Grupos</h3>
+            <div id="resultados-fase">
+                <!-- Poblado por JS -->
+            </div>
+        </div>
+        <div class="panel playoffs-section" style="margin-top: 2rem;">
+            <h2>👑 Playoffs</h2>
+            <div class="playoff-bracket" id="playoff-bracket">
+                <!-- Poblado por JS -->
+            </div>
+            <div id="tercer-puesto-container" style="margin-top: 1rem; text-align: center;">
+                <!-- Poblado por JS -->
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="js/menu.js"></script>
+    <script>
+        window.torneoActual = { config: { formato: "grupos", avanzar: 4 } };
+        window.partidosJugados = true;
+    </script>
+    <script src="js/historial_torneos.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            cargarTorneo("Segundo torneo de hockey de mesa");
+        });
+    </script>
+</body>
+</html>
