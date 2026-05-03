@@ -434,6 +434,59 @@ select:hover {
     color: #aaa;
 }
 
+/* Fixture bracket con líneas conectoras */
+.bracket-fixture {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    margin: 20px 0;
+}
+
+.bracket-col-semis {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+}
+
+.bracket-connector-col {
+    width: 60px;
+    flex-shrink: 0;
+    align-self: stretch;
+    position: relative;
+}
+
+.bracket-col-final {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-width: 0;
+}
+
+.bracket-col-semis .round-title,
+.bracket-col-final .round-title {
+    text-align: center;
+    color: #aaa;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    .bracket-fixture {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .bracket-connector-col {
+        display: none;
+    }
+}
+
 @media (max-width: 768px) {
     .matches-grid {
         grid-template-columns: 1fr;
