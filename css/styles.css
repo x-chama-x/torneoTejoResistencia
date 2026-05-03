@@ -476,14 +476,56 @@ select:hover {
 }
 
 @media (max-width: 768px) {
-    .bracket-fixture {
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
+    /* Mantener el fixture horizontal en móvil, pero compacto */
+    .bracket-connector-col {
+        width: 30px;
     }
 
-    .bracket-connector-col {
-        display: none;
+    .bracket-col-semis {
+        gap: 10px;
+    }
+
+    .bracket-col-semis .round-title,
+    .bracket-col-final .round-title {
+        font-size: 11px;
+        margin-bottom: 6px;
+    }
+
+    .bracket-fixture .match-card {
+        padding: 8px;
+        max-width: none;
+        border-radius: 8px;
+    }
+
+    .bracket-fixture .match-number {
+        font-size: 9px;
+        margin-bottom: 6px;
+    }
+
+    .bracket-fixture .match-players {
+        margin: 6px 0;
+        gap: 3px;
+    }
+
+    .bracket-fixture .player {
+        font-size: 11px;
+        min-width: 0;
+    }
+
+    .bracket-fixture .vs {
+        padding: 0 4px;
+        font-size: 11px;
+    }
+
+    .bracket-fixture .score {
+        font-size: 14px;
+        margin: 4px 0;
+    }
+
+    .bracket-fixture .winner-badge {
+        font-size: 9px;
+        padding: 3px 6px;
+        border-radius: 12px;
     }
 }
 
