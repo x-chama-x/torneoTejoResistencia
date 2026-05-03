@@ -60,7 +60,6 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
         table.innerHTML = `
             <thead>
                 <tr>
-                    <th>Fase</th>
                     <th style="text-align: right;">Azul</th>
                     <th style="text-align: center;">Resultado</th>
                     <th style="text-align: left;">Rojo</th>
@@ -73,7 +72,6 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                     const w2 = g[1] > g[0];
                     return `
                     <tr>
-                        <td style="font-size: 0.85em; color: #bbb;">${m.fase}</td>
                         <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #4CAF50;' : ''}">${m.j1}</td>
                         <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${m.marcador}</td>
                         <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #4CAF50;' : ''}">${m.j2}</td>
@@ -332,17 +330,17 @@ function renderTournamentStats(allMatches, nombreTorneo) {
         : `⚽ ${goleadores.map(g => `<strong style="color: #667eea;">${g.nombre}</strong>`).join(", ").replace(/,([^,]*)$/, " y$1")} son los goleadores del torneo con un promedio de <strong style="color: #667eea;">${goleadores[0].promedioStr}</strong> goles por partido`;
 
     statsContainer.innerHTML = `
-        <div class="phase-title">📊 ESTADÍSTICAS DEL TORNEO</div>
-        <div class="standings"><table>
-            <tr>
+        <h2>📊 ESTADÍSTICAS DEL TORNEO</h2>
+        <div class="table-responsive"><table class="ranking-table">
+            <thead><tr>
                 <th>Jugador</th>
                 <th>${groupLabel}</th>
                 <th>Goles Fase Final</th>
                 <th>Total Goles (TG)</th>
                 <th>Partidos (PJ)</th>
                 <th>Prom TG/PJ</th>
-            </tr>
-            ${statsArray.map(s => `
+            </tr></thead>
+            <tbody>${statsArray.map(s => `
                 <tr>
                     <td><strong>${s.nombre}</strong></td>
                     <td>${s.golesGrupo}</td>
@@ -351,7 +349,7 @@ function renderTournamentStats(allMatches, nombreTorneo) {
                     <td>${s.partidos}</td>
                     <td><strong>${s.promedioStr}</strong></td>
                 </tr>
-            `).join("")}
+            `).join("")}</tbody>
         </table></div>
         <div style="text-align: center; margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
             <p style="margin: 0; font-size: 18px; font-weight: bold; color: #333;">${goleadorText}</p>
