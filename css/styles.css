@@ -486,9 +486,10 @@ select:hover {
     }
 
     .bracket-col-semis .round-title,
-    .bracket-col-final .round-title {
-        font-size: 11px;
-        margin-bottom: 6px;
+    .bracket-col-final .round-title,
+    #tercer-puesto-container h3 {
+        font-size: 11px !important;
+        margin-bottom: 6px !important;
     }
 
     .bracket-fixture .match-card {
