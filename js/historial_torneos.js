@@ -156,7 +156,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                                     ${stdgs.map((s, idx) => {
                                         const isClasificado = idx < 2;
                                         return `
-                                        <tr style="${isClasificado ? 'border-bottom: 2px solid #4CAF50;' : ''}">
+                                        <tr ${isClasificado ? 'style="background: rgba(46, 160, 67, 0.15);"' : ''}>
                                             <td>${idx + 1}</td>
                                             <td><strong>${s.nombre}</strong></td>
                                             <td>${s.p}</td>
