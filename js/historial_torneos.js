@@ -94,7 +94,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                 const isClasificado = idx < 4;
                 const tr = document.createElement("tr");
                 if (isClasificado) {
-                    tr.style.borderBottom = "2px solid #4CAF50";
+                    tr.style.background = "rgba(46, 160, 67, 0.15)";
                 }
                 tr.innerHTML = `
                     <td>${idx + 1}</td>
@@ -116,7 +116,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                 const leyenda = document.createElement("div");
                 leyenda.className = "leyenda-clasificacion";
                 leyenda.style = "margin-top: 10px; font-size: 0.85rem; color: #8b949e;";
-                leyenda.innerHTML = `<span style="color: #4CAF50; font-weight: bold; margin-right: 5px;">■</span> [1-4] Clasifica a playoffs`;
+                leyenda.innerHTML = `<span style="display:inline-block; width:12px; height:12px; background: rgba(46, 160, 67, 0.5); border-radius: 2px; margin-right: 5px; vertical-align: middle;"></span> <span style="vertical-align: middle;">[1-4] Clasifica a playoffs</span>`;
                 tableResp.parentElement.insertBefore(leyenda, tableResp.nextSibling);
             }
         }
@@ -171,8 +171,9 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                                 </tbody>
                             </table>
                         </div>
-                        <div class="leyenda-clasificacion" style="margin-top: 10px; font-size: 0.85rem; color: #8b949e;">
-                            <span style="color: #4CAF50; font-weight: bold; margin-right: 5px;">■</span> [1-2] Clasifica a playoffs
+                        <div class="leyenda-clasificacion" style="margin-top: 10px; font-size: 0.85rem; color: #8b949e; display: flex; align-items: center;">
+                            <span style="display:inline-block; width:12px; height:12px; background: rgba(46, 160, 67, 0.5); border-radius: 2px; margin-right: 5px;"></span>
+                            <span>[1-2] Clasifica a playoffs</span>
                         </div>
                         </div>
                         <div>
