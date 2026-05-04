@@ -491,8 +491,15 @@ select:hover {
         margin-bottom: 6px;
     }
 
-    .bracket-fixture .match-card, #tercer-puesto-container .match-card {
+    .bracket-fixture .match-card {
         padding: 8px;
+        max-width: none;
+        border-radius: 8px;
+    }
+
+    #tercer-puesto-container .match-card {
+        padding: 8px;
+        width: calc(50% - 15px); /* Misma medida que los bloques en el bracket */
         max-width: none;
         border-radius: 8px;
     }
@@ -503,6 +510,7 @@ select:hover {
     }
 
     .bracket-fixture .match-players, #tercer-puesto-container .match-players {
+        flex-direction: row; /* Forzar que queden horizontales incluso en pantallas chicas */
         margin: 6px 0;
         gap: 3px;
     }
