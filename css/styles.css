@@ -892,9 +892,6 @@ select:hover {
     color: #58a6ff;
     font-weight: 600;
 }
-.ranking-table tr:hover {
-    background-color: #30363d;
-}
 
 /* Ajuste de scroll solo para la tabla en móviles */
 .table-responsive {
