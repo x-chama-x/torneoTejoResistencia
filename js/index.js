@@ -137,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td><strong>${j.winRate}</strong></td>
                     <td>${j.gf}</td>
                     <td>${j.gc}</td>
+                    <td>${j.gf - j.gc > 0 ? '+' : ''}${j.gf - j.gc}</td>
                     <td><strong>${j.promGoles}</strong></td>
                 `;
                 tbodyStats.appendChild(tr);

@@ -863,6 +863,23 @@ select:hover {
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
+
+    .index-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .index-layout > div, .index-layout .home-container {
+        display: contents;
+    }
+    .index-layout > div[style*="margin-top"] {
+        margin-top: 0 !important;
+    }
+    #formatos-panel {
+        order: 99;
+        margin-top: 2rem;
+    }
+
     .panel {
         padding: 15px;
     }
