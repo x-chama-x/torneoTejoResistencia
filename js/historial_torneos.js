@@ -313,8 +313,8 @@ function renderTournamentStats(allMatches, nombreTorneo) {
 
     function addGoals(matches, phase) {
         matches.forEach(m => {
-            if (!stats[m.j1]) stats[m.j1] = { golesGrupo: 0, golesFinal: 0, partidos: 0 };
-            if (!stats[m.j2]) stats[m.j2] = { golesGrupo: 0, golesFinal: 0, partidos: 0 };
+            if (!stats[m.j1]) stats[m.j1] = { golesGrupo: 0, golesFinal: 0, golesContra: 0, partidos: 0 };
+            if (!stats[m.j2]) stats[m.j2] = { golesGrupo: 0, golesFinal: 0, golesContra: 0, partidos: 0 };
             const g = m.marcador.split("-").map(Number);
             if (phase === "grupo") {
                 stats[m.j1].golesGrupo += g[0];
@@ -323,6 +323,8 @@ function renderTournamentStats(allMatches, nombreTorneo) {
                 stats[m.j1].golesFinal += g[0];
                 stats[m.j2].golesFinal += g[1];
             }
+            stats[m.j1].golesContra += g[1];
+            stats[m.j2].golesContra += g[0];
             stats[m.j1].partidos++;
             stats[m.j2].partidos++;
         });
@@ -331,15 +333,19 @@ function renderTournamentStats(allMatches, nombreTorneo) {
     addGoals(groupMatches, "grupo");
     addGoals(playoffMatches, "playoff");
 
-    const statsArray = Object.entries(stats).map(([nombre, s]) => ({
-        nombre,
-        golesGrupo: s.golesGrupo,
-        golesFinal: s.golesFinal,
-        totalGoles: s.golesGrupo + s.golesFinal,
-        partidos: s.partidos,
-        promedio: s.partidos > 0 ? (s.golesGrupo + s.golesFinal) / s.partidos : 0,
-        promedioStr: s.partidos > 0 ? ((s.golesGrupo + s.golesFinal) / s.partidos).toFixed(2) : "0.00"
-    })).sort((a, b) => b.promedio - a.promedio || b.totalGoles - a.totalGoles);
+    const statsArray = Object.entries(stats).map(([nombre, s]) => {
+        const difGoles = (s.golesGrupo + s.golesFinal) - s.golesContra;
+        return {
+            nombre,
+            golesGrupo: s.golesGrupo,
+            golesFinal: s.golesFinal,
+            totalGoles: s.golesGrupo + s.golesFinal,
+            dif: (difGoles > 0 ? '+' : '') + difGoles,
+            partidos: s.partidos,
+            promedio: s.partidos > 0 ? (s.golesGrupo + s.golesFinal) / s.partidos : 0,
+            promedioStr: s.partidos > 0 ? ((s.golesGrupo + s.golesFinal) / s.partidos).toFixed(2) : "0.00"
+        };
+    }).sort((a, b) => b.promedio - a.promedio || b.totalGoles - a.totalGoles);
 
     if (statsArray.length === 0) return;
 
@@ -357,6 +363,7 @@ function renderTournamentStats(allMatches, nombreTorneo) {
                 <th>${groupLabel}</th>
                 <th>Goles Fase Final</th>
                 <th>Total Goles (TG)</th>
+                <th>DIF</th>
                 <th>Partidos (PJ)</th>
                 <th>Prom TG/PJ</th>
             </tr></thead>
@@ -366,6 +373,7 @@ function renderTournamentStats(allMatches, nombreTorneo) {
                     <td>${s.golesGrupo}</td>
                     <td>${s.golesFinal}</td>
                     <td><strong>${s.totalGoles}</strong></td>
+                    <td>${s.dif}</td>
                     <td>${s.partidos}</td>
                     <td><strong>${s.promedioStr}</strong></td>
                 </tr>
