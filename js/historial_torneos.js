@@ -93,16 +93,19 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
             stdgs.forEach((s, idx) => {
                 const isClasificado = idx < 4;
                 const tr = document.createElement("tr");
+                if (isClasificado) {
+                    tr.style.borderBottom = "2px solid #4CAF50";
+                }
                 tr.innerHTML = `
-                    <td style="${isClasificado ? 'color: #4CAF50; font-weight: bold;' : ''}">${idx + 1}</td>
-                    <td style="${isClasificado ? 'color: #4CAF50; font-weight: bold;' : ''}"><strong>${s.nombre}</strong></td>
+                    <td>${idx + 1}</td>
+                    <td><strong>${s.nombre}</strong></td>
                     <td>${s.p}</td>
                     <td>${s.w}</td>
                     <td>${s.l}</td>
                     <td>${s.gf}</td>
                     <td>${s.gc}</td>
                     <td>${s.dif > 0 ? "+"+s.dif : s.dif}</td>
-                    <td style="${isClasificado ? 'color: #4CAF50;' : ''}"><strong>${s.pts}</strong></td>
+                    <td><strong>${s.pts}</strong></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -153,16 +156,16 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                                     ${stdgs.map((s, idx) => {
                                         const isClasificado = idx < 2;
                                         return `
-                                        <tr>
-                                            <td style="${isClasificado ? 'color: #4CAF50; font-weight: bold;' : ''}">${idx + 1}</td>
-                                            <td style="${isClasificado ? 'color: #4CAF50; font-weight: bold;' : ''}"><strong>${s.nombre}</strong></td>
+                                        <tr style="${isClasificado ? 'border-bottom: 2px solid #4CAF50;' : ''}">
+                                            <td>${idx + 1}</td>
+                                            <td><strong>${s.nombre}</strong></td>
                                             <td>${s.p}</td>
                                             <td>${s.w}</td>
                                             <td>${s.l}</td>
                                             <td>${s.gf}</td>
                                             <td>${s.gc}</td>
                                             <td>${s.dif > 0 ? "+"+s.dif : s.dif}</td>
-                                            <td style="${isClasificado ? 'color: #4CAF50;' : ''}"><strong>${s.pts}</strong></td>
+                                            <td><strong>${s.pts}</strong></td>
                                         </tr>`;
                                     }).join("")}
                                 </tbody>
