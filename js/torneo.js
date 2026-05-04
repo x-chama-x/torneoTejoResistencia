@@ -559,8 +559,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const numSelect = document.getElementById('numPlayers');
     if (numSelect) {
         numSelect.addEventListener('change', () => {
-            document.getElementById('resultado').innerHTML = '';
-            document.getElementById('formatoContainer').innerHTML = '';
+            const resultado = document.getElementById('resultado');
+            if (resultado) resultado.innerHTML = '';
+
+            const formatoContainer = document.getElementById('formatoContainer');
+            if (formatoContainer) formatoContainer.innerHTML = '';
+
             const num = parseInt(numSelect.value);
             renderFormatoConfig(num);
             renderPlayerSelection(num);
