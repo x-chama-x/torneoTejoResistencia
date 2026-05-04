@@ -8,7 +8,7 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #0d1117;
     color: #c9d1d9;
-    padding: 20px 20px 20px 270px; /* modified to make room for sidebar */
+    padding: 20px 10px 10px 10px; /* modified to make room for sidebar and less side margin */
     min-height: 100vh;
 }
 
@@ -202,8 +202,25 @@ select:hover {
 
 /* En pantallas pequeñas, apilar las tablas para evitar overflow horizontal combinado */
 @media (max-width: 900px) {
-    .group-tables {
-        grid-template-columns: 1fr;
+    body {
+        padding: 70px 10px 10px 10px; /* space for toggle button and less side margin */
+    }
+    .container {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        border-radius: 0;
+    }
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+    }
+    .menu-toggle {
+        display: block;
     }
 }
 
@@ -804,7 +821,14 @@ select:hover {
 
 @media (max-width: 900px) {
     body {
-        padding: 70px 20px 20px 20px; /* space for toggle button */
+        padding: 70px 10px 10px 10px; /* space for toggle button and less side margin */
+    }
+    .container {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        border-radius: 0;
     }
     .sidebar {
         transform: translateX(-100%);
