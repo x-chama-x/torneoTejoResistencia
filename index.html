@@ -99,26 +99,47 @@
         </div>
 
         <div class="panel" style="margin-top: 2rem;">
-            <h2>📊 Estadísticas Generales (Todos los partidos)</h2>
-            <div class="table-responsive">
-                <table class="ranking-table" id="general-stats-table">
-                    <thead>
-                        <tr>
-                            <th>Pos.</th>
-                            <th>Jugador</th>
-                            <th>PJ</th>
-                            <th>G</th>
-                            <th>P</th>
-                            <th>Win Rate</th>
-                            <th>GF</th>
-                            <th>GC</th>
-                            <th>Prom. Goles</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Poblado por JS -->
-                    </tbody>
-                </table>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="flex: 2; min-width: 600px;">
+                    <h2>📊 Estadísticas Generales (Todos los partidos)</h2>
+                    <div class="table-responsive">
+                        <table class="ranking-table" id="general-stats-table">
+                            <thead>
+                                <tr>
+                                    <th>Pos.</th>
+                                    <th>Jugador</th>
+                                    <th>PJ</th>
+                                    <th>G</th>
+                                    <th>P</th>
+                                    <th>Win Rate</th>
+                                    <th>GF</th>
+                                    <th>GC</th>
+                                    <th>Prom. Goles</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Poblado por JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="flex: 1; min-width: 300px;">
+                    <h2>🏅 Campeones Anuales</h2>
+                    <div class="table-responsive">
+                        <table class="ranking-table" id="champions-table">
+                            <thead>
+                                <tr>
+                                    <th>Año/Mes</th>
+                                    <th>Campeón</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Poblado por JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

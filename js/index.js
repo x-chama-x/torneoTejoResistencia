@@ -143,6 +143,61 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        // --- Procesar Campeones ---
+        const campeones = {};
+        for (const line of lineasMatches) {
+            const l = line.trim();
+            if (!l || l.startsWith('#')) continue;
+
+            const parts = line.split(',');
+            if (parts.length >= 7) {
+                const torneo = parts[4].trim();
+                const fechaStr = parts[5].trim();
+                const fase = parts[6].trim();
+
+                if (fase === 'Final') {
+                    const j1 = parts[0].trim();
+                    const j2 = parts[1].trim();
+                    const resJ1 = parts[2].trim();
+
+                    const champion = resJ1 === 'G' ? j1 : j2;
+
+                    // Extraer mes/año
+                    const dateParts = fechaStr.split('/');
+                    let mesAnio = 'Desc.';
+                    if (dateParts.length >= 3) {
+                        const m = parseInt(dateParts[1], 10);
+                        const y = dateParts[2];
+                        const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                        if (m >= 1 && m <= 12) {
+                            mesAnio = `${meses[m-1]} ${y}`;
+                        }
+                    }
+
+                    // Asegurar que guardamos el campeón para el torneo
+                    campeones[torneo] = { champion, mesAnio, fecha: fechaStr };
+                }
+            }
+        }
+
+        // Pintar tabla campeones
+        const tbodyChampions = document.querySelector('#champions-table tbody');
+        if (tbodyChampions) {
+            Object.values(campeones).forEach(camp => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${camp.mesAnio}</td>
+                    <td><strong>${camp.champion}</strong></td>
+                `;
+                tbodyChampions.appendChild(tr);
+            });
+            if (Object.keys(campeones).length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="2" style="text-align:center; color:#8b949e;">Aún no hay campeones</td>`;
+                tbodyChampions.appendChild(tr);
+            }
+        }
+
     }).catch(error => {
         console.error('Error al cargar datos:', error);
     });
