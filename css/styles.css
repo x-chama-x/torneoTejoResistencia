@@ -481,6 +481,10 @@ select:hover {
         width: 30px;
     }
 
+    .bracket-col-semis, .bracket-col-final {
+        align-items: stretch; /* Forzar que los contendores estiren sus elementos hijos iguales */
+    }
+
     .bracket-col-semis {
         gap: 10px;
     }
@@ -495,6 +499,7 @@ select:hover {
     .bracket-fixture .match-card {
         padding: 8px;
         max-width: none;
+        width: 100%; /* Forzar que las tarjetas tomen todo el ancho de su columna igualitariamente */
         border-radius: 8px;
     }
 
