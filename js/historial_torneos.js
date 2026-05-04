@@ -340,6 +340,7 @@ function renderTournamentStats(allMatches, nombreTorneo) {
             golesGrupo: s.golesGrupo,
             golesFinal: s.golesFinal,
             totalGoles: s.golesGrupo + s.golesFinal,
+            gc: s.golesContra,
             dif: (difGoles > 0 ? '+' : '') + difGoles,
             partidos: s.partidos,
             promedio: s.partidos > 0 ? (s.golesGrupo + s.golesFinal) / s.partidos : 0,
@@ -363,6 +364,7 @@ function renderTournamentStats(allMatches, nombreTorneo) {
                 <th>${groupLabel}</th>
                 <th>Goles Fase Final</th>
                 <th>Total Goles (TG)</th>
+                <th>GC</th>
                 <th>DIF</th>
                 <th>Partidos (PJ)</th>
                 <th>Prom TG/PJ</th>
@@ -373,6 +375,7 @@ function renderTournamentStats(allMatches, nombreTorneo) {
                     <td>${s.golesGrupo}</td>
                     <td>${s.golesFinal}</td>
                     <td><strong>${s.totalGoles}</strong></td>
+                    <td>${s.gc}</td>
                     <td>${s.dif}</td>
                     <td>${s.partidos}</td>
                     <td><strong>${s.promedioStr}</strong></td>
