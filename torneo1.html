@@ -8,6 +8,20 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/torneo.css">
     <link rel="stylesheet" href="css/playoffs.css">
+    <style>
+        /* Layout específico para que Estadísticas quede bajo Posiciones en PC y bajo Resultados en Móvil */
+        @media (min-width: 901px) {
+            #col-posiciones { grid-column: 1; grid-row: 1; }
+            #col-resultados { grid-column: 2; grid-row: 1 / span 2; }
+            #col-stats { grid-column: 1; grid-row: 2; }
+        }
+        @media (max-width: 900px) {
+            .home-container { display: flex; flex-direction: column; }
+            #col-posiciones { order: 1; }
+            #col-resultados { order: 2; }
+            #col-stats { order: 3; }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
