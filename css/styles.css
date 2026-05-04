@@ -491,38 +491,38 @@ select:hover {
         margin-bottom: 6px;
     }
 
-    .bracket-fixture .match-card {
+    .bracket-fixture .match-card, #tercer-puesto-container .match-card {
         padding: 8px;
         max-width: none;
         border-radius: 8px;
     }
 
-    .bracket-fixture .match-number {
+    .bracket-fixture .match-number, #tercer-puesto-container .match-number {
         font-size: 9px;
         margin-bottom: 6px;
     }
 
-    .bracket-fixture .match-players {
+    .bracket-fixture .match-players, #tercer-puesto-container .match-players {
         margin: 6px 0;
         gap: 3px;
     }
 
-    .bracket-fixture .player {
+    .bracket-fixture .player, #tercer-puesto-container .player {
         font-size: 11px;
         min-width: 0;
     }
 
-    .bracket-fixture .vs {
+    .bracket-fixture .vs, #tercer-puesto-container .vs {
         padding: 0 4px;
         font-size: 11px;
     }
 
-    .bracket-fixture .score {
+    .bracket-fixture .score, #tercer-puesto-container .score {
         font-size: 14px;
         margin: 4px 0;
     }
 
-    .bracket-fixture .winner-badge {
+    .bracket-fixture .winner-badge, #tercer-puesto-container .winner-badge {
         font-size: 9px;
         padding: 3px 6px;
         border-radius: 12px;
@@ -581,13 +581,16 @@ select:hover {
     }
 
     h1 {
-        font-size: 1.8em;
+        font-size: 1.6em;
     }
 
-    .player-label {
-        width: 100%;
-        min-width: unset;
-        justify-content: flex-start;
+    h2 {
+        font-size: 1.3em;
+        text-align: center;
+    }
+    .ranking-table th, .ranking-table td {
+        padding: 5px 2px;
+        font-size: 0.70rem;
     }
 }
 
@@ -828,6 +831,10 @@ select:hover {
     .panel {
         padding: 15px;
     }
+    .ranking-table th, .ranking-table td {
+        padding: 6px 3px;
+        font-size: 0.75rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -839,17 +846,8 @@ select:hover {
         text-align: center;
     }
     .ranking-table th, .ranking-table td {
-        padding: 8px 4px;
-        font-size: 0.85rem;
-    }
-    .format-section {
-        padding: 15px;
-    }
-    .panel {
-        padding: 10px;
-    }
-    .container {
-        padding: 15px;
+        padding: 5px 2px;
+        font-size: 0.70rem;
     }
 }
 
