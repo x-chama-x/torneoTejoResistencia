@@ -214,9 +214,6 @@
     border-bottom: none;
 }
 
-.jugador-row:hover {
-    background: #21262d;
-}
 
 .jugador-info {
     display: flex;

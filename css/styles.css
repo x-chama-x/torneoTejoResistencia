@@ -322,9 +322,6 @@ select:hover {
     border-bottom: 1px solid #30363d;
 }
 
-.standings tr:hover {
-    background: #21262d;
-}
 
 /* REGLAS FINALES DE CONTRASTE: asegurar que texto siempre sea legible */
 .standings table th {
