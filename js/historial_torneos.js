@@ -91,20 +91,31 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
         if (tbody) {
             tbody.innerHTML = "";
             stdgs.forEach((s, idx) => {
+                const isClasificado = idx < 4;
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
-                    <td>${idx + 1}</td>
-                    <td><strong>${s.nombre}</strong></td>
+                    <td style="${isClasificado ? 'color: #4CAF50; font-weight: bold;' : ''}">${idx + 1}</td>
+                    <td style="${isClasificado ? 'color: #4CAF50; font-weight: bold;' : ''}"><strong>${s.nombre}</strong></td>
                     <td>${s.p}</td>
                     <td>${s.w}</td>
                     <td>${s.l}</td>
                     <td>${s.gf}</td>
                     <td>${s.gc}</td>
                     <td>${s.dif > 0 ? "+"+s.dif : s.dif}</td>
-                    <td><strong>${s.pts}</strong></td>
+                    <td style="${isClasificado ? 'color: #4CAF50;' : ''}"><strong>${s.pts}</strong></td>
                 `;
                 tbody.appendChild(tr);
             });
+
+            // Agregar la leyenda debajo de la tabla
+            const tableResp = tbody.closest(".table-responsive");
+            if (tableResp && !tableResp.nextElementSibling?.classList.contains("leyenda-clasificacion")) {
+                const leyenda = document.createElement("div");
+                leyenda.className = "leyenda-clasificacion";
+                leyenda.style = "margin-top: 10px; font-size: 0.85rem; color: #8b949e;";
+                leyenda.innerHTML = `<span style="color: #4CAF50; font-weight: bold; margin-right: 5px;">■</span> [1-4] Clasifica a playoffs`;
+                tableResp.parentElement.insertBefore(leyenda, tableResp.nextSibling);
+            }
         }
     } else {
         // Grupos
@@ -139,21 +150,26 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${stdgs.map((s, idx) => `
+                                    ${stdgs.map((s, idx) => {
+                                        const isClasificado = idx < 2;
+                                        return `
                                         <tr>
-                                            <td>${idx + 1}</td>
-                                            <td><strong>${s.nombre}</strong></td>
+                                            <td style="${isClasificado ? 'color: #4CAF50; font-weight: bold;' : ''}">${idx + 1}</td>
+                                            <td style="${isClasificado ? 'color: #4CAF50; font-weight: bold;' : ''}"><strong>${s.nombre}</strong></td>
                                             <td>${s.p}</td>
                                             <td>${s.w}</td>
                                             <td>${s.l}</td>
                                             <td>${s.gf}</td>
                                             <td>${s.gc}</td>
                                             <td>${s.dif > 0 ? "+"+s.dif : s.dif}</td>
-                                            <td><strong>${s.pts}</strong></td>
-                                        </tr>
-                                    `).join("")}
+                                            <td style="${isClasificado ? 'color: #4CAF50;' : ''}"><strong>${s.pts}</strong></td>
+                                        </tr>`;
+                                    }).join("")}
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="leyenda-clasificacion" style="margin-top: 10px; font-size: 0.85rem; color: #8b949e;">
+                            <span style="color: #4CAF50; font-weight: bold; margin-right: 5px;">■</span> [1-2] Clasifica a playoffs
                         </div>
                         </div>
                         <div>

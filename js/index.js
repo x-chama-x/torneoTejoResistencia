@@ -1,118 +1,149 @@
 document.addEventListener('DOMContentLoaded', () => {
-    fetch('ranking.txt')
-        .then(response => response.text())
-        .then(data => {
-            const lineas = data.split('\n');
-            const jugadores = [];
-            for (const linea of lineas) {
-                const l = linea.trim();
-                if (l && !l.startsWith('#')) {
-                    const partes = l.split(',');
-                    if (partes.length >= 4) {
-                        jugadores.push({
-                            nombre: partes[0].trim(),
-                            ranking: parseInt(partes[1].trim() || 0, 10),
-                            winRate: parseFloat(partes[2].trim() || 0),
-                            promedioGoles: parseFloat(partes[3].trim() || 0)
-                        });
-                    }
+    Promise.all([
+        fetch('ranking.txt').then(r => r.text()),
+        fetch('enfrentamientos_directos.txt').then(r => r.text())
+    ]).then(([rankingData, matchesData]) => {
+        // --- Procesar Ranking ---
+        const lineasRanking = rankingData.split('\n');
+        const mapRanking = {};
+        const jugadoresRanking = [];
+        for (const linea of lineasRanking) {
+            const l = linea.trim();
+            if (l && !l.startsWith('#')) {
+                const partes = l.split(',');
+                if (partes.length >= 4) {
+                    const nombre = partes[0].trim();
+                    const ranking = parseInt(partes[1].trim() || 0, 10);
+                    mapRanking[nombre] = ranking;
+                    jugadoresRanking.push({
+                        nombre: nombre,
+                        ranking: ranking,
+                        winRate: parseFloat(partes[2].trim() || 0),
+                        promedioGoles: parseFloat(partes[3].trim() || 0)
+                    });
                 }
             }
-            // Ordenar por ranking (mayor a menor)
-            jugadores.sort((a, b) => b.ranking - a.ranking);
-            const tbody = document.querySelector('#ranking-table tbody');
-            if(tbody) {
-                jugadores.forEach((j, index) => {
-                    const tr = document.createElement('tr');
+        }
 
-                    const tdPos = document.createElement('td');
-                    tdPos.textContent = index + 1;
-                    tr.appendChild(tdPos);
+        // Ordenar por ranking
+        jugadoresRanking.sort((a, b) => b.ranking - a.ranking);
 
-                    const tdNombre = document.createElement('td');
-                    const strong = document.createElement('strong');
-                    strong.textContent = j.nombre;
-                    tdNombre.appendChild(strong);
-                    tr.appendChild(tdNombre);
+        // Pintar tabla ranking
+        const tbodyRanking = document.querySelector('#ranking-table tbody');
+        if (tbodyRanking) {
+            jugadoresRanking.forEach((j, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${index + 1}</td><td><strong>${j.nombre}</strong></td><td>${j.ranking}</td>`;
+                tbodyRanking.appendChild(tr);
+            });
+        }
 
-                    const tdRanking = document.createElement('td');
-                    tdRanking.textContent = j.ranking;
-                    tr.appendChild(tdRanking);
+        // --- Procesar Partidos ---
+        const lineasMatches = matchesData.split('\n');
+        const gmap = {}; // Goles globales (sin amistosos, para el ranking histórico)
+        const statsGeneral = {}; // Estadísticas web generales
 
-                    tbody.appendChild(tr);
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error al cargar ranking.txt:', error);
-        });
+        for (const line of lineasMatches) {
+            const l = line.trim();
+            if (!l || l.startsWith('#')) continue;
 
-    fetch('enfrentamientos_directos.txt')
-        .then(response => response.text())
-        .then(data => {
-            const lines = data.split('\n');
-            const gmap = {}; // Mapa para acumular goles por jugador
+            const parts = line.split(',');
+            if (parts.length >= 4) {
+                const j1 = parts[0].trim();
+                const j2 = parts[1].trim();
+                const res = parts[2].trim(); // G, P, E
+                const marcador = parts[3].trim();
+                const torneo = parts.length > 4 ? parts[4].trim() : '';
 
-            for (const r_line of lines) {
-                const line = r_line.trim();
-                // Ignorar líneas vacías o comentarios
-                if (!line || line.startsWith('#')) continue;
-
-                const parts = line.split(',');
-                if (parts.length >= 4) {
-                    const j1 = parts[0].trim();
-                    const j2 = parts[1].trim();
-                    const marcador = parts[3].trim();
-                    const torneo = parts.length > 4 ? parts[4].trim() : '';
-
-                    // No contar goles de partidos amistosos
-                    if (torneo.toLowerCase().includes('amistoso')) continue;
-
+                // Stats para ranking de goles (omitiendo amistosos)
+                if (!torneo.toLowerCase().includes('amistoso')) {
                     const goles = marcador.split('-');
                     if (goles.length === 2) {
                         const g1 = parseInt(goles[0], 10);
                         const g2 = parseInt(goles[1], 10);
+                        if (!isNaN(g1)) gmap[j1] = (gmap[j1] || 0) + g1;
+                        if (!isNaN(g2)) gmap[j2] = (gmap[j2] || 0) + g2;
+                    }
+                }
 
-                        if (!isNaN(g1)) {
-                            gmap[j1] = (gmap[j1] || 0) + g1;
-                        }
-                        if (!isNaN(g2)) {
-                            gmap[j2] = (gmap[j2] || 0) + g2;
-                        }
+                // Stats generales (todos los partidos)
+                if (!statsGeneral[j1]) statsGeneral[j1] = { pj:0, g:0, p:0, e:0, gf:0, gc:0 };
+                if (!statsGeneral[j2]) statsGeneral[j2] = { pj:0, g:0, p:0, e:0, gf:0, gc:0 };
+
+                const goles = marcador.split('-');
+                if (goles.length === 2) {
+                    const g1 = parseInt(goles[0], 10);
+                    const g2 = parseInt(goles[1], 10);
+
+                    if (!isNaN(g1) && !isNaN(g2)) {
+                        statsGeneral[j1].pj++; statsGeneral[j2].pj++;
+                        statsGeneral[j1].gf += g1; statsGeneral[j1].gc += g2;
+                        statsGeneral[j2].gf += g2; statsGeneral[j2].gc += g1;
+
+                        if (g1 > g2) { statsGeneral[j1].g++; statsGeneral[j2].p++; }
+                        else if (g1 < g2) { statsGeneral[j1].p++; statsGeneral[j2].g++; }
+                        else { statsGeneral[j1].e++; statsGeneral[j2].e++; }
                     }
                 }
             }
+        }
 
-            // Convertir a array, filtrar los que tengan 0 goles, y ordenar
-            const arr = Object.keys(gmap)
-                .map(nombre => ({ nombre, goles: gmap[nombre] }))
-                .filter(j => j.goles > 0);
-            arr.sort((a, b) => b.goles - a.goles);
+        // Pintar tabla ranking de goles
+        const arrGoles = Object.keys(gmap)
+            .map(nombre => ({ nombre, goles: gmap[nombre] }))
+            .filter(j => j.goles > 0);
+        arrGoles.sort((a, b) => b.goles - a.goles);
 
-            const tbodyGoals = document.querySelector('#goals-ranking-table tbody');
-            if(tbodyGoals) {
-                arr.forEach((j, index) => {
-                    const tr = document.createElement('tr');
+        const tbodyGoals = document.querySelector('#goals-ranking-table tbody');
+        if (tbodyGoals) {
+            arrGoles.forEach((j, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${index + 1}</td><td><strong>${j.nombre}</strong></td><td>${j.goles}</td>`;
+                tbodyGoals.appendChild(tr);
+            });
+        }
 
-                    const tdPos = document.createElement('td');
-                    tdPos.textContent = index + 1;
-                    tr.appendChild(tdPos);
-
-                    const tdNombre = document.createElement('td');
-                    const strong = document.createElement('strong');
-                    strong.textContent = j.nombre;
-                    tdNombre.appendChild(strong);
-                    tr.appendChild(tdNombre);
-
-                    const tdGoles = document.createElement('td');
-                    tdGoles.textContent = j.goles;
-                    tr.appendChild(tdGoles);
-
-                    tbodyGoals.appendChild(tr);
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error al cargar enfrentamientos_directos.txt:', error);
+        // Pintar tabla estadísticas generales
+        const arrStats = Object.keys(statsGeneral).map(nombre => {
+            const s = statsGeneral[nombre];
+            const winRate = s.pj > 0 ? ((s.g / s.pj) * 100).toFixed(1) + "%" : "0.0%";
+            const promGoles = s.pj > 0 ? (s.gf / s.pj).toFixed(2) : "0.00";
+            return {
+                nombre,
+                pj: s.pj,
+                g: s.g,
+                p: s.p,
+                winRate,
+                gf: s.gf,
+                gc: s.gc,
+                promGoles,
+                rankingPts: mapRanking[nombre] || 0 // Usar como llave de ordenamiento
+            };
         });
+
+        // Ordenar por puntos del ranking fifa de mayor a menor
+        arrStats.sort((a, b) => b.rankingPts - a.rankingPts);
+
+        const tbodyStats = document.querySelector('#general-stats-table tbody');
+        if (tbodyStats) {
+            arrStats.forEach((j, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><strong>${j.nombre}</strong></td>
+                    <td>${j.pj}</td>
+                    <td>${j.g}</td>
+                    <td>${j.p}</td>
+                    <td><strong>${j.winRate}</strong></td>
+                    <td>${j.gf}</td>
+                    <td>${j.gc}</td>
+                    <td><strong>${j.promGoles}</strong></td>
+                `;
+                tbodyStats.appendChild(tr);
+            });
+        }
+
+    }).catch(error => {
+        console.error('Error al cargar datos:', error);
+    });
 });
