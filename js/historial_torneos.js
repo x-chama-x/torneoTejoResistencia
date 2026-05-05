@@ -353,8 +353,8 @@ function renderTournamentStats(allMatches, nombreTorneo) {
     const mejorPromedio = statsArray[0].promedio;
     const goleadores = statsArray.filter(s => s.promedio === mejorPromedio);
     const goleadorText = goleadores.length === 1
-        ? `⚽ <strong style="color: #667eea;">${goleadores[0].nombre}</strong> es el goleador del torneo con un promedio de <strong style="color: #667eea;">${goleadores[0].promedioStr}</strong> goles por partido`
-        : `⚽ ${goleadores.map(g => `<strong style="color: #667eea;">${g.nombre}</strong>`).join(", ").replace(/,([^,]*)$/, " y$1")} son los goleadores del torneo con un promedio de <strong style="color: #667eea;">${goleadores[0].promedioStr}</strong> goles por partido`;
+        ? `<strong style="color: #667eea;">${goleadores[0].nombre}</strong> es el goleador del torneo con un promedio de <strong style="color: #667eea;">${goleadores[0].promedioStr}</strong> goles por partido`
+        : `${goleadores.map(g => `<strong style="color: #667eea;">${g.nombre}</strong>`).join(", ").replace(/,([^,]*)$/, " y$1")} son los goleadores del torneo con un promedio de <strong style="color: #667eea;">${goleadores[0].promedioStr}</strong> goles por partido`;
 
     statsContainer.innerHTML = `
         <h2>📊 ESTADÍSTICAS DEL TORNEO</h2>

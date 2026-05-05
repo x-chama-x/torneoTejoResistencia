@@ -1136,7 +1136,7 @@ function simularTorneo() {
     if (goleadores.length === 1) {
         // Un solo goleador
         html += `<p style="margin: 0; font-size: 18px; font-weight: bold; color: #333;">
-            ⚽ <strong style="color: #667eea;">${goleadores[0].nombre}</strong> es el goleador del torneo con un promedio de <strong style="color: #667eea;">${goleadores[0].promedioStr}</strong> goles por partido
+            <strong style="color: #667eea;">${goleadores[0].nombre}</strong> es el goleador del torneo con un promedio de <strong style="color: #667eea;">${goleadores[0].promedioStr}</strong> goles por partido
         </p>`;
     } else {
         // Empate: múltiples goleadores
