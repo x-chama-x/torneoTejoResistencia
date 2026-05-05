@@ -136,7 +136,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                     <h3 style="margin-bottom: 1rem; color: #58a6ff;">${gName}</h3>
                     <div class="home-container">
                         <div>
-                            <h4 style="margin-bottom: 1rem; text-align: center; color: #8b949e;">Posiciones</h4>
+                            <h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Posiciones</h4>
                             <div class="table-responsive">
                                 <table class="ranking-table">
                                 <thead>
@@ -154,8 +154,8 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                                 </thead>
                                 <tbody>
                                     ${stdgs.map((s, idx) => {
-                                        const isClasificado = idx < 2;
-                                        return `
+                    const isClasificado = idx < 2;
+                    return `
                                         <tr ${isClasificado ? 'style="background: rgba(46, 160, 67, 0.15);"' : ''}>
                                             <td>${idx + 1}</td>
                                             <td><strong>${s.nombre}</strong></td>
@@ -164,10 +164,10 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                                             <td>${s.l}</td>
                                             <td>${s.gf}</td>
                                             <td>${s.gc}</td>
-                                            <td>${s.dif > 0 ? "+"+s.dif : s.dif}</td>
+                                            <td>${s.dif > 0 ? "+" + s.dif : s.dif}</td>
                                             <td><strong>${s.pts}</strong></td>
                                         </tr>`;
-                                    }).join("")}
+                }).join("")}
                                 </tbody>
                             </table>
                         </div>
@@ -177,7 +177,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                         </div>
                         </div>
                         <div>
-                            <h4 style="margin-bottom: 1rem; text-align: center; color: #8b949e;">Resultados</h4>
+                            <h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Resultados</h4>
                             <div class="table-responsive">
                                 <table class="ranking-table align-center">
                                     <thead>
@@ -189,16 +189,16 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                                     </thead>
                                     <tbody>
                                         ${gMatches.map(m => {
-                                            const g = m.marcador.split("-").map(Number);
-                                            const w1 = g[0] > g[1];
-                                            const w2 = g[1] > g[0];
-                                            return `
+                    const g = m.marcador.split("-").map(Number);
+                    const w1 = g[0] > g[1];
+                    const w2 = g[1] > g[0];
+                    return `
                                             <tr>
                                                 <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #4CAF50;' : ''}">${m.j1}</td>
                                                 <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${m.marcador}</td>
                                                 <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #4CAF50;' : ''}">${m.j2}</td>
                                             </tr>`;
-                                        }).join("")}
+                }).join("")}
                                     </tbody>
                                 </table>
                             </div>
