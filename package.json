@@ -1,0 +1,9 @@
+{
+  "name": "torneo-tejo-resistencia",
+  "version": "1.0.0",
+  "description": "Torneo de Tejo Web",
+  "dependencies": {
+    "@vercel/kv": "^3.0.0"
+  }
+}
+
