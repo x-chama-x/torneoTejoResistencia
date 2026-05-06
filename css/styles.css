@@ -875,6 +875,18 @@ select:hover {
     .index-layout > div[style*="margin-top"] {
         margin-top: 0 !important;
     }
+
+    /* Make Campeones and Poll independent flex items on mobile */
+    .campeones-wrapper {
+        display: contents;
+    }
+
+    /* Move Poll to the top */
+    #encuesta-panel {
+        order: -1;
+        margin-top: 0 !important;
+    }
+
     #formatos-panel {
         order: 99;
         margin-top: 2rem;
