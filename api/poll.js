@@ -1,12 +1,27 @@
-import { kv } from "@vercel/kv";
+import { createClient } from 'redis';
+
+let redisClient = null;
+
+async function getRedisClient() {
+    if (!redisClient) {
+        // Vercel inyecta automáticamente REDIS_URL cuando conectás esa base de datos
+        redisClient = createClient({ url: process.env.REDIS_URL });
+        redisClient.on('error', err => console.error('Redis Client Error', err));
+        await redisClient.connect();
+    }
+    return redisClient;
+}
 
 export default async function handler(req, res) {
     try {
+        const client = await getRedisClient();
+        
         // Obtenemos la IP real a través de los headers que Vercel inyecta automáticamente
         const ip = req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || 'local-ip';
-
+        
         if (req.method === 'GET') {
-            const data = (await kv.get('poll_data')) || { votes: {}, ips: [] };
+            const rawData = await client.get('poll_data');
+            const data = rawData ? JSON.parse(rawData) : { votes: {}, ips: [] };
 
             // Devolvemos los votos actuales y si esta IP ya participó
             return res.status(200).json({
@@ -22,7 +37,8 @@ export default async function handler(req, res) {
                 return res.status(400).json({ error: 'Jugador no especificado' });
             }
 
-            let data = (await kv.get('poll_data')) || { votes: {}, ips: [] };
+            const rawData = await client.get('poll_data');
+            let data = rawData ? JSON.parse(rawData) : { votes: {}, ips: [] };
 
             // Validar si la IP ya votó
             if (data.ips.includes(ip)) {
@@ -34,7 +50,7 @@ export default async function handler(req, res) {
             data.votes[player] = (data.votes[player] || 0) + 1;
 
             // Guardar el nuevo estado en la base de datos
-            await kv.set('poll_data', data);
+            await client.set('poll_data', JSON.stringify(data));
 
             return res.status(200).json({ success: true, data });
         }
