@@ -1,14 +1,20 @@
 import { kv } from "@vercel/kv";
 
 export default async function handler(req, res) {
+    // Obtenemos la IP real a través de los headers que Vercel inyecta automáticamente
+    const ip = req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || 'local-ip';
+
     if (req.method === 'GET') {
         const data = (await kv.get('poll_data')) || { votes: {}, ips: [] };
-        return res.status(200).json(data);
+
+        // Devolvemos los votos actuales y si esta IP ya participó
+        return res.status(200).json({
+            votes: data.votes,
+            yaVoto: data.ips.includes(ip)
+        });
     }
 
     if (req.method === 'POST') {
-        // Obtenemos la IP real a través de los headers que Vercel inyecta automáticamente
-        const ip = req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || 'local-ip';
         const { player } = req.body;
 
         if (!player) {
@@ -34,4 +40,3 @@ export default async function handler(req, res) {
 
     return res.status(405).json({ error: 'Método no permitido' });
 }
-

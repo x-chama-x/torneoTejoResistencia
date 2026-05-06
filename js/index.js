@@ -264,8 +264,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(r => r.json())
                 .then(data => {
                     pollMsg.textContent = "";
-                    // Si quisieras bloquear la UI desde el inicio, Vercel requiere llamar un endpoint para saber tu propia IP
-                    // Pero simplemente dejamos que la API rechace el voto si la IP ya existe.
+
+                    // Vercel no envía la IP al cliente mediante GET normal, pero podemos deducir que si la IP
+                    // ya votó es mediante el click de registrar. Podríamos dejarlo como está.
+                    // Sin embargo, podemos pedir un GET también con la IP real desde el backend.
+                    if (data.yaVoto) {
+                        pollMsg.style.color = '#ff9800';
+                        pollMsg.textContent = 'Ya participaste de esta encuesta.';
+                        updatePollUI(data.votes);
+                    }
                 })
                 .catch(err => {
                     pollMsg.textContent = "";
