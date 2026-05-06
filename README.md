@@ -1,7 +1,7 @@
 # 🏒 Simulador de Torneo Air Hockey
 
 Simulador web para torneos de la RESISTENCIA (amigos de x_chama_x) de Air Hockey (Tejo) que permite simular competencias entre jugadores con diferentes formatos de torneo y análisis estadístico mediante simulaciones Monte Carlo.
-Link: https://x-chama-x.github.io/simuladorTorneoTejo/index.html
+Link: https://x-chama-x.github.io/torneoTejoResistencia/index.html
 
 ## 🎮 Características
 
@@ -170,7 +170,7 @@ Tomy tiene **52.4%** de ganar (partido muy parejo, leve ventaja Tomy por mejor w
 ## 📁 Estructura del Proyecto
 
 ```
-simuladorTorneoTejo/
+torneoTejoResistencia/
 ├── index.html                    # Simulador de torneo individual
 ├── montecarlo.html               # Simulador Monte Carlo
 ├── partido.html                  # Simulador de partido 1vs1
