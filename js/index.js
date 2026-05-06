@@ -294,12 +294,22 @@ document.addEventListener('DOMContentLoaded', () => {
                         body: JSON.stringify({ player: selected })
                     });
 
-                    const result = await res.json();
+                    // Intentar leer la respuesta (puede no ser JSON si Vercel crashea muy feo)
+                    let result;
+                    try {
+                        result = await res.json();
+                    } catch (e) {
+                        throw new Error(`Error en el servidor de Vercel (Status: ${res.status}). Revisa los logs en Vercel.`);
+                    }
 
                     if (!res.ok) {
                         pollMsg.style.color = '#ff9800';
-                        pollMsg.textContent = result.error || 'Ocurrió un error.';
-                        if (result.data) updatePollUI(result.data.votes);
+                        pollMsg.textContent = result.error || 'Ocurrió un error general.';
+
+                        // Si el error es por rate limit, avisar específicamente
+                        if (result.error && result.error.includes('rate limit')) {
+                            pollMsg.textContent = 'Demasiados intentos. Por favor espera y vuelve a intentar.';
+                        }
                     } else {
                         pollMsg.style.color = '#2ea043';
                         pollMsg.textContent = '¡Voto registrado con éxito en la nube!';
@@ -307,7 +317,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } catch (err) {
                     pollMsg.style.color = '#f85149';
-                    pollMsg.textContent = 'Error de conexión. Intenta de nuevo.';
+                    pollMsg.textContent = err.message || 'Error de conexión. Intenta de nuevo.';
+                    console.error("Voto falló:", err);
                     pollBtn.disabled = false;
                 }
             });
