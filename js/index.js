@@ -257,55 +257,52 @@ document.addEventListener('DOMContentLoaded', () => {
                 pollResultsDiv.style.display = 'block';
             };
 
-            // Simulación de DB de Votos con LocalStorage
-            // (Para un ambiente real, reemplazar con fetch a Firebase/JSONBin)
-            const getVotesFromStorage = () => {
-                const raw = localStorage.getItem('tejo_poll_votes');
-                return raw ? JSON.parse(raw) : {};
-            };
-            const saveVotesToStorage = (votes) => {
-                localStorage.setItem('tejo_poll_votes', JSON.stringify(votes));
-            };
+            // Consultar a la API de Vercel los votos actuales y si el usuario ya votó
+            pollMsg.textContent = "Cargando encuesta...";
 
-            // Determinar si ya votó verificando la "IP"
-            let userIP = 'local';
-
-            // Usar una API gratuita para obtener IP
-            fetch('https://api.ipify.org?format=json')
+            fetch('/api/poll')
                 .then(r => r.json())
                 .then(data => {
-                    userIP = data.ip;
-                    const votedIPs = JSON.parse(localStorage.getItem('tejo_poll_ips') || '[]');
-                    if (votedIPs.includes(userIP)) {
-                        pollMsg.textContent = 'Ya participaste de esta encuesta.';
-                        updatePollUI(getVotesFromStorage());
-                    }
-                }).catch(err => {
-                    console.log('Error obteniendo IP, se usará identificador local');
+                    pollMsg.textContent = "";
+                    // Si quisieras bloquear la UI desde el inicio, Vercel requiere llamar un endpoint para saber tu propia IP
+                    // Pero simplemente dejamos que la API rechace el voto si la IP ya existe.
+                })
+                .catch(err => {
+                    pollMsg.textContent = "";
+                    console.log('No se pudo conectar a la API de votos');
                 });
 
-            pollBtn.addEventListener('click', () => {
+            pollBtn.addEventListener('click', async () => {
                 const selected = pollSelect.value;
                 if (!selected) return;
 
-                const votedIPs = JSON.parse(localStorage.getItem('tejo_poll_ips') || '[]');
-                if (votedIPs.includes(userIP)) {
-                    pollMsg.textContent = 'Ya participaste de esta encuesta.';
-                    updatePollUI(getVotesFromStorage());
-                    return;
+                pollBtn.disabled = true;
+                pollMsg.style.color = '#c9d1d9';
+                pollMsg.textContent = 'Enviando voto...';
+
+                try {
+                    const res = await fetch('/api/poll', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ player: selected })
+                    });
+
+                    const result = await res.json();
+
+                    if (!res.ok) {
+                        pollMsg.style.color = '#ff9800';
+                        pollMsg.textContent = result.error || 'Ocurrió un error.';
+                        if (result.data) updatePollUI(result.data.votes);
+                    } else {
+                        pollMsg.style.color = '#2ea043';
+                        pollMsg.textContent = '¡Voto registrado con éxito en la nube!';
+                        updatePollUI(result.data.votes);
+                    }
+                } catch (err) {
+                    pollMsg.style.color = '#f85149';
+                    pollMsg.textContent = 'Error de conexión. Intenta de nuevo.';
+                    pollBtn.disabled = false;
                 }
-
-                // Registrar voto
-                votedIPs.push(userIP);
-                localStorage.setItem('tejo_poll_ips', JSON.stringify(votedIPs));
-
-                const votes = getVotesFromStorage();
-                votes[selected] = (votes[selected] || 0) + 1;
-                saveVotesToStorage(votes);
-
-                pollMsg.textContent = '¡Voto registrado con éxito!';
-                pollMsg.style.color = '#2ea043';
-                updatePollUI(votes);
             });
         }
 
