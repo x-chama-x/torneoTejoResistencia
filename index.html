@@ -146,6 +146,25 @@
                         </table>
                     </div>
                 </div>
+
+                <div class="panel" style="margin-top: 2rem;">
+                    <h2>🔮 Encuesta: ¿Quién va a ganar el próximo torneo?</h2>
+                    <p style="color: #8b949e; margin-bottom: 1rem; font-size: 0.9em;">(Un voto por persona)</p>
+                    <div id="poll-ui">
+                        <select id="poll-player-select" style="width: 100%; margin-bottom: 1rem; padding: 0.5rem; background: #21262d; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px;">
+                            <option value="">Selecciona un jugador...</option>
+                            <!-- Poblado por JS -->
+                        </select>
+                        <button id="poll-vote-btn" class="menu-btn" style="width: 100%; margin: 0; padding: 0.75rem;">Votar</button>
+                    </div>
+                    <div id="poll-results" style="display: none; margin-top: 1.5rem;">
+                        <h3 style="margin-bottom: 1rem;">Resultados:</h3>
+                        <div id="poll-bars">
+                            <!-- Poblado por JS -->
+                        </div>
+                    </div>
+                    <p id="poll-message" style="margin-top: 1rem; color: #ff9800; text-align: center; font-size: 0.9em;"></p>
+                </div>
             </div>
         </div>
         </div>
