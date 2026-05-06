@@ -199,6 +199,116 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // --- Encuesta: ¿Quién va a ganar el próximo torneo? ---
+        const pollSelect = document.getElementById('poll-player-select');
+        const pollBtn = document.getElementById('poll-vote-btn');
+        const pollResultsDiv = document.getElementById('poll-results');
+        const pollBarsDiv = document.getElementById('poll-bars');
+        const pollMsg = document.getElementById('poll-message');
+
+        if (pollSelect && pollBtn) {
+            // Llenar select con jugadores del ranking
+            jugadoresRanking.forEach(j => {
+                const opt = document.createElement('option');
+                opt.value = j.nombre;
+                opt.textContent = j.nombre;
+                pollSelect.appendChild(opt);
+            });
+
+            // Función para renderizar resultados
+            const updatePollUI = (votes) => {
+                const totalVotes = Object.values(votes).reduce((a, b) => a + b, 0);
+                pollBarsDiv.innerHTML = '';
+
+                const sortedVotes = Object.entries(votes).sort((a, b) => b[1] - a[1]);
+
+                sortedVotes.forEach(([player, count]) => {
+                    const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
+
+                    const barContainer = document.createElement('div');
+                    barContainer.style.marginBottom = '0.5rem';
+
+                    const labelDiv = document.createElement('div');
+                    labelDiv.style.display = 'flex';
+                    labelDiv.style.justifyContent = 'space-between';
+                    labelDiv.style.fontSize = '0.9em';
+                    labelDiv.style.marginBottom = '0.2rem';
+                    labelDiv.innerHTML = `<span>${player}</span> <span>${pct}% (${count} votos)</span>`;
+
+                    const trackDiv = document.createElement('div');
+                    trackDiv.style.background = '#30363d';
+                    trackDiv.style.height = '8px';
+                    trackDiv.style.borderRadius = '4px';
+                    trackDiv.style.overflow = 'hidden';
+
+                    const fillDiv = document.createElement('div');
+                    fillDiv.style.background = '#2ea043';
+                    fillDiv.style.height = '100%';
+                    fillDiv.style.width = `${pct}%`;
+                    fillDiv.style.transition = 'width 0.5s ease-out';
+
+                    trackDiv.appendChild(fillDiv);
+                    barContainer.appendChild(labelDiv);
+                    barContainer.appendChild(trackDiv);
+                    pollBarsDiv.appendChild(barContainer);
+                });
+
+                document.getElementById('poll-ui').style.display = 'none';
+                pollResultsDiv.style.display = 'block';
+            };
+
+            // Simulación de DB de Votos con LocalStorage
+            // (Para un ambiente real, reemplazar con fetch a Firebase/JSONBin)
+            const getVotesFromStorage = () => {
+                const raw = localStorage.getItem('tejo_poll_votes');
+                return raw ? JSON.parse(raw) : {};
+            };
+            const saveVotesToStorage = (votes) => {
+                localStorage.setItem('tejo_poll_votes', JSON.stringify(votes));
+            };
+
+            // Determinar si ya votó verificando la "IP"
+            let userIP = 'local';
+
+            // Usar una API gratuita para obtener IP
+            fetch('https://api.ipify.org?format=json')
+                .then(r => r.json())
+                .then(data => {
+                    userIP = data.ip;
+                    const votedIPs = JSON.parse(localStorage.getItem('tejo_poll_ips') || '[]');
+                    if (votedIPs.includes(userIP)) {
+                        pollMsg.textContent = 'Ya participaste de esta encuesta.';
+                        updatePollUI(getVotesFromStorage());
+                    }
+                }).catch(err => {
+                    console.log('Error obteniendo IP, se usará identificador local');
+                });
+
+            pollBtn.addEventListener('click', () => {
+                const selected = pollSelect.value;
+                if (!selected) return;
+
+                const votedIPs = JSON.parse(localStorage.getItem('tejo_poll_ips') || '[]');
+                if (votedIPs.includes(userIP)) {
+                    pollMsg.textContent = 'Ya participaste de esta encuesta.';
+                    updatePollUI(getVotesFromStorage());
+                    return;
+                }
+
+                // Registrar voto
+                votedIPs.push(userIP);
+                localStorage.setItem('tejo_poll_ips', JSON.stringify(votedIPs));
+
+                const votes = getVotesFromStorage();
+                votes[selected] = (votes[selected] || 0) + 1;
+                saveVotesToStorage(votes);
+
+                pollMsg.textContent = '¡Voto registrado con éxito!';
+                pollMsg.style.color = '#2ea043';
+                updatePollUI(votes);
+            });
+        }
+
     }).catch(error => {
         console.error('Error al cargar datos:', error);
     });
