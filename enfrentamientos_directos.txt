@@ -61,5 +61,6 @@ Mateo,Santi,G,7-5,Amistoso,7/5/2025,Amistoso
 Facu,Kovic,G,7-3,Amistoso,7/5/2025,Amistoso
 Lucas,Kovic,G,7-4,Amistoso,2/8/2025,Amistoso
 Chama,Facu,G,7-3,Amistoso,2/4/2026,Amistoso
-Chama,Marco,G,7-5,Amistoso,2/4/2026,Amistoso
 Marco,Facu,G,7-6,Amistoso,2/4/2026,Amistoso
+Chama,Marco,G,7-5,Amistoso,2/4/2026,Amistoso
+
