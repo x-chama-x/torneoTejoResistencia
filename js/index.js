@@ -28,20 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Ordenar por ranking
         jugadoresRanking.sort((a, b) => b.ranking - a.ranking);
 
-        // Pintar tabla ranking
-        const tbodyRanking = document.querySelector('#ranking-table tbody');
-        if (tbodyRanking) {
-            jugadoresRanking.forEach((j, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${index + 1}</td><td><strong>${j.nombre}</strong></td><td>${j.ranking}</td>`;
-                tbodyRanking.appendChild(tr);
-            });
-        }
-
         // --- Procesar Partidos ---
         const lineasMatches = matchesData.split('\n');
-        const gmap = {}; // Goles globales (sin amistosos, para el ranking histórico)
-        const statsGeneral = {}; // Estadísticas web generales
+        const gmap = {}; // Goles globales (sin amistosos, para el ranking histrico)
+        const statsGeneral = {}; // Estadsticas web generales
+        const matchHistory = {}; // Para la racha
 
         for (const line of lineasMatches) {
             const l = line.trim();
@@ -54,6 +45,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 const res = parts[2].trim(); // G, P, E
                 const marcador = parts[3].trim();
                 const torneo = parts.length > 4 ? parts[4].trim() : '';
+
+                // Historial para racha
+                if (!matchHistory[j1]) matchHistory[j1] = [];
+                if (!matchHistory[j2]) matchHistory[j2] = [];
+
+                if (res === 'G') {
+                    matchHistory[j1].push('G');
+                    matchHistory[j2].push('P');
+                } else if (res === 'P') {
+                    matchHistory[j1].push('P');
+                    matchHistory[j2].push('G');
+                } else if (res === 'E') {
+                    matchHistory[j1].push('E');
+                    matchHistory[j2].push('E');
+                }
 
                 // Stats para ranking de goles (omitiendo amistosos)
                 if (!torneo.toLowerCase().includes('amistoso')) {
@@ -86,6 +92,33 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             }
+        }
+
+        // Pintar tabla ranking
+        const tbodyRanking = document.querySelector('#ranking-table tbody');
+        if (tbodyRanking) {
+            jugadoresRanking.forEach((j, index) => {
+                const tr = document.createElement('tr');
+                let rachaHtml = '<div class="streak-container">';
+                const historial = matchHistory[j.nombre] || [];
+                // ltimos 5 partidos
+                const ultimos5 = historial.slice(-5);
+                // Rellenar con vacos si hay menos de 5
+                for (let i = 0; i < 5; i++) {
+                    if (i < ultimos5.length) {
+                        const res = ultimos5[i];
+                        if (res === 'G') rachaHtml += '<span class="streak-box streak-w" title="Ganado">G</span>';
+                        else if (res === 'E') rachaHtml += '<span class="streak-box streak-d" title="Empatado">E</span>';
+                        else if (res === 'P') rachaHtml += '<span class="streak-box streak-l" title="Perdido">P</span>';
+                    } else {
+                        rachaHtml += '<span class="streak-box streak-empty"></span>';
+                    }
+                }
+                rachaHtml += '</div>';
+
+                tr.innerHTML = `<td>${index + 1}</td><td><strong>${j.nombre}</strong></td><td>${j.ranking}</td><td>${rachaHtml}</td>`;
+                tbodyRanking.appendChild(tr);
+            });
         }
 
         // Pintar tabla ranking de goles
