@@ -149,7 +149,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                                         <th>GF</th>
                                         <th>GC</th>
                                         <th>DIF</th>
-                                        <th>PTS (Goles)</th>
+                                        <th>PTS(GF)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -362,11 +362,11 @@ function renderTournamentStats(allMatches, nombreTorneo) {
             <thead><tr>
                 <th>Jugador</th>
                 <th>${groupLabel}</th>
-                <th>Goles Fase Final</th>
-                <th>Total Goles (TG)</th>
+                <th>G(PO)</th>
+                <th>TG</th>
                 <th>GC</th>
                 <th>DIF</th>
-                <th>Partidos (PJ)</th>
+                <th>PJ</th>
                 <th>Prom TG/PJ</th>
             </tr></thead>
             <tbody>${statsArray.map(s => `
