@@ -304,7 +304,7 @@ function renderTournamentStats(allMatches, nombreTorneo) {
     if (!statsContainer) return;
 
     const isLiga = nombreTorneo.includes("Primer");
-    const groupLabel = isLiga ? "Goles Liga" : "Goles Grupos";
+    const groupLabel = isLiga ? "G(FL)" : "G(FG)";
 
     const groupMatches = allMatches.filter(m => m.fase.includes("Fase"));
     const playoffMatches = allMatches.filter(m => !m.fase.includes("Fase"));
