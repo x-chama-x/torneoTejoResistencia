@@ -141,7 +141,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                                 <table class="ranking-table">
                                 <thead>
                                     <tr>
-                                        <th>Pos</th>
+                                        <th>#</th>
                                         <th>Jugador</th>
                                         <th>PJ</th>
                                         <th>G</th>
@@ -149,7 +149,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                                         <th>GF</th>
                                         <th>GC</th>
                                         <th>DIF</th>
-                                        <th>Pts (Goles)</th>
+                                        <th>PTS (Goles)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
