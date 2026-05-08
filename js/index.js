@@ -34,6 +34,32 @@ document.addEventListener('DOMContentLoaded', () => {
         const statsGeneral = {}; // Estadsticas web generales
         const matchHistory = {}; // Para la racha
 
+        // Función para parsear fecha en formato d/m/yyyy a objeto Date
+        const parseFecha = (fechaStr) => {
+            if (!fechaStr) return new Date(0);
+            const partes = fechaStr.split('/');
+            if (partes.length >= 3) {
+                const dia = parseInt(partes[0], 10);
+                const mes = parseInt(partes[1], 10) - 1; // Meses en JS son 0-11
+                const anio = parseInt(partes[2], 10);
+                return new Date(anio, mes, dia);
+            }
+            return new Date(0);
+        };
+
+        // Orden de fases para torneos (menor número = más temprano en el torneo)
+        const ordenFase = (fase) => {
+            const faseLower = fase.toLowerCase();
+            if (faseLower.includes('fase de liga') || faseLower.includes('fase de grupos')) return 1;
+            if (faseLower.includes('semifinal')) return 2;
+            if (faseLower.includes('tercer puesto')) return 3;
+            if (faseLower.includes('final')) return 4;
+            return 0; // Amistosos u otros
+        };
+
+        // Primero, recolectar todos los partidos con su índice original
+        const partidos = [];
+        let indiceOriginal = 0;
         for (const line of lineasMatches) {
             const l = line.trim();
             if (!l || l.startsWith('#')) continue;
@@ -45,51 +71,83 @@ document.addEventListener('DOMContentLoaded', () => {
                 const res = parts[2].trim(); // G, P, E
                 const marcador = parts[3].trim();
                 const torneo = parts.length > 4 ? parts[4].trim() : '';
+                const fechaStr = parts.length > 5 ? parts[5].trim() : '';
+                const fase = parts.length > 6 ? parts[6].trim() : '';
 
-                // Historial para racha
-                if (!matchHistory[j1]) matchHistory[j1] = [];
-                if (!matchHistory[j2]) matchHistory[j2] = [];
+                partidos.push({
+                    j1, j2, res, marcador, torneo, fechaStr, fase,
+                    fecha: parseFecha(fechaStr),
+                    indiceOriginal: indiceOriginal++
+                });
+            }
+        }
 
-                if (res === 'G') {
-                    matchHistory[j1].push('G');
-                    matchHistory[j2].push('P');
-                } else if (res === 'P') {
-                    matchHistory[j1].push('P');
-                    matchHistory[j2].push('G');
-                } else if (res === 'E') {
-                    matchHistory[j1].push('E');
-                    matchHistory[j2].push('E');
-                }
+        // Ordenar partidos: por fecha, luego por fase del torneo, luego por índice original
+        partidos.sort((a, b) => {
+            // 1. Ordenar por fecha (más antiguo primero)
+            const diffFecha = a.fecha.getTime() - b.fecha.getTime();
+            if (diffFecha !== 0) return diffFecha;
 
-                // Stats para ranking de goles (omitiendo amistosos)
-                if (!torneo.toLowerCase().includes('amistoso')) {
-                    const goles = marcador.split('-');
-                    if (goles.length === 2) {
-                        const g1 = parseInt(goles[0], 10);
-                        const g2 = parseInt(goles[1], 10);
-                        if (!isNaN(g1)) gmap[j1] = (gmap[j1] || 0) + g1;
-                        if (!isNaN(g2)) gmap[j2] = (gmap[j2] || 0) + g2;
-                    }
-                }
+            // 2. Si es el mismo torneo y misma fecha, ordenar por fase
+            const esAmistosoA = a.torneo.toLowerCase().includes('amistoso');
+            const esAmistosoB = b.torneo.toLowerCase().includes('amistoso');
 
-                // Stats generales (todos los partidos)
-                if (!statsGeneral[j1]) statsGeneral[j1] = { pj:0, g:0, p:0, e:0, gf:0, gc:0 };
-                if (!statsGeneral[j2]) statsGeneral[j2] = { pj:0, g:0, p:0, e:0, gf:0, gc:0 };
+            if (!esAmistosoA && !esAmistosoB && a.torneo === b.torneo) {
+                const diffFase = ordenFase(a.fase) - ordenFase(b.fase);
+                if (diffFase !== 0) return diffFase;
+            }
 
+            // 3. Si son amistosos de la misma fecha o mismo torneo/fase, respetar orden original
+            return a.indiceOriginal - b.indiceOriginal;
+        });
+
+        // Procesar partidos ya ordenados
+        for (const partido of partidos) {
+            const { j1, j2, res, marcador, torneo } = partido;
+
+            // Historial para racha
+            if (!matchHistory[j1]) matchHistory[j1] = [];
+            if (!matchHistory[j2]) matchHistory[j2] = [];
+
+            if (res === 'G') {
+                matchHistory[j1].push('G');
+                matchHistory[j2].push('P');
+            } else if (res === 'P') {
+                matchHistory[j1].push('P');
+                matchHistory[j2].push('G');
+            } else if (res === 'E') {
+                matchHistory[j1].push('E');
+                matchHistory[j2].push('E');
+            }
+
+            // Stats para ranking de goles (omitiendo amistosos)
+            if (!torneo.toLowerCase().includes('amistoso')) {
                 const goles = marcador.split('-');
                 if (goles.length === 2) {
                     const g1 = parseInt(goles[0], 10);
                     const g2 = parseInt(goles[1], 10);
+                    if (!isNaN(g1)) gmap[j1] = (gmap[j1] || 0) + g1;
+                    if (!isNaN(g2)) gmap[j2] = (gmap[j2] || 0) + g2;
+                }
+            }
 
-                    if (!isNaN(g1) && !isNaN(g2)) {
-                        statsGeneral[j1].pj++; statsGeneral[j2].pj++;
-                        statsGeneral[j1].gf += g1; statsGeneral[j1].gc += g2;
-                        statsGeneral[j2].gf += g2; statsGeneral[j2].gc += g1;
+            // Stats generales (todos los partidos)
+            if (!statsGeneral[j1]) statsGeneral[j1] = { pj:0, g:0, p:0, e:0, gf:0, gc:0 };
+            if (!statsGeneral[j2]) statsGeneral[j2] = { pj:0, g:0, p:0, e:0, gf:0, gc:0 };
 
-                        if (g1 > g2) { statsGeneral[j1].g++; statsGeneral[j2].p++; }
-                        else if (g1 < g2) { statsGeneral[j1].p++; statsGeneral[j2].g++; }
-                        else { statsGeneral[j1].e++; statsGeneral[j2].e++; }
-                    }
+            const goles = marcador.split('-');
+            if (goles.length === 2) {
+                const g1 = parseInt(goles[0], 10);
+                const g2 = parseInt(goles[1], 10);
+
+                if (!isNaN(g1) && !isNaN(g2)) {
+                    statsGeneral[j1].pj++; statsGeneral[j2].pj++;
+                    statsGeneral[j1].gf += g1; statsGeneral[j1].gc += g2;
+                    statsGeneral[j2].gf += g2; statsGeneral[j2].gc += g1;
+
+                    if (g1 > g2) { statsGeneral[j1].g++; statsGeneral[j2].p++; }
+                    else if (g1 < g2) { statsGeneral[j1].p++; statsGeneral[j2].g++; }
+                    else { statsGeneral[j1].e++; statsGeneral[j2].e++; }
                 }
             }
         }
