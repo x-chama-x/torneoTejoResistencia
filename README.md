@@ -1,279 +1,249 @@
-# 🏒 Simulador de Torneo Air Hockey
+# Torneo Air Hockey - La Resistencia
 
-Simulador web para torneos de la RESISTENCIA (amigos de x_chama_x) de Air Hockey (Tejo) que permite simular competencias entre jugadores con diferentes formatos de torneo y análisis estadístico mediante simulaciones Monte Carlo.
-Link: https://x-chama-x.github.io/torneoTejoResistencia/index.html
+**Plataforma web completa para gestionar torneos de Air Hockey (Tejo) del grupo "La Resistencia" (amigos de x_chama_x).**
 
-## 🎮 Características
+> Link: https://x-chama-x.github.io/torneoTejoResistencia/index.html
 
-### Simulador de Torneo Individual
+---
+
+## Resumen del Proyecto
+
+Este proyecto es una aplicacion web que permite organizar, simular y analizar torneos de Air Hockey entre un grupo de amigos. Incluye multiples herramientas:
+
+- **Sistema de Rankings**: Ranking FIFA con puntos acumulados y ranking historico en mundiales
+- **Creador de Torneos**: Sorteo de grupos con probabilidades de clasificacion en tiempo real
+- **Simulador de Torneos**: Simulacion completa de torneos con resultados partido a partido
+- **Simulador Monte Carlo**: Analisis estadistico con hasta 10,000 simulaciones
+- **Simulador 1vs1**: Enfrentamientos directos con historial y probabilidades
+- **Playoffs**: Configuracion de brackets con sorteo o armado manual
+- **Historial de Torneos**: Registro completo de torneos pasados con estadisticas
+- **Sistema de Encuestas**: Votacion para predecir el proximo campeon (con backend Redis)
+
+La aplicacion utiliza un sistema de probabilidades basado en una **funcion sigmoide** que combina el ranking FIFA (40%) y el win rate historico (60%) para calcular las chances de victoria en cada partido.
+
+---
+
+## Paginas de la Aplicacion
+
+| Pagina | Descripcion |
+|--------|-------------|
+| `index.html` | **Inicio** - Rankings, estadisticas generales, historial de campeones y encuesta |
+| `torneo.html` | **Creador de Torneo** - Sorteo de grupos con probabilidades en tiempo real |
+| `simulador.html` | **Simulador de Torneo** - Simula torneos completos con resultados detallados |
+| `montecarlo.html` | **Simulador Monte Carlo** - Analisis estadistico con miles de simulaciones |
+| `partido.html` | **Simulador 1vs1** - Enfrentamientos directos con historial |
+| `playoffs.html` | **Playoffs** - Configuracion de brackets para semifinales y final |
+| `torneo1.html` | **Primer Torneo** - Historial del primer torneo oficial (Liga) |
+| `torneo2.html` | **Segundo Torneo** - Historial del segundo torneo oficial (Grupos) |
+
+---
+
+## Caracteristicas Principales
+
+### Pagina de Inicio (`index.html`)
+- **Ranking FIFA**: Tabla de posiciones con puntos y racha actual de cada jugador
+- **Ranking Historico**: Puntos acumulados en mundiales (goles)
+- **Estadisticas Generales**: PJ, G, P, WR, GF, GC, DIF, PG de todos los partidos
+- **Historial de Campeones**: Lista de ganadores de cada torneo
+- **Encuesta**: Sistema de votacion para predecir el proximo campeon
+
+### Creador de Torneo (`torneo.html`)
+- Sorteo de grupos aleatorio
+- Calculo de probabilidades de clasificacion en tiempo real
+- Visualizacion de los grupos generados
+- Soporte para formatos de 7, 8, 9 y 10 jugadores
+
+### Simulador de Torneo (`simulador.html`)
 - Simula un torneo completo con resultados partido a partido
 - Muestra fase de grupos, playoffs, semifinales, tercer puesto y final
-- Visualización detallada de cada partido con marcadores
-- **Armado manual de grupos**: Permite elegir qué jugadores van a cada grupo
+- **Armado manual de grupos**: Permite elegir que jugadores van a cada grupo
+- Sorteo aleatorio o configuracion manual
 
-### Simulador Monte Carlo
+### Simulador Monte Carlo (`montecarlo.html`)
 - Ejecuta entre 1,000 y 10,000 simulaciones de torneos
 - Calcula probabilidades de cada jugador de:
-  - 🏆 Ser campeón
-  - 🥈 Ser subcampeón
-  - 🥉 Quedar tercero
-  - 4️⃣ Quedar cuarto
-  - ✅ Clasificar a playoffs
-  - ❌ No clasificar a playoffs
-- **Para formato 9 jugadores**: Muestra probabilidades de:
-  - 🏆 Clasificación directa (como 1° de grupo)
-  - 🔄 Clasificación indirecta (a través del repechaje)
-- Muestra estadísticas agregadas y porcentajes
-- **Análisis por grupo**: Permite simular con grupos configurados manualmente para ver cómo afecta un "grupo de la muerte" a las probabilidades
+  - Ser campeon, subcampeon, tercero o cuarto
+  - Clasificar o no clasificar a playoffs
+- **Para formato 9 jugadores**: Muestra probabilidades de clasificacion directa vs indirecta (repechaje)
+- Analisis con grupos configurados manualmente para evaluar "grupos de la muerte"
 
-### Simulador de Partido 1vs1
+### Simulador de Partido 1vs1 (`partido.html`)
 - Simula enfrentamientos directos entre dos jugadores
-- **Barra de probabilidad**: Muestra automáticamente el porcentaje de victoria de cada jugador al seleccionarlos
-- **Historial de enfrentamientos**: Muestra victorias totales, goles y los últimos 5 partidos entre los jugadores
-- **Datos calculados automáticamente**: Las estadísticas se calculan desde el archivo `enfrentamientos_directos.txt`
-- La probabilidad considera tanto las estadísticas generales como el historial directo entre jugadores
+- **Barra de probabilidad**: Muestra el porcentaje de victoria automaticamente
+- **Historial de enfrentamientos**: Victorias totales, goles y ultimos 5 partidos
+- Datos calculados desde `enfrentamientos_directos.txt`
 
-## 📊 Formatos de Torneo Soportados
+### Playoffs (`playoffs.html`)
+- Seleccion de 4 jugadores clasificados
+- Configuracion del bracket (sorteo aleatorio o manual)
+- Visualizacion de cruces con probabilidades de cada partido
+- Calculo de probabilidades del campeon
 
-| Jugadores | Formato | Partidos Total | Clasifican |
-|-----------|---------|----------------|------------|
-| 7 | Liga (Round Robin) | 25 | Top 4 |
-| 8 | 2 grupos de 4 | 16 | 2 por grupo |
-| 9 | 3 grupos de 3 + Repechajes | 20 | 1° de grupos + ganador eliminatorio |
-| 10 | 2 grupos de 5 | 24 | 2 por grupo |
+---
+
+## Formatos de Torneo Soportados
+
+| Jugadores | Formato | Partidos Total | Clasifican | Costo Estimado |
+|-----------|---------|----------------|------------|----------------|
+| 7 | Liga (Round Robin) | 25 | Top 4 | $30,000 |
+| 8 | 2 grupos de 4 | 16 | 2 por grupo | $19,200 |
+| 9 | 3 grupos de 3 + Repechajes | 20 | 1ro de grupos + ganador eliminatorio | $24,000 |
+| 10 | 2 grupos de 5 | 24 | 2 por grupo | $28,800 |
 
 ### Formato especial de 9 jugadores:
 1. **Fase de grupos**: 3 grupos de 3 (9 partidos)
-2. **Repechaje 2° puestos**: Mini-liga entre los 3 segundos (3 partidos) → Solo el 1° avanza
-3. **Repechaje 3° puestos**: Mini-liga entre los 3 terceros (3 partidos) → Solo el 1° avanza
-4. **Partido eliminatorio**: 1° rep. segundos vs 1° rep. terceros (1 partido) → Ganador clasifica
+2. **Repechaje 2do puestos**: Mini-liga entre los 3 segundos (3 partidos) - Solo el 1ro avanza
+3. **Repechaje 3ro puestos**: Mini-liga entre los 3 terceros (3 partidos) - Solo el 1ro avanza
+4. **Partido eliminatorio**: 1ro rep. segundos vs 1ro rep. terceros (1 partido)
 5. **Playoffs**: Semifinales + 3er puesto + Final (4 partidos)
 
-#### Vías de clasificación a Playoffs (9 jugadores):
-| Vía | Descripción | Cantidad |
-|-----|-------------|----------|
-| **Directa** 🏆 | Terminar 1° en tu grupo | 3 jugadores |
-| **Indirecta** 🔄 | Ganar repechaje + partido eliminatorio | 1 jugador |
+---
 
-**Nota:** En Monte Carlo se muestran las probabilidades separadas de clasificar por cada vía, lo que permite ver qué tan probable es que un jugador termine primero vs que necesite ir por repechaje.
+## Sistema de Simulacion
 
-## ✋ Armado Manual de Grupos
-
-En los formatos de 8, 9 y 10 jugadores, se puede elegir entre:
-
-- **🎲 Sorteo Aleatorio**: Los grupos se arman de forma random (comportamiento clásico)
-- **✋ Armado Manual**: El usuario elige qué jugadores van a cada grupo
-
-### Uso:
-1. Seleccionar los jugadores participantes
-2. Cambiar el selector "Armado" a "✋ Armado Manual"
-3. Asignar cada jugador a un grupo usando los selectores
-4. Hacer clic en "✅ Confirmar Grupos"
-5. Simular el torneo
-
-### En Monte Carlo:
-Cuando se usa armado manual en Monte Carlo, los grupos se mantienen **fijos** durante todas las simulaciones. Esto permite analizar escenarios como:
-- ¿Qué probabilidad tiene un jugador si le toca un "grupo de la muerte"?
-- ¿Cómo cambian las probabilidades en un grupo fácil vs uno difícil?
-
-## 🎯 Sistema de Simulación
-
-La simulación de partidos tiene en cuenta:
+La simulacion de partidos tiene en cuenta:
 
 1. **Ranking FIFA**: Puntos acumulados de cada jugador (peso 40%)
-2. **Win Rate**: Porcentaje histórico de victorias (peso 60%)
+2. **Win Rate**: Porcentaje historico de victorias (peso 60%)
 3. **Promedio de Goles**: Influye en la diferencia de goles de cada partido
 
-### Fórmula de Probabilidad (Logística/Sigmoide)
-
-Se usa una función **sigmoide** que es más sensible a diferencias de nivel y nunca llega exactamente a 0% ni 100%:
+### Formula de Probabilidad (Sigmoide)
 
 ```
-factorFuerza = (ranking × 0.4) + (winRate × 100 × 0.6)
+factorFuerza = (ranking * 0.4) + (winRate * 100 * 0.6)
 diferencia = factorFuerza1 - factorFuerza2
 probabilidad = 1 / (1 + e^(-diferencia / 30))
 ```
 
-**¿Por qué el winRate tiene más peso (60%) que el ranking (40%)?**
-- El ranking puede estar "inflado" por jugar más torneos
-- El winRate refleja mejor el rendimiento real partido a partido
-- Esto equilibra mejor las probabilidades y permite más upsets
-
-#### Tabla de probabilidades según diferencia de fuerza:
-
-| Diferencia | Probabilidad | Ejemplo |
-|------------|--------------|---------|
+| Diferencia | Probabilidad | Descripcion |
+|------------|--------------|-------------|
 | 0 | 50% | Jugadores iguales |
 | 20 | 66% | Ventaja leve |
 | 40 | 79% | Ventaja moderada |
 | 60 | 88% | Ventaja clara |
 | 80 | 93% | Ventaja grande |
 
-#### Ejemplos de cálculo:
+---
 
-**Chama (198 pts, 73.68% WR) vs Kovic (5 pts, 0% WR):**
-```
-fuerza_Chama = (198 × 0.4) + (73.68 × 0.6) = 79.2 + 44.21 = 123.41
-fuerza_Kovic = (5 × 0.4) + (0 × 0.6) = 2 + 0 = 2
-diferencia = 123.41 - 2 = 121.41
-probabilidad = 1 / (1 + e^(-121.41/30)) = 98.3%
-```
-Chama tiene **98.3%** de probabilidad de ganar (muy favorito pero no imposible el upset).
-
-**Chama vs Tomy (118 pts, 69.23% WR):**
-```
-fuerza_Chama = 123.41
-fuerza_Tomy = (118 × 0.4) + (69.23 × 0.6) = 47.2 + 41.54 = 88.74
-diferencia = 123.41 - 88.74 = 34.67
-probabilidad = 1 / (1 + e^(-34.67/30)) = 76%
-```
-Chama tiene **76%** de probabilidad de ganar (favorito pero Tomy tiene chances reales).
-
-**Chama vs Facu (126 pts, 61.54% WR):**
-```
-fuerza_Facu = (126 × 0.4) + (61.54 × 0.6) = 50.4 + 36.92 = 87.32
-diferencia = 123.41 - 87.32 = 36.09
-probabilidad = 1 / (1 + e^(-36.09/30)) = 77%
-```
-Chama tiene **77%** de ganar contra Facu.
-
-**Tomy vs Facu:**
-```
-diferencia = 88.74 - 87.32 = 1.42
-probabilidad = 1 / (1 + e^(-1.42/30)) = 52.4%
-```
-Tomy tiene **52.4%** de ganar (partido muy parejo, leve ventaja Tomy por mejor winRate).
-
-#### ¿Por qué la fórmula sigmoide?
-- ✅ **Nunca llega a 0% ni 100%**: Siempre hay chance de upset (realista)
-- ✅ **Curva suave (k=30)**: Permite más sorpresas que una curva agresiva
-- ✅ **WinRate pesa más**: Refleja rendimiento real, no solo cantidad de torneos jugados
-- ✅ **Grupos de la muerte impactan**: Chama tiene 76% vs Tomy pero 98% vs Kovic
-- ✅ **Probabilidades más realistas**: El mejor jugador puede perder en fase de grupos
-
-## 🏆 Ranking FIFA Actual
+## Ranking FIFA Actual
 
 | Pos | Jugador | Puntos |
 |-----|---------|--------|
-| 1° 🥇 | Chama | 198 |
-| 2° 🥈 | Facu | 126 |
-| 3° 🥉 | Tomy | 118 |
-| 4° | Marco | 76 |
-| 5° | Lucas | 50 |
-| 6° | Rafa | 35 |
-| 7° | Pedro | 21 |
-| 8° | Hector | 20 |
-| 9° | Mateo | 17 |
-| 10° | Santi | 5 |
-| 11° | Kovic | 5 |
+| 1ro | Chama | 198 |
+| 2do | Facu | 126 |
+| 3ro | Tomy | 118 |
+| 4to | Marco | 76 |
+| 5to | Lucas | 50 |
+| 6to | Rafa | 35 |
+| 7mo | Pedro | 21 |
+| 8vo | Hector | 20 |
+| 9no | Mateo | 17 |
+| 10mo | Santi | 5 |
+| 11vo | Kovic | 5 |
 
-## 📁 Estructura del Proyecto
+---
+
+## Estructura del Proyecto
 
 ```
 torneoTejoResistencia/
-├── index.html                    # Simulador de torneo individual
+├── index.html                    # Pagina de inicio (rankings, stats, encuesta)
+├── torneo.html                   # Creador de torneo (sorteo de grupos)
+├── simulador.html                # Simulador de torneo individual
 ├── montecarlo.html               # Simulador Monte Carlo
 ├── partido.html                  # Simulador de partido 1vs1
+├── playoffs.html                 # Configurador de playoffs
+├── torneo1.html                  # Historial del primer torneo
+├── torneo2.html                  # Historial del segundo torneo
 ├── ranking.txt                   # Archivo con el ranking FIFA (editable)
 ├── enfrentamientos_directos.txt  # Historial de partidos entre jugadores
-├── formatos.md                   # Documentación de formatos
+├── formatos.md                   # Documentacion de formatos
 ├── README.md                     # Este archivo
+├── api/
+│   └── poll.js                   # API serverless para encuestas (Redis)
 ├── css/
 │   ├── styles.css                # Estilos principales
-│   ├── montecarlo.css            # Estilos específicos Monte Carlo
-│   └── partido.css               # Estilos específicos Partido 1vs1
-└── js/
-    ├── simulador.js              # Lógica principal de simulación
-    ├── montecarlo.js             # Lógica de simulaciones múltiples
-    └── partido.js                # Lógica de partido 1vs1
+│   ├── montecarlo.css            # Estilos Monte Carlo
+│   ├── partido.css               # Estilos Partido 1vs1
+│   ├── torneo.css                # Estilos Creador de Torneo
+│   └── playoffs.css              # Estilos Playoffs
+├── js/
+│   ├── index.js                  # Logica de la pagina de inicio
+│   ├── menu.js                   # Menu de navegacion
+│   ├── playerSelection.js        # Componente de seleccion de jugadores
+│   ├── simulador.js              # Logica de simulacion de torneos
+│   ├── montecarlo.js             # Logica de simulaciones multiples
+│   ├── partido.js                # Logica de partido 1vs1
+│   ├── torneo.js                 # Logica del creador de torneo
+│   ├── playoffs.js               # Logica de playoffs
+│   └── historial_torneos.js      # Carga y renderiza torneos historicos
+└── img/
+    └── favicon.png               # Icono de la aplicacion
 ```
 
-## 📝 Configuración de Jugadores (ranking.txt)
+---
 
-El ranking de jugadores se carga desde el archivo `ranking.txt` ubicado en la raíz del proyecto. Este archivo permite actualizar fácilmente los jugadores sin modificar el código.
+## Archivos de Configuracion
 
-### Formato del archivo:
+### ranking.txt
+Contiene el ranking de jugadores en formato CSV:
 ```
 # Comentarios empiezan con #
 nombre,ranking,winRate,promedioGoles
-```
-
-### Ejemplo:
-```
-# RANKING FIFA - Simulador Torneo Tejo
 Chama,198,0.7368,6.47
 Facu,126,0.6154,5.92
-Tomy,118,0.6923,6.54
 ```
 
-### Campos:
-| Campo | Descripción | Ejemplo |
-|-------|-------------|---------|
-| nombre | Nombre del jugador | Chama |
-| ranking | Puntos FIFA acumulados | 198 |
-| winRate | Porcentaje de victorias (0-1) | 0.7368 |
-| promedioGoles | Promedio de goles por partido | 6.47 |
-
-**Nota:** Los primeros 8 jugadores del archivo se consideran "jugadores base" y los restantes "nuevos jugadores".
-
-## 📋 Configuración de Enfrentamientos (enfrentamientos_directos.txt)
-
-El historial de partidos entre jugadores se carga desde el archivo `enfrentamientos_directos.txt`. Este archivo permite registrar todos los partidos jugados y el sistema calcula automáticamente las estadísticas.
-
-### Formato del archivo:
+### enfrentamientos_directos.txt
+Historial de partidos jugados:
 ```
-# Comentarios empiezan con #
 jugador1,jugador2,resultado_j1,marcador,torneo,fecha,fase
-```
-
-### Campos:
-| Campo | Descripción | Ejemplo |
-|-------|-------------|---------|
-| jugador1 | Nombre del primer jugador | Chama |
-| jugador2 | Nombre del segundo jugador | Rafa |
-| resultado_j1 | G = Ganó jugador1, P = Perdió jugador1 | G |
-| marcador | Resultado del partido | 7-2 |
-| torneo | Nombre del torneo o evento | Primer torneo de hockey de mesa |
-| fecha | Fecha del partido | 3/5/2025 |
-| fase | Fase del torneo | Final |
-
-### Ejemplo:
-```
 Chama,Rafa,G,7-2,Primer torneo de hockey de mesa,3/5/2025,Final
-Tomy,Rafa,P,5-7,Primer torneo de hockey de mesa,3/5/2025,Semifinal
-Chama,Facu,P,5-7,Amistoso,7/5/2025,Amistoso
 ```
 
-### Estadísticas calculadas automáticamente:
-- **Victorias totales** de cada jugador en el enfrentamiento directo
-- **Goles totales** de cada jugador
-- **Total de partidos jugados** entre ambos
-- **Últimos 5 partidos** con detalle de torneo, fase y fecha
+---
 
-## 🚀 Uso
+## Tecnologias
 
-1. **Importante:** Debido a que el proyecto carga el ranking desde un archivo externo, debe ejecutarse desde un servidor web:
-   - **Opción 1 (Live Server):** Si usas VS Code, instala la extensión "Live Server" y haz clic derecho en `index.html` → "Open with Live Server"
-   - **Opción 2 (Python):** Ejecuta `python -m http.server 8000` en la carpeta del proyecto y abre `http://localhost:8000`
-   - **Opción 3 (Node.js):** Usa `npx serve` o `npx http-server`
-   - **Opción 4 (GitHub Pages):** El proyecto funciona directamente en GitHub Pages
+- **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
+- **Backend**: API serverless con Node.js (Vercel Functions)
+- **Base de datos**: Redis (para sistema de encuestas)
+- **Hosting**: GitHub Pages / Vercel
 
-2. Seleccionar el formato de torneo (cantidad de jugadores)
-3. Elegir los jugadores participantes
-4. (Opcional) Cambiar a "Armado Manual" y configurar los grupos
-5. Hacer clic en "Simular Torneo" o "Iniciar Simulación Monte Carlo"
+---
+
+## Instalacion y Uso
+
+### Opcion 1: GitHub Pages (Recomendado)
+El proyecto funciona directamente en: https://x-chama-x.github.io/torneoTejoResistencia/
+
+### Opcion 2: Servidor Local
+```bash
+# Con Python
+python -m http.server 8000
+
+# Con Node.js
+npx serve
+
+# Con VS Code
+# Usar extension "Live Server"
+```
+
+Luego abrir `http://localhost:8000` en el navegador.
 
 ### Para actualizar el ranking:
 1. Editar el archivo `ranking.txt` con los nuevos datos
-2. Recargar la página del simulador
+2. Recargar la pagina del simulador
 
-## 🛠️ Tecnologías
+---
 
-- HTML5
-- CSS3
-- JavaScript (Vanilla)
+## Notas
+
+- Los playoffs siempre incluyen semifinales, partido por el tercer puesto y final
+- El precio por partido es de $1,200 fijo en todos los formatos
+- El win rate tiene mas peso (60%) que el ranking (40%) porque refleja mejor el rendimiento real
+- La funcion sigmoide permite que siempre haya chance de upset (nunca 0% ni 100%)
 
 ---
 
 *Desarrollado por x_chama_x*
-
