@@ -2,7 +2,7 @@
 
 **Plataforma web completa para gestionar torneos de Air Hockey (Tejo) del grupo "La Resistencia" (amigos de x_chama_x).**
 
-> Link: https://x-chama-x.github.io/torneoTejoResistencia/index.html
+> Link: https://torneo-tejo-resistencia.vercel.app/index.html
 
 ---
 
