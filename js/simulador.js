@@ -355,7 +355,7 @@ function renderGrupoUIX(partidos, rankingGrupo, clasifCount) {
     out += '</div>';
 
     out += '<div><h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Resultados</h4>';
-    out += '<div class="table-responsive"><table class="ranking-table align-center">';
+    out += '<div class="table-responsive"><table class="ranking-table align-center large-table-font">';
     out += '<thead><tr><th style="text-align: right;">Azul</th><th style="text-align: center;">Resultado</th><th style="text-align: left;">Rojo</th></tr></thead><tbody>';
     partidos.forEach(p => {
         const w1 = p.ganador === p.azul;
