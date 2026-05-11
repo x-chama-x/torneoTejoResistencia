@@ -55,7 +55,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
         divResp.className = "table-responsive";
 
         const table = document.createElement("table");
-        table.className = "ranking-table align-center"; // Agregamos una posible alineación
+        table.className = "ranking-table align-center large-table-font"; // Agregamos una posible alineación
 
         table.innerHTML = `
             <thead>
@@ -179,7 +179,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                         <div>
                             <h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Resultados</h4>
                             <div class="table-responsive">
-                                <table class="ranking-table align-center">
+                                <table class="ranking-table align-center large-table-font">
                                     <thead>
                                         <tr>
                                             <th style="text-align: right;">Azul</th>

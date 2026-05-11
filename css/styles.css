@@ -973,6 +973,11 @@ select:hover {
     margin-top: 0;
     font-size: 0.95rem;
 }
+
+.ranking-table.large-table-font {
+    font-size: 1.25rem;
+}
+
 .ranking-table th, .ranking-table td {
     padding: 8px 10px; /* Reducido espacio entre columnas */
     text-align: left;
@@ -983,6 +988,11 @@ select:hover {
     color: #c9d1d9 !important;
     font-weight: bold;
     padding: 10px;
+}
+
+.ranking-table.large-table-font th, .ranking-table.large-table-font td {
+    padding: 12px 10px;
+    font-size: 1.25rem;
 }
 
 /* Racha Box Styles */
