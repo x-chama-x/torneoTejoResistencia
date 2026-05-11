@@ -501,7 +501,8 @@ select:hover {
 
     .bracket-col-semis .round-title,
     .bracket-col-final .round-title,
-    #tercer-puesto-container h3 {
+    #tercer-puesto-container h3,
+    #pre-playoff-container h3 {
         font-size: 11px !important;
         margin-bottom: 6px !important;
     }
@@ -513,40 +514,53 @@ select:hover {
         border-radius: 8px;
     }
 
-    #tercer-puesto-container .match-card {
+    #tercer-puesto-container .match-card,
+    #pre-playoff-container .match-card {
         padding: 8px;
-        width: calc(50% - 15px); /* Misma medida que los bloques en el bracket */
+        width: 100%;
         max-width: none;
         border-radius: 8px;
     }
 
-    .bracket-fixture .match-number, #tercer-puesto-container .match-number {
+    .bracket-fixture .match-number, 
+    #tercer-puesto-container .match-number,
+    #pre-playoff-container .match-number {
         font-size: 9px;
         margin-bottom: 6px;
     }
 
-    .bracket-fixture .match-players, #tercer-puesto-container .match-players {
+    .bracket-fixture .match-players, 
+    #tercer-puesto-container .match-players,
+    #pre-playoff-container .match-players {
         flex-direction: row; /* Forzar que queden horizontales incluso en pantallas chicas */
         margin: 6px 0;
         gap: 3px;
     }
 
-    .bracket-fixture .player, #tercer-puesto-container .player {
+    .bracket-fixture .player, 
+    #tercer-puesto-container .player,
+    #pre-playoff-container .player {
         font-size: 11px;
         min-width: 0;
     }
 
-    .bracket-fixture .vs, #tercer-puesto-container .vs {
+    .bracket-fixture .vs, 
+    #tercer-puesto-container .vs,
+    #pre-playoff-container .vs {
         padding: 0 4px;
         font-size: 11px;
     }
 
-    .bracket-fixture .score, #tercer-puesto-container .score {
+    .bracket-fixture .score, 
+    #tercer-puesto-container .score,
+    #pre-playoff-container .score {
         font-size: 14px;
         margin: 4px 0;
     }
 
-    .bracket-fixture .winner-badge, #tercer-puesto-container .winner-badge {
+    .bracket-fixture .winner-badge, 
+    #tercer-puesto-container .winner-badge,
+    #pre-playoff-container .winner-badge {
         font-size: 9px;
         padding: 3px 6px;
         border-radius: 12px;
