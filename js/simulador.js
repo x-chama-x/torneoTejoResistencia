@@ -486,17 +486,19 @@ function simularTorneo() {
             grupos[2] = jugadores.slice(6, 9);
         }
 
+        let resultadosGrupos9 = [];
         // Simular y mostrar cada grupo
         for (let i = 0; i < grupos.length; i++) {
             const resultadoGrupo = simularGrupo(grupos[i], String.fromCharCode(65 + i), 1, estadisticasJugadores);
+            resultadosGrupos9.push(resultadoGrupo);
             htmlFase += `<h3 style="text-align: center; margin: 20px 0; color: #667eea;">🔷 GRUPO ${String.fromCharCode(65 + i)}</h3>`;
             htmlFase += renderGrupoUIX(resultadoGrupo.partidos, resultadoGrupo.rankingGrupo, 1);
         }
 
         // Clasifican los 3 primeros de cada grupo directo
-        const primeros = grupos.map(g => g[0]);
-        const segundos = grupos.map(g => g[1]);
-        const terceros = grupos.map(g => g[2]);
+        const primeros = resultadosGrupos9.map(r => r.rankingGrupo[0]);
+        const segundos = resultadosGrupos9.map(r => r.rankingGrupo[1]);
+        const terceros = resultadosGrupos9.map(r => r.rankingGrupo[2]);
 
         // ========== MINI-LIGA ENTRE SEGUNDOS ==========
         const candidatosSegundos = segundos.map(s => ({
@@ -561,7 +563,6 @@ function simularTorneo() {
 
         htmlFase += '<h2>⚖️ REPECHAJE 2° PUESTOS - MINI-LIGA (3 PARTIDOS)</h2><br>';
         htmlFase += renderGrupoUIX(miniPartidosSegundos, rankingSegundos, 1);
-        htmlFase += '<p style="text-align:center; color:#e67e22; font-weight:600; margin-bottom:2rem;">🔶 Solo el 1° avanza al Partido Eliminatorio | 2° y 3° quedan eliminados</p>';
 
         // ========== REPECHAJE ENTRE TERCEROS ==========
         const candidatosTerceros = terceros.map(t => ({
@@ -626,7 +627,6 @@ function simularTorneo() {
 
         htmlFase += '<h2>⚖️ REPECHAJE 3° PUESTOS - MINI-LIGA (3 PARTIDOS)</h2><br>';
         htmlFase += renderGrupoUIX(miniPartidosTerceros, rankingTerceros, 1);
-        htmlFase += '<p style="text-align:center; color:#e67e22; font-weight:600; margin-bottom:2rem;">🔶 Solo el 1° avanza al Partido Eliminatorio | 2° y 3° quedan eliminados</p>';
 
         // ========== PARTIDO ELIMINATORIO PRE-PLAYOFFS ==========
         // 1° de repechaje segundos vs 1° de repechaje terceros
