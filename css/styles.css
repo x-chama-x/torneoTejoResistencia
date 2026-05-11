@@ -176,13 +176,9 @@ select:hover {
     background: #161b22;
     border: 1px solid #30363d;
     border-radius: 12px;
-    /* Permitir scroll horizontal en móviles para que las tablas no se salgan de la pantalla */
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch; /* suaviza el scroll en iOS */
+    /* Remover scroll horizontal, el contenido se adaptará */
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     margin-bottom: 30px;
-    /* Quitamos el padding del contenedor principal para evitar gaps a la derecha
-       (moved padding inside .standings-inner) */
     padding: 0;
 }
 
@@ -255,15 +251,17 @@ select:hover {
     /* Por defecto las tablas standalone ocupan todo el ancho del contenedor */
     width: 100%;
     border-collapse: collapse;
-    min-width: 520px; /* fallback razonable */
+    table-layout: fixed;
+    word-wrap: break-word;
 }
 
 /* Para las tablas dentro de .group-tables (grupos A/B/C) dejamos que la tabla quede
    con su ancho natural y el wrapper controle el scroll horizontal. */
 .group-tables .standings table {
-    width: auto;
+    width: 100%;
     border-collapse: collapse;
-    min-width: 640px;
+    table-layout: fixed;
+    word-wrap: break-word;
 }
 
 /* Título del bloque de standings: lo estilamos para que se vea como un header sólido
@@ -588,13 +586,13 @@ select:hover {
 /* Ajustes adicionales para pantallas muy pequeñas */
 @media (max-width: 480px) {
     .standings th, .standings td {
-        padding: 10px;
-        font-size: 14px;
+        padding: 5px 2px;
+        font-size: 11px;
     }
 
     /* Relajar el min-width en móviles muy angostos para que el scroll sea menor */
     .standings table {
-        min-width: 420px;
+        width: 100%;
     }
 
     /* Ajustes menores de tarjetas y textos para móviles */
@@ -896,8 +894,9 @@ select:hover {
         padding: 15px;
     }
     .ranking-table th, .ranking-table td {
-        padding: 6px 3px;
-        font-size: 0.75rem;
+        padding: 4px 2px;
+        font-size: 10px;
+        word-break: break-word;
     }
 }
 
@@ -910,8 +909,9 @@ select:hover {
         text-align: center;
     }
     .ranking-table th, .ranking-table td {
-        padding: 5px 2px;
-        font-size: 0.70rem;
+        padding: 3px 1px;
+        font-size: 9px;
+        word-break: break-word;
     }
 }
 
@@ -928,6 +928,8 @@ select:hover {
     border-collapse: collapse;
     margin-top: 0;
     font-size: 0.95rem;
+    table-layout: fixed;
+    word-wrap: break-word;
 }
 .ranking-table th, .ranking-table td {
     padding: 12px 15px;
@@ -982,9 +984,7 @@ select:hover {
 
 /* Ajuste de scroll solo para la tabla en móviles */
 .table-responsive {
-    overflow-x: auto;
     width: 100%;
-    -webkit-overflow-scrolling: touch;
     background: #161b22;
     border: 1px solid #30363d;
     border-radius: 12px;
