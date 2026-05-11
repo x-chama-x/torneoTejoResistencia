@@ -471,7 +471,7 @@ function simularTorneo() {
 
     } else if (numJugadores === 9) {
         // 3 grupos de 3
-        html += '<h2>📋 FASE DE GRUPOS - 3 GRUPOS DE 3</h2><br>';
+        html += '<h2>🏆 Fase de Grupos</h2><br>';
 
         // Separar en 3 grupos (A, B, C)
         let grupos = [[], [], []];
@@ -669,7 +669,7 @@ function simularTorneo() {
 
     } else if (numJugadores === 10) {
         // 2 grupos de 5
-        html += '<h2>📋 FASE DE GRUPOS - 2 GRUPOS DE 5</h2><br>';
+        html += '<h2>🏆 Fase de Grupos</h2><br>';
 
         let grupos = [[], []];
         if (modoGrupos === 'manual' && window.gruposManualConfig) {
