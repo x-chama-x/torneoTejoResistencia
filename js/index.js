@@ -298,11 +298,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const pollMsg = document.getElementById('poll-message');
 
         if (pollSelect && pollBtn) {
+            // Calcular cuotas simuladas para cada jugador basadas en su rendimiento
+            const fuerzaTotal = jugadoresRanking.reduce((acc, j) => acc + Math.max(10, (j.ranking * 0.4) + (j.winRate * 60)), 0);
+            const cuotasMap = {};
+            jugadoresRanking.forEach(j => {
+                const fuerza = Math.max(10, (j.ranking * 0.4) + (j.winRate * 60));
+                let prob = fuerza / (fuerzaTotal || 1);
+                if (prob < 0.01) prob = 0.01;
+                // Cuota con un margen (1.05) para parecer casa de apuestas
+                let cuota = 1 / (prob * 1.05);
+                cuotasMap[j.nombre] = cuota;
+            });
+
             // Llenar select con jugadores del ranking
             jugadoresRanking.forEach(j => {
                 const opt = document.createElement('option');
                 opt.value = j.nombre;
-                opt.textContent = j.nombre;
+                const cuotaStr = cuotasMap[j.nombre].toFixed(2);
+                opt.textContent = `${j.nombre} (Paga: $${cuotaStr})`;
                 pollSelect.appendChild(opt);
             });
 
@@ -315,6 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 sortedVotes.forEach(([player, count]) => {
                     const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
+                    const cuotaStr = cuotasMap[player] ? cuotasMap[player].toFixed(2) : '-';
 
                     const barContainer = document.createElement('div');
                     barContainer.style.marginBottom = '0.5rem';
@@ -324,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     labelDiv.style.justifyContent = 'space-between';
                     labelDiv.style.fontSize = '0.9em';
                     labelDiv.style.marginBottom = '0.2rem';
-                    labelDiv.innerHTML = `<span>${player}</span> <span>${pct}% (${count} votos)</span>`;
+                    labelDiv.innerHTML = `<span>${player} <strong style="color:#d29922; font-size:0.85em; margin-left:4px;">[$${cuotaStr}]</strong></span> <span>${pct}% (${count} votos)</span>`;
 
                     const trackDiv = document.createElement('div');
                     trackDiv.style.background = '#30363d';
