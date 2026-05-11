@@ -501,50 +501,12 @@ function simularTorneo() {
         html += renderGrupoUIX(resultadoC.partidos, resultadoC.rankingGrupo, 1);
 
         // Clasifican los 3 primeros de cada grupo directo
-        clasificados = [
+        const primeros = [
             resultadoA.rankingGrupo[0],
             resultadoB.rankingGrupo[0],
             resultadoC.rankingGrupo[0]
         ];
 
-    } else if (numJugadores === 9) {
-        // 3 grupos de 3
-        html += '<div class="phase-title">📋 FASE DE GRUPOS - 3 GRUPOS DE 3</div>';
-
-        let grupoA, grupoB, grupoC;
-
-        if (modoGrupos === 'manual' && window.gruposManualConfig) {
-            // Usar configuración manual
-            grupoA = window.gruposManualConfig.grupoA.map(nombre => jugadores.find(j => j.nombre === nombre)).filter(Boolean);
-            grupoB = window.gruposManualConfig.grupoB.map(nombre => jugadores.find(j => j.nombre === nombre)).filter(Boolean);
-            grupoC = window.gruposManualConfig.grupoC.map(nombre => jugadores.find(j => j.nombre === nombre)).filter(Boolean);
-        } else {
-            // Distribución aleatoria (ya mezclados)
-            grupoA = jugadores.slice(0, 3);
-            grupoB = jugadores.slice(3, 6);
-            grupoC = jugadores.slice(6, 9);
-        }
-
-        const resultadoA = simularGrupo(grupoA, 'A', 1, estadisticasJugadores);
-        const resultadoB = simularGrupo(grupoB, 'B', resultadoA.matchNumber, estadisticasJugadores);
-        const resultadoC = simularGrupo(grupoC, 'C', resultadoB.matchNumber, estadisticasJugadores);
-
-        // Mostrar partidos
-        html += '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">🔷 GRUPO A</h3>';
-        html += renderGrupoUIX(resultadoA.partidos, resultadoA.rankingGrupo, 1);
-
-        html += '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">🔶 GRUPO B</h3>';
-        html += renderGrupoUIX(resultadoB.partidos, resultadoB.rankingGrupo, 1);
-
-        html += '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">🔷 GRUPO C</h3>';
-        html += renderGrupoUIX(resultadoC.partidos, resultadoC.rankingGrupo, 1);
-
-        // Clasifican los 3 primeros de cada grupo directo
-        clasificados = [
-            resultadoA.rankingGrupo[0],
-            resultadoB.rankingGrupo[0],
-            resultadoC.rankingGrupo[0]
-        ];
 
         const segundos = [
             resultadoA.rankingGrupo[1],
@@ -805,32 +767,7 @@ function simularTorneo() {
     estadisticasJugadores[semifinalistas[3].nombre].golesFaseFinal += sf2.goles2;
     estadisticasJugadores[semifinalistas[3].nombre].partidosJugados++;
 
-    html += '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">⚔️ SEMIFINALES</h3>';
-    // Añadimos una clase específica para centrar solo las semifinales
-    html += '<div class="matches-grid semifinals-grid">';
-    html += `
-        <div class="match-card">
-            <div class="match-number">Semifinal 1</div>
-            <div class="match-players">
-                <div class="player blue">${semifinalistas[0].nombre}</div>
-                <div class="vs">VS</div>
-                <div class="player red">${semifinalistas[1].nombre}</div>
-            </div>
-            <div class="score">${sf1.goles1} - ${sf1.goles2}</div>
-            <div class="winner-badge">🏆 ${sf1.ganador}</div>
-        </div>
-        <div class="match-card">
-            <div class="match-number">Semifinal 2</div>
-            <div class="match-players">
-                <div class="player blue">${semifinalistas[2].nombre}</div>
-                <div class="vs">VS</div>
-                <div class="player red">${semifinalistas[3].nombre}</div>
-            </div>
-            <div class="score">${sf2.goles1} - ${sf2.goles2}</div>
-            <div class="winner-badge">🏆 ${sf2.ganador}</div>
-        </div>
-    `;
-    html += '</div>';
+
 
     // Tercer Puesto y Final
     const perdedorSF1 = sf1.ganador === semifinalistas[0].nombre ? semifinalistas[1].nombre : semifinalistas[0].nombre;
@@ -881,7 +818,7 @@ function simularTorneo() {
                     </div>
                 </div>
             </div>
-            <div id="sim-tercer-puesto-container" style="margin-top: 1rem; text-align: center;">
+            <div id="tercer-puesto-container" style="margin-top: 1rem; text-align: center;">
                 <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">🥉 Tercer Puesto</h3>
                 <div style="display: flex; justify-content: center;">
                     ${createMatchCardSimulador(tercerPuesto.ganador, perdedorSF1, perdedorSF2, tercerPuesto.goles1, tercerPuesto.goles2, "Tercer Puesto")}
