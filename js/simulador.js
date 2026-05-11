@@ -808,22 +808,22 @@ function simularTorneo() {
     const mejorPromedio = statsArray[0].promedio;
     const goleadores = statsArray.filter(stat => stat.promedio === mejorPromedio);
 
-    htmlStats += `<div style="text-align: center; margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);`;
+    htmlStats += `<div style="text-align: center; margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">`;
 
     if (goleadores.length === 1) {
         // Un solo goleador
-        htmlStats += `<p style="margin: 0; font-size: 18px; font-weight: bold; color: #333;">
-            <strong style="color: #667eea;">${goleadores[0].nombre}</strong> es el goleador del torneo con un promedio de <strong style="color: #667eea;">${goleadores[0].promedioStr}</strong> goles por partido
+        htmlStats += `<p style="margin: 0; font-size: 18px; font-weight: bold; color: #000;">
+            <strong style="color: #1a56db;">${goleadores[0].nombre}</strong> es el goleador del torneo con un promedio de <strong style="color: #1a56db;">${goleadores[0].promedioStr}</strong> goles por partido
         </p>`;
     } else {
         // Empate: múltiples goleadores
-        const nombresGoleadores = goleadores.map(g => `<strong style="color: #667eea;">${g.nombre}</strong>`).join(', ').replace(/,([^,]*)$/, ' y$1');
-        htmlStats += `<p style="margin: 0; font-size: 18px; font-weight: bold; color: #333;">
-            ⚽ ${nombresGoleadores} son los goleadores del torneo con un promedio de <strong style="color: #667eea;">${goleadores[0].promedioStr}</strong> goles por partido
+        const nombresGoleadores = goleadores.map(g => `<strong style="color: #1a56db;">${g.nombre}</strong>`).join(', ').replace(/,([^,]*)$/, ' y$1');
+        htmlStats += `<p style="margin: 0; font-size: 18px; font-weight: bold; color: #000;">
+            ⚽ ${nombresGoleadores} son los goleadores del torneo con un promedio de <strong style="color: #1a56db;">${goleadores[0].promedioStr}</strong> goles por partido
         </p>`;
     }
 
-    htmlStats += `<p style="margin: 5px 0 0 0; font-size: 14px; color: #666; font-style: italic;">
+    htmlStats += `<p style="margin: 5px 0 0 0; font-size: 14px; color: #333; font-style: italic;">
             El goleador del torneo es el jugador con el mejor promedio de goles
         </p>
     </div>`;
