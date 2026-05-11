@@ -429,7 +429,7 @@ function simularTorneo() {
     if (numJugadores === 7) {
         // Formato Liga: Todos contra todos
         // FASE DE LIGA COMPLETA (4, 5 o 6 jugadores)
-        html += '<h2>📋 FASE DE LIGA - TODOS CONTRA TODOS</h2><br>';
+        html += '<h2>🏆 Fase de Liga</h2><br>';
 
         const { partidos, rankingGrupo } = simularGrupo(jugadores, 'Liga', 1, estadisticasJugadores);
 
@@ -439,7 +439,7 @@ function simularTorneo() {
 
     } else if (numJugadores === 8) {
         // 2 grupos de 4
-        html += '<h2>📋 FASE DE GRUPOS - 2 GRUPOS DE 4</h2><br>';
+        html += '<h2>🏆 Fase de Grupos</h2><br>';
 
         let grupoA, grupoB;
 
@@ -668,7 +668,7 @@ function simularTorneo() {
     }
 
     // Fase Final (Playoffs) - común para todos los formatos
-    html += '<h2>🏆 FASE FINAL - PLAYOFFS</h2><br>';
+    html += '<h2>👑 Playoffs</h2><br>';
 
     // Semifinales (sorteo aleatorio de clasificados)
     const semifinalistas = [...clasificados].sort(() => Math.random() - 0.5);
