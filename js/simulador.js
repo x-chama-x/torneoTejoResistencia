@@ -751,16 +751,16 @@ function simularTorneo() {
             </div>`;
 
     if (numJugadores === 9 && repechajePreMatch) {
-         htmlPlayoffs += `<div class="extra-matches-container" style="display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; flex-wrap: wrap;">`;
+         htmlPlayoffs += `<div class="extra-matches-container" style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;">`;
          // Pre-Playoffs
-         htmlPlayoffs += `<div id="pre-playoff-container" style="text-align: center; flex: 1 1 300px; max-width: 100%; box-sizing: border-box;">
+         htmlPlayoffs += `<div id="pre-playoff-container" style="text-align: center; flex: 1; min-width: 0; box-sizing: border-box;">
                  <h3 style="margin-bottom: 1rem; color:#e67e22; text-align: center;">⚔️ Pre-Playoffs</h3>
                  <div style="display: flex; justify-content: center;">
                  ${createMatchCardSimulador(repechajePreMatch.data.ganador, repechajePreMatch.j1, repechajePreMatch.j2, repechajePreMatch.data.goles1, repechajePreMatch.data.goles2, "Repechaje")}
                  </div>
              </div>`;
          // Tercer Puesto
-         htmlPlayoffs += `<div id="tercer-puesto-container" style="text-align: center; flex: 1 1 300px; max-width: 100%; box-sizing: border-box;">
+         htmlPlayoffs += `<div id="tercer-puesto-container" style="text-align: center; flex: 1; min-width: 0; box-sizing: border-box;">
                  <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">🥉 Tercer Puesto</h3>
                  <div style="display: flex; justify-content: center;">
                  ${createMatchCardSimulador(tercerPuesto.ganador, perdedorSF1, perdedorSF2, tercerPuesto.goles1, tercerPuesto.goles2, "Tercer Puesto")}
