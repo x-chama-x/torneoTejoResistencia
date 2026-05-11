@@ -473,7 +473,17 @@ function simularTorneo() {
         // 3 grupos de 3
         html += '<h2>📋 FASE DE GRUPOS - 3 GRUPOS DE 3</h2><br>';
 
-        const grupos = separarEnGrupos(players, 3);
+        // Separar en 3 grupos (A, B, C)
+        let grupos = [[], [], []];
+        if (modoGrupos === 'manual' && window.gruposManualConfig) {
+            grupos[0] = window.gruposManualConfig.grupoA.map(nombre => jugadores.find(j => j.nombre === nombre)).filter(Boolean);
+            grupos[1] = window.gruposManualConfig.grupoB.map(nombre => jugadores.find(j => j.nombre === nombre)).filter(Boolean);
+            grupos[2] = window.gruposManualConfig.grupoC.map(nombre => jugadores.find(j => j.nombre === nombre)).filter(Boolean);
+        } else {
+            grupos[0] = jugadores.slice(0, 3);
+            grupos[1] = jugadores.slice(3, 6);
+            grupos[2] = jugadores.slice(6, 9);
+        }
 
         // Simular y mostrar cada grupo
         for (let i = 0; i < grupos.length; i++) {
@@ -544,7 +554,12 @@ function simularTorneo() {
             }
         }
 
+        const rankingSegundos = Object.entries(miniStatsSegundos)
+            .map(entry => ({ nombre: entry[0], ...entry[1] }))
+            .sort((a, b) => b.pts - a.pts || b.pg - a.pg || (b.gf - b.gc) - (a.gf - a.gc));
+
         html += '<h2>⚖️ REPECHAJE 2° PUESTOS - MINI-LIGA (3 PARTIDOS)</h2><br>';
+        html += renderGrupoUIX(miniPartidosSegundos, rankingSegundos, 1);
         html += '<p style="text-align:center; color:#e67e22; font-weight:600; margin-bottom:2rem;">🔶 Solo el 1° avanza al Partido Eliminatorio | 2° y 3° quedan eliminados</p>';
 
         // ========== REPECHAJE ENTRE TERCEROS ==========
@@ -604,7 +619,12 @@ function simularTorneo() {
             }
         }
 
+        const rankingTerceros = Object.entries(miniStatsTerceros)
+            .map(entry => ({ nombre: entry[0], ...entry[1] }))
+            .sort((a, b) => b.pts - a.pts || b.pg - a.pg || (b.gf - b.gc) - (a.gf - a.gc));
+
         html += '<h2>⚖️ REPECHAJE 3° PUESTOS - MINI-LIGA (3 PARTIDOS)</h2><br>';
+        html += renderGrupoUIX(miniPartidosTerceros, rankingTerceros, 1);
         html += '<p style="text-align:center; color:#e67e22; font-weight:600; margin-bottom:2rem;">🔶 Solo el 1° avanza al Partido Eliminatorio | 2° y 3° quedan eliminados</p>';
 
         // ========== PARTIDO ELIMINATORIO PRE-PLAYOFFS ==========
@@ -651,19 +671,28 @@ function simularTorneo() {
         // 2 grupos de 5
         html += '<h2>📋 FASE DE GRUPOS - 2 GRUPOS DE 5</h2><br>';
 
-        const grupos = separarEnGrupos(players, 2);
+        let grupos = [[], []];
+        if (modoGrupos === 'manual' && window.gruposManualConfig) {
+            grupos[0] = window.gruposManualConfig.grupoA.map(nombre => jugadores.find(j => j.nombre === nombre)).filter(Boolean);
+            grupos[1] = window.gruposManualConfig.grupoB.map(nombre => jugadores.find(j => j.nombre === nombre)).filter(Boolean);
+        } else {
+            grupos[0] = jugadores.slice(0, 5);
+            grupos[1] = jugadores.slice(5, 10);
+        }
 
+        let resultadosGrupos = [];
         // Simular y mostrar cada grupo
         for (let i = 0; i < grupos.length; i++) {
             const resultadoGrupo = simularGrupo(grupos[i], String.fromCharCode(65 + i), 1, estadisticasJugadores);
+            resultadosGrupos.push(resultadoGrupo);
             html += `<h3 style="text-align: center; margin: 20px 0; color: #667eea;">🔷 GRUPO ${String.fromCharCode(65 + i)}</h3>`;
             html += renderGrupoUIX(resultadoGrupo.partidos, resultadoGrupo.rankingGrupo, 2);
         }
 
         // Los 2 primeros de cada grupo clasifican
         clasificados = [
-            ...resultadoA.rankingGrupo.slice(0, 2),
-            ...resultadoB.rankingGrupo.slice(0, 2)
+            ...resultadosGrupos[0].rankingGrupo.slice(0, 2),
+            ...resultadosGrupos[1].rankingGrupo.slice(0, 2)
         ];
     }
 
