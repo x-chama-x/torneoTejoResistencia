@@ -176,7 +176,9 @@ select:hover {
     background: #161b22;
     border: 1px solid #30363d;
     border-radius: 12px;
-    /* Remover scroll horizontal, el contenido se adaptará */
+    /* Reducimos el padding y permitimos scroll si es estrictamente necesario, pero intentamos evitarlo */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     margin-bottom: 30px;
     padding: 0;
@@ -251,17 +253,13 @@ select:hover {
     /* Por defecto las tablas standalone ocupan todo el ancho del contenedor */
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed;
-    word-wrap: break-word;
 }
 
 /* Para las tablas dentro de .group-tables (grupos A/B/C) dejamos que la tabla quede
    con su ancho natural y el wrapper controle el scroll horizontal. */
 .group-tables .standings table {
-    width: 100%;
+    width: auto;
     border-collapse: collapse;
-    table-layout: fixed;
-    word-wrap: break-word;
 }
 
 /* Título del bloque de standings: lo estilamos para que se vea como un header sólido
@@ -307,14 +305,14 @@ select:hover {
 .standings > table th {
     background: #21262d;
     color: #c9d1d9;
-    padding: 15px;
+    padding: 8px 10px; /* Reducido espacio entre columnas */
     text-align: left;
     font-weight: bold;
     border-bottom: 1px solid #30363d;
 }
 .standings > table td {
     color: #8b949e;
-    padding: 12px 15px;
+    padding: 6px 10px; /* Reducido espacio entre columnas */
 }
 
 /* Tablas envueltas por .standings-inner (tienen el header azul representado por ::before)
@@ -322,18 +320,18 @@ select:hover {
 .standings .standings-inner table th {
     background: #21262d !important;
     color: #c9d1d9 !important;
-    padding: 15px;
+    padding: 8px 10px; /* Reducido espacio entre columnas */
     text-align: left;
     font-weight: bold;
     border-bottom: 1px solid #30363d;
 }
 .standings .standings-inner table td {
     color: #8b949e;
-    padding: 12px 15px;
+    padding: 6px 10px; /* Reducido espacio entre columnas */
 }
 
 .standings td {
-    padding: 12px 15px;
+    padding: 6px 10px; /* Reducido espacio entre columnas */
     border-bottom: 1px solid #30363d;
 }
 
@@ -586,12 +584,13 @@ select:hover {
 /* Ajustes adicionales para pantallas muy pequeñas */
 @media (max-width: 480px) {
     .standings th, .standings td {
-        padding: 5px 2px;
-        font-size: 11px;
+        padding: 4px 4px; /* Mucho menos espacio */
+        font-size: 12px; /* Un poco mas pequeño para que entre sin hacer salto de línea */
     }
 
-    /* Relajar el min-width en móviles muy angostos para que el scroll sea menor */
+    /* Reducimos o quitamos el min-width para que la tabla intente achicarse todo lo posible antes de scrollear */
     .standings table {
+        min-width: 0;
         width: 100%;
     }
 
@@ -615,8 +614,8 @@ select:hover {
         text-align: center;
     }
     .ranking-table th, .ranking-table td {
-        padding: 5px 2px;
-        font-size: 0.70rem;
+        padding: 4px 4px;
+        font-size: 0.75rem;
     }
 }
 
@@ -894,9 +893,8 @@ select:hover {
         padding: 15px;
     }
     .ranking-table th, .ranking-table td {
-        padding: 4px 2px;
-        font-size: 10px;
-        word-break: break-word;
+        padding: 4px 6px;
+        font-size: 0.8rem;
     }
 }
 
@@ -909,9 +907,8 @@ select:hover {
         text-align: center;
     }
     .ranking-table th, .ranking-table td {
-        padding: 3px 1px;
-        font-size: 9px;
-        word-break: break-word;
+        padding: 4px 4px;
+        font-size: 0.75rem;
     }
 }
 
@@ -928,11 +925,9 @@ select:hover {
     border-collapse: collapse;
     margin-top: 0;
     font-size: 0.95rem;
-    table-layout: fixed;
-    word-wrap: break-word;
 }
 .ranking-table th, .ranking-table td {
-    padding: 12px 15px;
+    padding: 8px 10px; /* Reducido espacio entre columnas */
     text-align: left;
     border-bottom: 1px solid #30363d;
 }
@@ -940,10 +935,7 @@ select:hover {
     background: #21262d;
     color: #c9d1d9 !important;
     font-weight: bold;
-    padding: 15px;
-}
-.ranking-table td {
-    color: #c9d1d9 !important;
+    padding: 10px;
 }
 
 /* Racha Box Styles */
@@ -984,7 +976,9 @@ select:hover {
 
 /* Ajuste de scroll solo para la tabla en móviles */
 .table-responsive {
+    overflow-x: auto;
     width: 100%;
+    -webkit-overflow-scrolling: touch;
     background: #161b22;
     border: 1px solid #30363d;
     border-radius: 12px;
