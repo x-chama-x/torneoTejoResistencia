@@ -298,6 +298,97 @@ function simularGrupo(jugadoresGrupo, nombreGrupo, matchNumberInicial, estadisti
     return { partidos, rankingGrupo, matchNumber };
 }
 
+function drawSimBracketLines() {
+    const sf1El = document.getElementById("sim-sf1-wrap");
+    const sf2El = document.getElementById("sim-sf2-wrap");
+    const finalEl = document.getElementById("sim-final-wrap");
+    const connEl = document.getElementById("sim-bracket-connector-col");
+    const svg = document.getElementById("sim-bracket-svg");
+
+    if (!sf1El || !sf2El || !finalEl || !connEl || !svg) return;
+
+    const connRect = connEl.getBoundingClientRect();
+    const sf1Rect = sf1El.getBoundingClientRect();
+    const sf2Rect = sf2El.getBoundingClientRect();
+    const finalRect = finalEl.getBoundingClientRect();
+
+    const sf1Mid = (sf1Rect.top + sf1Rect.bottom) / 2 - connRect.top;
+    const sf2Mid = (sf2Rect.top + sf2Rect.bottom) / 2 - connRect.top;
+    const finalMid = (finalRect.top + finalRect.bottom) / 2 - connRect.top;
+    const w = connRect.width;
+    const h = connRect.height;
+
+    svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    svg.setAttribute("width", w);
+    svg.setAttribute("height", h);
+
+    svg.innerHTML = `
+        <line x1="0" y1="${sf1Mid.toFixed(1)}" x2="${(w/2).toFixed(1)}" y2="${sf1Mid.toFixed(1)}" stroke="#58a6ff" stroke-width="2" stroke-linecap="round"/>
+        <line x1="${(w/2).toFixed(1)}" y1="${sf1Mid.toFixed(1)}" x2="${(w/2).toFixed(1)}" y2="${sf2Mid.toFixed(1)}" stroke="#58a6ff" stroke-width="2" stroke-linecap="round"/>
+        <line x1="0" y1="${sf2Mid.toFixed(1)}" x2="${(w/2).toFixed(1)}" y2="${sf2Mid.toFixed(1)}" stroke="#58a6ff" stroke-width="2" stroke-linecap="round"/>
+        <line x1="${(w/2).toFixed(1)}" y1="${finalMid.toFixed(1)}" x2="${w.toFixed(1)}" y2="${finalMid.toFixed(1)}" stroke="#58a6ff" stroke-width="2" stroke-linecap="round"/>
+    `;
+}
+
+function renderGrupoUIX(partidos, rankingGrupo, clasifCount) {
+    let out = '<div class="home-container" style="margin-bottom:2rem;">';
+    out += '<div><h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Posiciones</h4>';
+    out += '<div class="table-responsive"><table class="ranking-table">';
+    out += '<thead><tr><th>#</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>DIF</th><th>PTS</th></tr></thead><tbody>';
+    rankingGrupo.forEach((r, idx) => {
+        out += `<tr ${idx < clasifCount ? 'style="background: rgba(46, 160, 67, 0.15);"' : ''}>
+            <td>${idx + 1}</td>
+            <td><strong>${r.nombre}</strong></td>
+            <td>${r.pj}</td>
+            <td>${r.pg}</td>
+            <td>${r.pp}</td>
+            <td>${r.gf}</td>
+            <td>${r.gc}</td>
+            <td>${r.gf - r.gc > 0 ? '+' : ''}${r.gf - r.gc}</td>
+            <td><strong>${r.pts}</strong></td>
+        </tr>`;
+    });
+    out += '</tbody></table></div>';
+    if(clasifCount>0) {
+        out += `<div class="leyenda-clasificacion" style="margin-top: 10px; font-size: 0.85rem; color: #8b949e; display: flex; align-items: center;"><span style="display:inline-block; width:12px; height:12px; background: rgba(46, 160, 67, 0.5); border-radius: 2px; margin-right: 5px;"></span><span>[1-${clasifCount}] Clasifica</span></div>`;
+    }
+    out += '</div>';
+
+    out += '<div><h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Resultados</h4>';
+    out += '<div class="table-responsive"><table class="ranking-table align-center">';
+    out += '<thead><tr><th style="text-align: right;">Azul</th><th style="text-align: center;">Resultado</th><th style="text-align: left;">Rojo</th></tr></thead><tbody>';
+    partidos.forEach(p => {
+        const w1 = p.ganador === p.azul;
+        const w2 = p.ganador === p.rojo;
+        out += `<tr>
+            <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #4CAF50;' : ''}">${p.azul}</td>
+            <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${p.golesAzul}-${p.golesRojo}</td>
+            <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #4CAF50;' : ''}">${p.rojo}</td>
+        </tr>`;
+    });
+    out += '</tbody></table></div></div>';
+    out += '</div>';
+    return out;
+}
+
+function createMatchCardSimulador(ganador, j1, j2, g1, g2, title) {
+    let winnerLabel = `🏆 ${ganador}`;
+    if (title.includes("Final")) winnerLabel = `👑 CAMPEÓN: ${ganador}`;
+    else if (title.includes("Tercer")) winnerLabel = `🥉 ${ganador}`;
+    return `
+        <div class="match-card">
+            <div class="match-number">${title}</div>
+            <div class="match-players">
+                <div class="player blue">${j1}</div>
+                <div class="vs">VS</div>
+                <div class="player red">${j2}</div>
+            </div>
+            <div class="score">${g1} - ${g2}</div>
+            <div class="winner-badge">${winnerLabel}</div>
+        </div>
+    `;
+}
+
 function simularTorneo() {
     const numJugadores = parseInt(document.getElementById('numPlayers').value);
     let jugadores = [...jugadoresBase];
@@ -341,42 +432,7 @@ function simularTorneo() {
 
         const { partidos, rankingGrupo } = simularGrupo(jugadores, 'Liga', 1, estadisticasJugadores);
 
-        html += '<div class="matches-grid">';
-        partidos.forEach(p => {
-            html += `
-                <div class="match-card">
-                    <div class="match-number">Partido ${p.numero}</div>
-                    <div class="match-players">
-                        <div class="player blue">${p.azul}</div>
-                        <div class="vs">VS</div>
-                        <div class="player red">${p.rojo}</div>
-                    </div>
-                    <div class="score">${p.golesAzul} - ${p.golesRojo}</div>
-                    <div class="winner-badge">🏆 ${p.ganador}</div>
-                </div>
-            `;
-        });
-        html += '</div>';
-
-        html += '<div class="phase-title">📊 TABLA DE POSICIONES</div>';
-        html += '<div class="standings"><table>';
-        html += '<tr><th>Pos</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>DIF</th><th>Pts</th></tr>';
-
-        rankingGrupo.forEach(r => {
-            const clasificaClass = r.pos <= 4 ? 'style="background: rgba(46, 160, 67, 0.15);"' : '';
-            html += `<tr ${clasificaClass}>
-                <td class="position">${r.pos}°</td>
-                <td><strong>${r.nombre}</strong></td>
-                <td>${r.pj}</td>
-                <td>${r.pg}</td>
-                <td>${r.pp}</td>
-                <td>${r.gf}</td>
-                <td>${r.gc}</td>
-                <td>${r.gf - r.gc}</td>
-                <td><strong>${r.pts}</strong></td>
-            </tr>`;
-        });
-        html += '</table></div>';
+        html += renderGrupoUIX(partidos, rankingGrupo, 4);
 
         clasificados = rankingGrupo.slice(0, 4);
 
@@ -401,83 +457,10 @@ function simularTorneo() {
 
         // Mostrar partidos por grupo
         html += '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">🔷 GRUPO A</h3>';
-        html += '<div class="matches-grid">';
-        resultadoA.partidos.forEach(p => {
-            html += `
-                <div class="match-card">
-                    <div class="match-number">Partido ${p.numero} - Grupo ${p.grupo}</div>
-                    <div class="match-players">
-                        <div class="player blue">${p.azul}</div>
-                        <div class="vs">VS</div>
-                        <div class="player red">${p.rojo}</div>
-                    </div>
-                    <div class="score">${p.golesAzul} - ${p.golesRojo}</div>
-                    <div class="winner-badge">🏆 ${p.ganador}</div>
-                </div>
-            `;
-        });
-        html += '</div>';
+        html += renderGrupoUIX(resultadoA.partidos, resultadoA.rankingGrupo, 2);
 
         html += '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">🔶 GRUPO B</h3>';
-        html += '<div class="matches-grid">';
-        resultadoB.partidos.forEach(p => {
-            html += `
-                <div class="match-card">
-                    <div class="match-number">Partido ${p.numero} - Grupo ${p.grupo}</div>
-                    <div class="match-players">
-                        <div class="player blue">${p.azul}</div>
-                        <div class="vs">VS</div>
-                        <div class="player red">${p.rojo}</div>
-                    </div>
-                    <div class="score">${p.golesAzul} - ${p.golesRojo}</div>
-                    <div class="winner-badge">🏆 ${p.ganador}</div>
-                </div>
-            `;
-        });
-        html += '</div>';
-
-        // Tablas de posiciones
-        html += '<div class="phase-title">📊 TABLAS DE POSICIONES</div>';
-        // Uso una clase en lugar de estilos inline para poder controlar el responsive desde CSS
-        html += '<div class="group-tables">';
-
-        // Tabla Grupo A
-        // Envolvemos el encabezado y la tabla en .standings-inner para que el header azul cubra todo el ancho desplazable
-        html += `<div class="standings"><div class="standings-inner"><h4 class="standings-title" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:10px 12px; margin:0 0 8px 0; border-top-left-radius:10px; border-top-right-radius:10px;">Grupo A</h4><table>`;
-        html += '<tr><th>Pos</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>Pts</th></tr>';
-        resultadoA.rankingGrupo.forEach(r => {
-            const clasificaClass = r.pos <= 2 ? 'style="background: rgba(46, 160, 67, 0.15);"' : '';
-            html += `<tr ${clasificaClass}>
-                <td class="position">${r.pos}°</td>
-                <td><strong>${r.nombre}</strong></td>
-                <td>${r.pj}</td>
-                <td>${r.pg}</td>
-                <td>${r.pp}</td>
-                <td>${r.gf}</td>
-                <td>${r.gc}</td>
-                <td><strong>${r.pts}</strong></td>
-            </tr>`;
-        });
-        html += '</table></div></div>';
-
-        // Tabla Grupo B
-        html += `<div class="standings"><div class="standings-inner"><h4 class="standings-title" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:10px 12px; margin:0 0 8px 0; border-top-left-radius:10px; border-top-right-radius:10px;">Grupo B</h4><table>`;
-        html += '<tr><th>Pos</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>Pts</th></tr>';
-        resultadoB.rankingGrupo.forEach(r => {
-            const clasificaClass = r.pos <= 2 ? 'style="background: rgba(46, 160, 67, 0.15);"' : '';
-            html += `<tr ${clasificaClass}>
-                <td class="position">${r.pos}°</td>
-                <td><strong>${r.nombre}</strong></td>
-                <td>${r.pj}</td>
-                <td>${r.pg}</td>
-                <td>${r.pp}</td>
-                <td>${r.gf}</td>
-                <td>${r.gc}</td>
-                <td><strong>${r.pts}</strong></td>
-            </tr>`;
-        });
-        html += '</table></div></div>';
-        html += '</div>';
+        html += renderGrupoUIX(resultadoB.partidos, resultadoB.rankingGrupo, 2);
 
         // Los 2 primeros de cada grupo clasifican
         clasificados = [
@@ -509,86 +492,55 @@ function simularTorneo() {
 
         // Mostrar partidos
         html += '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">🔷 GRUPO A</h3>';
-        html += '<div class="matches-grid">';
-        resultadoA.partidos.forEach(p => {
-            html += `
-                <div class="match-card">
-                    <div class="match-number">Partido ${p.numero} - Grupo ${p.grupo}</div>
-                    <div class="match-players">
-                        <div class="player blue">${p.azul}</div>
-                        <div class="vs">VS</div>
-                        <div class="player red">${p.rojo}</div>
-                    </div>
-                    <div class="score">${p.golesAzul} - ${p.golesRojo}</div>
-                    <div class="winner-badge">🏆 ${p.ganador}</div>
-                </div>
-            `;
-        });
-        html += '</div>';
+        html += renderGrupoUIX(resultadoA.partidos, resultadoA.rankingGrupo, 1);
 
         html += '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">🔶 GRUPO B</h3>';
-        html += '<div class="matches-grid">';
-        resultadoB.partidos.forEach(p => {
-            html += `
-                <div class="match-card">
-                    <div class="match-number">Partido ${p.numero} - Grupo ${p.grupo}</div>
-                    <div class="match-players">
-                        <div class="player blue">${p.azul}</div>
-                        <div class="vs">VS</div>
-                        <div class="player red">${p.rojo}</div>
-                    </div>
-                    <div class="score">${p.golesAzul} - ${p.golesRojo}</div>
-                    <div class="winner-badge">🏆 ${p.ganador}</div>
-                </div>
-            `;
-        });
-        html += '</div>';
+        html += renderGrupoUIX(resultadoB.partidos, resultadoB.rankingGrupo, 1);
 
         html += '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">🔷 GRUPO C</h3>';
-        html += '<div class="matches-grid">';
-        resultadoC.partidos.forEach(p => {
-            html += `
-                <div class="match-card">
-                    <div class="match-number">Partido ${p.numero} - Grupo ${p.grupo}</div>
-                    <div class="match-players">
-                        <div class="player blue">${p.azul}</div>
-                        <div class="vs">VS</div>
-                        <div class="player red">${p.rojo}</div>
-                    </div>
-                    <div class="score">${p.golesAzul} - ${p.golesRojo}</div>
-                    <div class="winner-badge">🏆 ${p.ganador}</div>
-                </div>
-            `;
-        });
-        html += '</div>';
-
-        // Tablas
-        html += '<div class="phase-title">📊 TABLAS DE POSICIONES</div>';
-        html += '<div class="group-tables">';
-
-        [resultadoA, resultadoB, resultadoC].forEach((resultado, idx) => {
-            const nombreGrupo = ['A', 'B', 'C'][idx];
-            html += `<div class="standings"><div class="standings-inner"><h4 class="standings-title" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:10px 12px; margin:0 0 8px 0; border-top-left-radius:10px; border-top-right-radius:10px;">Grupo ${nombreGrupo}</h4><table>`;
-            html += '<tr><th>Pos</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>Pts</th></tr>';
-            resultado.rankingGrupo.forEach(r => {
-                const clasificaClass = r.pos === 1 ? 'style="background: rgba(46, 160, 67, 0.15);"' : '';
-                html += `<tr ${clasificaClass}>
-                    <td class="position">${r.pos}°</td>
-                    <td><strong>${r.nombre}</strong></td>
-                    <td>${r.pj}</td>
-                    <td>${r.pg}</td>
-                    <td>${r.pp}</td>
-                    <td>${r.gf}</td>
-                    <td>${r.gc}</td>
-                    <td><strong>${r.pts}</strong></td>
-                </tr>`;
-            });
-            html += '</table></div></div>';
-        });
-        html += '</div>';
+        html += renderGrupoUIX(resultadoC.partidos, resultadoC.rankingGrupo, 1);
 
         // Clasifican los 3 primeros de cada grupo directo
-        const primeros = [
+        clasificados = [
+            resultadoA.rankingGrupo[0],
+            resultadoB.rankingGrupo[0],
+            resultadoC.rankingGrupo[0]
+        ];
+
+    } else if (numJugadores === 9) {
+        // 3 grupos de 3
+        html += '<div class="phase-title">📋 FASE DE GRUPOS - 3 GRUPOS DE 3</div>';
+
+        let grupoA, grupoB, grupoC;
+
+        if (modoGrupos === 'manual' && window.gruposManualConfig) {
+            // Usar configuración manual
+            grupoA = window.gruposManualConfig.grupoA.map(nombre => jugadores.find(j => j.nombre === nombre)).filter(Boolean);
+            grupoB = window.gruposManualConfig.grupoB.map(nombre => jugadores.find(j => j.nombre === nombre)).filter(Boolean);
+            grupoC = window.gruposManualConfig.grupoC.map(nombre => jugadores.find(j => j.nombre === nombre)).filter(Boolean);
+        } else {
+            // Distribución aleatoria (ya mezclados)
+            grupoA = jugadores.slice(0, 3);
+            grupoB = jugadores.slice(3, 6);
+            grupoC = jugadores.slice(6, 9);
+        }
+
+        const resultadoA = simularGrupo(grupoA, 'A', 1, estadisticasJugadores);
+        const resultadoB = simularGrupo(grupoB, 'B', resultadoA.matchNumber, estadisticasJugadores);
+        const resultadoC = simularGrupo(grupoC, 'C', resultadoB.matchNumber, estadisticasJugadores);
+
+        // Mostrar partidos
+        html += '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">🔷 GRUPO A</h3>';
+        html += renderGrupoUIX(resultadoA.partidos, resultadoA.rankingGrupo, 1);
+
+        html += '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">🔶 GRUPO B</h3>';
+        html += renderGrupoUIX(resultadoB.partidos, resultadoB.rankingGrupo, 1);
+
+        html += '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">🔷 GRUPO C</h3>';
+        html += renderGrupoUIX(resultadoC.partidos, resultadoC.rankingGrupo, 1);
+
+        // Clasifican los 3 primeros de cada grupo directo
+        clasificados = [
             resultadoA.rankingGrupo[0],
             resultadoB.rankingGrupo[0],
             resultadoC.rankingGrupo[0]
@@ -668,40 +620,8 @@ function simularTorneo() {
             .sort((a, b) => b.pts - a.pts || b.pg - a.pg || (b.gf - b.gc) - (a.gf - a.gc));
 
         html += '<div class="phase-title">⚖️ REPECHAJE 2° PUESTOS - MINI-LIGA (3 PARTIDOS)</div>';
-        html += '<div class="matches-grid">';
-        miniPartidosSegundos.forEach((p, idx) => {
-            html += `
-                <div class="match-card">
-                    <div class="match-number">Repechaje 2° - Partido ${idx + 1}</div>
-                    <div class="match-players">
-                        <div class="player blue">${p.azul}</div>
-                        <div class="vs">VS</div>
-                        <div class="player red">${p.rojo}</div>
-                    </div>
-                    <div class="score">${p.golesAzul} - ${p.golesRojo}</div>
-                    <div class="winner-badge">🏆 ${p.ganador}</div>
-                </div>
-            `;
-        });
-        html += '</div>';
-
-        html += '<div class="standings"><table>';
-        html += '<tr><th>Pos</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>Pts</th></tr>';
-        rankingSegundos.forEach((r, index) => {
-            const highlight = index === 0 ? 'style="background: rgba(212, 175, 55, 0.15);"' : '';
-            html += `<tr ${highlight}>
-                <td class="position">${index + 1}°</td>
-                <td><strong>${r.nombre}</strong></td>
-                <td>${r.pj}</td>
-                <td>${r.pg}</td>
-                <td>${r.pp}</td>
-                <td>${r.gf}</td>
-                <td>${r.gc}</td>
-                <td><strong>${r.pts}</strong></td>
-            </tr>`;
-        });
-        html += '</table></div>';
-        html += '<p style="text-align:center; color:#e67e22; font-weight:600;">🔶 Solo el 1° avanza al Partido Eliminatorio | 2° y 3° quedan eliminados</p>';
+        html += renderGrupoUIX(miniPartidosSegundos, rankingSegundos, 1);
+        html += '<p style="text-align:center; color:#e67e22; font-weight:600; margin-bottom:2rem;">🔶 Solo el 1° avanza al Partido Eliminatorio | 2° y 3° quedan eliminados</p>';
 
         // ========== REPECHAJE ENTRE TERCEROS ==========
         const candidatosTerceros = terceros.map(t => ({
@@ -765,40 +685,8 @@ function simularTorneo() {
             .sort((a, b) => b.pts - a.pts || b.pg - a.pg || (b.gf - b.gc) - (a.gf - a.gc));
 
         html += '<div class="phase-title">⚖️ REPECHAJE 3° PUESTOS - MINI-LIGA (3 PARTIDOS)</div>';
-        html += '<div class="matches-grid">';
-        miniPartidosTerceros.forEach((p, idx) => {
-            html += `
-                <div class="match-card">
-                    <div class="match-number">Repechaje 3° - Partido ${idx + 1}</div>
-                    <div class="match-players">
-                        <div class="player blue">${p.azul}</div>
-                        <div class="vs">VS</div>
-                        <div class="player red">${p.rojo}</div>
-                    </div>
-                    <div class="score">${p.golesAzul} - ${p.golesRojo}</div>
-                    <div class="winner-badge">🏆 ${p.ganador}</div>
-                </div>
-            `;
-        });
-        html += '</div>';
-
-        html += '<div class="standings"><table>';
-        html += '<tr><th>Pos</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>Pts</th></tr>';
-        rankingTerceros.forEach((r, index) => {
-            const highlight = index === 0 ? 'style="background: rgba(212, 175, 55, 0.15);"' : '';
-            html += `<tr ${highlight}>
-                <td class="position">${index + 1}°</td>
-                <td><strong>${r.nombre}</strong></td>
-                <td>${r.pj}</td>
-                <td>${r.pg}</td>
-                <td>${r.pp}</td>
-                <td>${r.gf}</td>
-                <td>${r.gc}</td>
-                <td><strong>${r.pts}</strong></td>
-            </tr>`;
-        });
-        html += '</table></div>';
-        html += '<p style="text-align:center; color:#e67e22; font-weight:600;">🔶 Solo el 1° avanza al Partido Eliminatorio | 2° y 3° quedan eliminados</p>';
+        html += renderGrupoUIX(miniPartidosTerceros, rankingTerceros, 1);
+        html += '<p style="text-align:center; color:#e67e22; font-weight:600; margin-bottom:2rem;">🔶 Solo el 1° avanza al Partido Eliminatorio | 2° y 3° quedan eliminados</p>';
 
         // ========== PARTIDO ELIMINATORIO PRE-PLAYOFFS ==========
         // 1° de repechaje segundos vs 1° de repechaje terceros
@@ -822,7 +710,7 @@ function simularTorneo() {
         }
 
         html += `
-            <div class="match-card" style="border: 2px solid #f39c12;">
+            <div class="match-card" style="border: 2px solid #f39c12; margin: 0 auto; max-width: 450px;">
                 <div class="match-number">Eliminatorio por el 4° lugar en Playoffs</div>
                 <div class="match-players">
                     <div class="player blue">${dataPrimeroSegundos.nombre} <small>(1° Rep. 2°)</small></div>
@@ -839,8 +727,8 @@ function simularTorneo() {
         const cuartoClasificado = partidoEliminatorio.ganador === dataPrimeroSegundos.nombre ? primeroSegundos : primeroTerceros;
 
         html += '<div class="phase-title">✅ CLASIFICADOS A PLAYOFFS</div>';
-        html += '<div class="standings"><table>';
-        html += '<tr><th>Clasificación</th><th>Jugador</th><th>Vía</th></tr>';
+        html += '<div class="table-responsive"><table class="ranking-table">';
+        html += '<thead><tr><th>Clasificación</th><th>Jugador</th><th>Vía</th></tr></thead><tbody>';
 
         primeros.forEach((r) => {
             html += `<tr style="background: rgba(46, 160, 67, 0.15);">
@@ -856,7 +744,7 @@ function simularTorneo() {
             <td>Partido Eliminatorio</td>
         </tr>`;
 
-        html += '</table></div>';
+        html += '</tbody></table></div>';
 
         clasificados = [...primeros, cuartoClasificado];
 
@@ -881,81 +769,10 @@ function simularTorneo() {
 
         // Mostrar partidos
         html += '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">🔷 GRUPO A</h3>';
-        html += '<div class="matches-grid">';
-        resultadoA.partidos.forEach(p => {
-            html += `
-                <div class="match-card">
-                    <div class="match-number">Partido ${p.numero} - Grupo ${p.grupo}</div>
-                    <div class="match-players">
-                        <div class="player blue">${p.azul}</div>
-                        <div class="vs">VS</div>
-                        <div class="player red">${p.rojo}</div>
-                    </div>
-                    <div class="score">${p.golesAzul} - ${p.golesRojo}</div>
-                    <div class="winner-badge">🏆 ${p.ganador}</div>
-                </div>
-            `;
-        });
-        html += '</div>';
+        html += renderGrupoUIX(resultadoA.partidos, resultadoA.rankingGrupo, 2);
 
         html += '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">🔶 GRUPO B</h3>';
-        html += '<div class="matches-grid">';
-        resultadoB.partidos.forEach(p => {
-            html += `
-                <div class="match-card">
-                    <div class="match-number">Partido ${p.numero} - Grupo ${p.grupo}</div>
-                    <div class="match-players">
-                        <div class="player blue">${p.azul}</div>
-                        <div class="vs">VS</div>
-                        <div class="player red">${p.rojo}</div>
-                    </div>
-                    <div class="score">${p.golesAzul} - ${p.golesRojo}</div>
-                    <div class="winner-badge">🏆 ${p.ganador}</div>
-                </div>
-            `;
-        });
-        html += '</div>';
-
-        // Tablas
-        html += '<div class="phase-title">📊 TABLAS DE POSICIONES</div>';
-        html += '<div class="group-tables">';
-
-        // Tabla Grupo A
-        html += `<div class="standings"><div class="standings-inner"><h4 class="standings-title" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:10px 12px; margin:0 0 8px 0; border-top-left-radius:10px; border-top-right-radius:10px;">Grupo A</h4><table>`;
-        html += '<tr><th>Pos</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>Pts</th></tr>';
-        resultadoA.rankingGrupo.forEach(r => {
-            const clasificaClass = r.pos <= 2 ? 'style="background: rgba(46, 160, 67, 0.15);"' : '';
-            html += `<tr ${clasificaClass}>
-                <td class="position">${r.pos}°</td>
-                <td><strong>${r.nombre}</strong></td>
-                <td>${r.pj}</td>
-                <td>${r.pg}</td>
-                <td>${r.pp}</td>
-                <td>${r.gf}</td>
-                <td>${r.gc}</td>
-                <td><strong>${r.pts}</strong></td>
-            </tr>`;
-        });
-        html += '</table></div></div>';
-
-        // Tabla Grupo B
-        html += `<div class="standings"><div class="standings-inner"><h4 class="standings-title" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:10px 12px; margin:0 0 8px 0; border-top-left-radius:10px; border-top-right-radius:10px;">Grupo B</h4><table>`;
-        html += '<tr><th>Pos</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>Pts</th></tr>';
-        resultadoB.rankingGrupo.forEach(r => {
-            const clasificaClass = r.pos <= 2 ? 'style="background: rgba(46, 160, 67, 0.15);"' : '';
-            html += `<tr ${clasificaClass}>
-                <td class="position">${r.pos}°</td>
-                <td><strong>${r.nombre}</strong></td>
-                <td>${r.pj}</td>
-                <td>${r.pg}</td>
-                <td>${r.pp}</td>
-                <td>${r.gf}</td>
-                <td>${r.gc}</td>
-                <td><strong>${r.pts}</strong></td>
-            </tr>`;
-        });
-        html += '</table></div></div>';
-        html += '</div>';
+        html += renderGrupoUIX(resultadoB.partidos, resultadoB.rankingGrupo, 2);
 
         // Los 2 primeros de cada grupo clasifican
         clasificados = [
@@ -1039,35 +856,39 @@ function simularTorneo() {
     estadisticasJugadores[sf2.ganador].golesFaseFinal += final.goles2;
     estadisticasJugadores[sf2.ganador].partidosJugados++;
 
-    html += '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">🥉 TERCER PUESTO</h3>';
-    html += '<div class="matches-grid" style="max-width: 400px; margin: 0 auto;">';
+    // Generar html para playoffs con formato bracket y conector de SVG
     html += `
-        <div class="match-card">
-            <div class="match-players">
-                <div class="player blue">${perdedorSF1}</div>
-                <div class="vs">VS</div>
-                <div class="player red">${perdedorSF2}</div>
+        <div class="panel playoffs-section" style="margin-bottom: 2rem; background: transparent; box-shadow: none; border: none; padding: 0;">
+            <div class="playoff-bracket" id="sim-playoff-bracket">
+                <div class="bracket-fixture">
+                    <div class="bracket-col-semis">
+                        <h3 class="round-title">⚔️ Semifinales</h3>
+                        <div id="sim-sf1-wrap">
+                            ${createMatchCardSimulador(sf1.ganador, semifinalistas[0].nombre, semifinalistas[1].nombre, sf1.goles1, sf1.goles2, "Semifinal 1")}
+                        </div>
+                        <div id="sim-sf2-wrap">
+                            ${createMatchCardSimulador(sf2.ganador, semifinalistas[2].nombre, semifinalistas[3].nombre, sf2.goles1, sf2.goles2, "Semifinal 2")}
+                        </div>
+                    </div>
+                    <div class="bracket-connector-col" id="sim-bracket-connector-col">
+                        <svg id="sim-bracket-svg" style="width:100%; height:100%; display:block; overflow:visible;"></svg>
+                    </div>
+                    <div class="bracket-col-final">
+                        <h3 class="round-title">👑 Final</h3>
+                        <div id="sim-final-wrap">
+                            ${createMatchCardSimulador(final.ganador, sf1.ganador, sf2.ganador, final.goles1, final.goles2, "Gran Final")}
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="score">${tercerPuesto.goles1} - ${tercerPuesto.goles2}</div>
-            <div class="winner-badge">🥉 ${tercerPuesto.ganador}</div>
+            <div id="sim-tercer-puesto-container" style="margin-top: 1rem; text-align: center;">
+                <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">🥉 Tercer Puesto</h3>
+                <div style="display: flex; justify-content: center;">
+                    ${createMatchCardSimulador(tercerPuesto.ganador, perdedorSF1, perdedorSF2, tercerPuesto.goles1, tercerPuesto.goles2, "Tercer Puesto")}
+                </div>
+            </div>
         </div>
     `;
-    html += '</div>';
-
-    html += '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">👑 FINAL</h3>';
-    html += '<div class="matches-grid" style="max-width: 400px; margin: 0 auto;">';
-    html += `
-        <div class="match-card">
-            <div class="match-players">
-                <div class="player blue">${sf1.ganador}</div>
-                <div class="vs">VS</div>
-                <div class="player red">${sf2.ganador}</div>
-            </div>
-            <div class="score">${final.goles1} - ${final.goles2}</div>
-            <div class="winner-badge">👑 CAMPEÓN: ${final.ganador}</div>
-        </div>
-    `;
-    html += '</div>';
 
     // Podio
     const cuarto = tercerPuesto.ganador === perdedorSF1 ? perdedorSF2 : perdedorSF1;
@@ -1100,8 +921,8 @@ function simularTorneo() {
 
     // Tabla de estadísticas
     html += '<div class="phase-title">📊 ESTADÍSTICAS DEL TORNEO</div>';
-    html += '<div class="standings"><table>';
-    html += '<tr><th>Jugador</th><th>Goles Liga</th><th>Goles Fase Final</th><th>Total Goles (TG)</th><th>Partidos (PJ)</th><th>Prom TG/PJ</th></tr>';
+    html += '<div class="table-responsive"><table class="ranking-table">';
+    html += '<thead><tr><th>Jugador</th><th>Goles Liga</th><th>Goles Fase Final</th><th>Total Goles (TG)</th><th>Partidos (PJ)</th><th>Prom TG/PJ</th></tr></thead><tbody>';
 
     // Convertir estadísticas a array y ordenar por promedio TG/PJ (descendente)
     const statsArray = Object.entries(estadisticasJugadores).map(([nombre, stats]) => ({
@@ -1125,7 +946,7 @@ function simularTorneo() {
         </tr>`;
     });
 
-    html += '</table></div>';
+    html += '</tbody></table></div>';
 
     // Texto informativo sobre el goleador (maneja empates)
     const mejorPromedio = statsArray[0].promedio;
@@ -1152,6 +973,11 @@ function simularTorneo() {
     </div>`;
 
     document.getElementById('resultado').innerHTML = html;
+
+    // Draw SVG lines after injecting HTML
+    setTimeout(() => {
+        drawSimBracketLines();
+    }, 50);
 }
 
 // Mostrar solo el formato al cargar y actualizar al cambiar selección
