@@ -353,8 +353,8 @@ function renderTournamentStats(allMatches, nombreTorneo) {
     const mejorPromedio = statsArray[0].promedio;
     const goleadores = statsArray.filter(s => s.promedio === mejorPromedio);
     const goleadorText = goleadores.length === 1
-        ? `<strong style="color: #667eea;">${goleadores[0].nombre}</strong> es el goleador del torneo con un promedio de <strong style="color: #667eea;">${goleadores[0].promedioStr}</strong> goles por partido`
-        : `${goleadores.map(g => `<strong style="color: #667eea;">${g.nombre}</strong>`).join(", ").replace(/,([^,]*)$/, " y$1")} son los goleadores del torneo con un promedio de <strong style="color: #667eea;">${goleadores[0].promedioStr}</strong> goles por partido`;
+        ? `<strong style="color: #1a56db;">${goleadores[0].nombre}</strong> es el goleador del torneo con un promedio de <strong style="color: #1a56db;">${goleadores[0].promedioStr}</strong> goles por partido`
+        : `${goleadores.map(g => `<strong style="color: #1a56db;">${g.nombre}</strong>`).join(", ").replace(/,([^,]*)$/, " y$1")} son los goleadores del torneo con un promedio de <strong style="color: #1a56db;">${goleadores[0].promedioStr}</strong> goles por partido`;
 
     statsContainer.innerHTML = `
         <h2>📊 ESTADÍSTICAS DEL TORNEO</h2>
@@ -383,8 +383,8 @@ function renderTournamentStats(allMatches, nombreTorneo) {
             `).join("")}</tbody>
         </table></div>
         <div style="text-align: center; margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-            <p style="margin: 0; font-size: 18px; font-weight: bold; color: #333;">${goleadorText}</p>
-            <p style="margin: 5px 0 0 0; font-size: 14px; color: #666; font-style: italic;">El goleador del torneo es el jugador con el mejor promedio de goles</p>
+            <p style="margin: 0; font-size: 18px; font-weight: bold; color: #000;">${goleadorText}</p>
+            <p style="margin: 5px 0 0 0; font-size: 14px; color: #333; font-style: italic;">El goleador del torneo es el jugador con el mejor promedio de goles</p>
         </div>
     `;
 }
