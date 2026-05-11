@@ -584,8 +584,8 @@ select:hover {
 /* Ajustes adicionales para pantallas muy pequeñas */
 @media (max-width: 480px) {
     .standings th, .standings td {
-        padding: 4px 4px; /* Mucho menos espacio */
-        font-size: 12px; /* Un poco mas pequeño para que entre sin hacer salto de línea */
+        padding: 3px 1px; /* Mucho menos espacio */
+        font-size: 9.5px; /* Un poco mas pequeño para que entre sin hacer salto de línea molesto */
     }
 
     /* Reducimos o quitamos el min-width para que la tabla intente achicarse todo lo posible antes de scrollear */
@@ -614,8 +614,18 @@ select:hover {
         text-align: center;
     }
     .ranking-table th, .ranking-table td {
-        padding: 4px 4px;
-        font-size: 0.75rem;
+        padding: 3px 1px;
+        font-size: 9.5px;
+    }
+    /* Achicar cajas de rachas para que no empujen el ancho */
+    .streak-box {
+        width: 14px;
+        height: 14px;
+        font-size: 8px;
+        border-radius: 2px;
+    }
+    .streak-container {
+        gap: 2px;
     }
 }
 
@@ -890,11 +900,11 @@ select:hover {
     }
 
     .panel {
-        padding: 15px;
+        padding: 10px; /* Reducido para dar mas espacio a las tablas */
     }
     .ranking-table th, .ranking-table td {
-        padding: 4px 6px;
-        font-size: 0.8rem;
+        padding: 4px 4px;
+        font-size: 0.75rem;
     }
 }
 
@@ -906,9 +916,23 @@ select:hover {
         font-size: 1.3em;
         text-align: center;
     }
+    .panel {
+        padding: 8px; /* Darle todo el ancho posible a la tabla */
+    }
     .ranking-table th, .ranking-table td {
-        padding: 4px 4px;
-        font-size: 0.75rem;
+        padding: 3px 1px; /* Casi sin bordes iter-celda para que entre perfecto */
+        font-size: 9.5px; /* Tamaño de fuente ideal para no scrollear */
+    }
+
+    /* Achicar cajas de rachas para que no empujen el ancho */
+    .streak-box {
+        width: 14px;
+        height: 14px;
+        font-size: 8px;
+        border-radius: 2px;
+    }
+    .streak-container {
+        gap: 2px;
     }
 }
 
