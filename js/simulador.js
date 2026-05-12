@@ -639,6 +639,15 @@ function simularTorneo() {
         const repechajePre = simularPartido(dataPrimeroSegundos, dataPrimeroTerceros);
         repechajePreMatch = { data: repechajePre, j1: primeroSegundos.nombre, j2: primeroTerceros.nombre };
 
+        if (estadisticasJugadores[primeroSegundos.nombre]) {
+            estadisticasJugadores[primeroSegundos.nombre].golesFaseFinal += repechajePre.goles1;
+            estadisticasJugadores[primeroSegundos.nombre].partidosJugados++;
+        }
+        if (estadisticasJugadores[primeroTerceros.nombre]) {
+            estadisticasJugadores[primeroTerceros.nombre].golesFaseFinal += repechajePre.goles2;
+            estadisticasJugadores[primeroTerceros.nombre].partidosJugados++;
+        }
+
         // El ganador del partido eliminatorio es el 4° clasificado
         const cuartoClasificado = repechajePre.ganador === dataPrimeroSegundos.nombre ? primeroSegundos : primeroTerceros;
 
