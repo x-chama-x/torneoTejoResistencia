@@ -483,9 +483,9 @@ function mostrarResultados(grupos, probs, numJugadores) {
     Object.keys(grupos).forEach(nombreGrupo => {
         const jugadoresGrupo = grupos[nombreGrupo];
         if (Object.keys(grupos).length > 1) {
-            html += `<h3 style="margin-top: 15px; margin-bottom: 10px; color: #333; font-weight: 700; text-align: center;">Partidos del Grupo ${nombreGrupo}</h3>`;
+            html += `<h3 style="margin-top: 15px; margin-bottom: 10px; color: #eff0f3; font-weight: 700; text-align: center;">Partidos del Grupo ${nombreGrupo}</h3>`;
         } else {
-            html += `<h3 style="margin-top: 15px; margin-bottom: 10px; color: #333; font-weight: 700; text-align: center;">Todos los partidos</h3>`;
+            html += `<h3 style="margin-top: 15px; margin-bottom: 10px; color: #eff0f3; font-weight: 700; text-align: center;">Todos los partidos</h3>`;
         }
         html += '<div class="sf-grid">';
 
