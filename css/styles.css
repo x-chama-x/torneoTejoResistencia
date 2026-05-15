@@ -389,6 +389,8 @@ select:hover {
     padding: 0;
     display: inline-block;
     background: transparent !important;
+    color: #f85149;
+    text-decoration: none;
 }
 
 .sidebar-footer .github-link:hover {
