@@ -11,10 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <a href="playoffs.html" title="Playoffs">Playoffs</a>
         <a href="torneo1.html" title="Primer Torneo">Primer Torneo</a>
         <a href="torneo2.html" title="Segundo Torneo">Segundo Torneo</a>
-        <div class="sidebar-footer" style="margin-top: auto; text-align: center; padding-top: 30px;">
-            <img src="img/favicon2.png" alt="Logo" style="width: 50px; margin-bottom: 10px;">
+        <div class="sidebar-footer">
+            <img src="img/favicon2.png" alt="Logo">
             <br>
-            <a href="https://github.com/x-chama-x" target="_blank" rel="noopener noreferrer" style="font-size: 0.9em; padding: 0; display: inline-block;">x-chama-x</a>
+            <a href="https://github.com/x-chama-x" target="_blank" rel="noopener noreferrer" class="github-link">x-chama-x</a>
         </div>
     </nav>
     `;
