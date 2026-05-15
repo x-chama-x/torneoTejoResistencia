@@ -37,19 +37,28 @@ function inicializarSelectorJugadores(numJugadores, cbCambio) {
     const checkboxes = Array.from(container.querySelectorAll('.player-checkbox'));
     checkboxes.forEach(cb => {
         cb.addEventListener('change', () => {
-            const checked = checkboxes.filter(c => c.checked);
-            if (checked.length > numJugadores) {
+            const checkedCount = checkboxes.filter(c => c.checked).length;
+
+            // Si ya se alcanzó el límite y este se está intentando checkear, deshacer el check
+            if (checkedCount > numJugadores) {
                 cb.checked = false;
-                return;
             }
 
+            const currentChecked = checkboxes.filter(c => c.checked);
+
+            // Deshabilitar los no seleccionados si ya se llegó al límite
+            checkboxes.forEach(c => {
+                if (!c.checked) {
+                    c.disabled = currentChecked.length >= numJugadores;
+                }
+            });
+
             const countEl = document.getElementById('selectionCount');
-            if (countEl) countEl.textContent = `${checked.length} / ${numJugadores} seleccionados`;
+            if (countEl) countEl.textContent = `${currentChecked.length} / ${numJugadores} seleccionados`;
 
             if (cbCambio && typeof cbCambio === 'function') {
-                cbCambio(checked);
+                cbCambio(currentChecked);
             }
         });
     });
 }
-
