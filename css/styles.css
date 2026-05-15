@@ -222,7 +222,7 @@ select:hover {
     }
 
     .sidebar-footer {
-        margin-top: 20px; /* Elimina el auto para que suba y quede pegado al último elemento del menú en móviles */
+        margin-top: 20px;
         padding-top: 10px;
         padding-bottom: 20px;
     }
@@ -435,7 +435,7 @@ select:hover {
     }
 
     .sidebar-footer {
-        margin-top: 20px; /* Elimina el auto para que suba y quede pegado al último elemento del menú en móviles */
+        margin-top: 20px;
         padding-top: 10px;
         padding-bottom: 20px;
     }
