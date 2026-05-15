@@ -383,7 +383,7 @@ function actualizarLabelSF2() {
 // ---- Inicialización ----
 document.addEventListener('DOMContentLoaded', async () => {
     await cargarJugadoresDesdeArchivo();
-    renderPlayerSelection();
+    renderPlayerSelection(4);
 
     // Botón aleatorio
     document.getElementById('randomSelectBtn')?.addEventListener('click', () => {
