@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="sidebar-footer">
             <img src="img/favicon2.png" alt="Logo">
             <br>
-            <a href="https://github.com/x-chama-x" target="_blank" rel="noopener noreferrer" class="github-link">x-chama-x</a>
+            <a href="https://github.com/x-chama-x" target="_blank" rel="noopener noreferrer" class="github-link">𝑷𝒐𝒘𝒆𝒓𝒆𝒅 𝒃𝒚 𝒙_𝒄𝒉𝒂𝒎𝒂_𝒙</a>
         </div>
     </nav>
     `;
