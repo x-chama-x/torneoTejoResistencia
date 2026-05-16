@@ -53,11 +53,11 @@ Tomy,Chama,P,6-7,Segundo torneo de hockey de mesa,11/01/2026,Final
 # Amistosos
 Chama,Facu,P,5-7,Amistoso,7/5/2025,Amistoso
 Chama,Mateo,G,7-3,Amistoso,7/5/2025,Amistoso
-Marco,Chama,G,7-5,Amistoso,21/7/2025,Amistoso
-Marco,Chama,G,7-5,Amistoso,21/7/2025,Amistoso
 Chama,Santi,G,7-4,Amistoso,7/5/2025,Amistoso
 Mateo,Santi,G,7-5,Amistoso,7/5/2025,Amistoso
 Facu,Kovic,G,7-3,Amistoso,7/5/2025,Amistoso
+Marco,Chama,G,7-5,Amistoso,21/7/2025,Amistoso
+Marco,Chama,G,7-5,Amistoso,21/7/2025,Amistoso
 Lucas,Kovic,G,7-4,Amistoso,2/8/2025,Amistoso
 Chama,Rafa,G,7-3,Amistoso,11/01/2026,Amistoso
 Chama,Facu,G,7-3,Amistoso,2/4/2026,Amistoso
