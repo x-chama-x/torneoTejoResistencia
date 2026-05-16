@@ -207,6 +207,41 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        // --- Calcular y pintar Top 5 Mayores Invictos ---
+        const invictos = [];
+        for (const nombre in matchHistory) {
+            let maxNPI = 0;
+            let currentNPI = 0;
+            for (const res of matchHistory[nombre]) {
+                if (res === 'G' || res === 'E') {
+                    currentNPI++;
+                    if (currentNPI > maxNPI) maxNPI = currentNPI;
+                } else {
+                    currentNPI = 0;
+                }
+            }
+            if (maxNPI > 0) {
+                invictos.push({ nombre, npi: maxNPI });
+            }
+        }
+
+        invictos.sort((a, b) => b.npi - a.npi || a.nombre.localeCompare(b.nombre));
+        const top5Invictos = invictos.slice(0, 5);
+
+        const tbodyInvictos = document.querySelector('#invictos-table tbody');
+        if (tbodyInvictos) {
+            top5Invictos.forEach((j, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${index + 1}</td><td><strong>${j.nombre}</strong></td><td>${j.npi}</td>`;
+                tbodyInvictos.appendChild(tr);
+            });
+            if (top5Invictos.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="3" style="text-align:center; color:#8b949e;">Aún no hay datos</td>`;
+                tbodyInvictos.appendChild(tr);
+            }
+        }
+
         // Pintar tabla ranking de goles
         const arrGoles = Object.keys(gmap)
             .map(nombre => ({ nombre, goles: gmap[nombre] }))
