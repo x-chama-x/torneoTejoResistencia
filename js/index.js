@@ -101,6 +101,22 @@ document.addEventListener('DOMContentLoaded', () => {
             return a.indiceOriginal - b.indiceOriginal;
         });
 
+        // Buscar fecha máxima para "Actualizado al día"
+        let maxDate = new Date(0);
+        partidos.forEach(p => {
+            if (p.fecha > maxDate) maxDate = p.fecha;
+        });
+
+        if (maxDate.getTime() > 0) {
+            const elUpdated = document.getElementById('last-updated');
+            if (elUpdated) {
+                const day = String(maxDate.getDate()).padStart(2, '0');
+                const month = String(maxDate.getMonth() + 1).padStart(2, '0');
+                const year = maxDate.getFullYear();
+                elUpdated.textContent = `Actualizado al día ${day}/${month}/${year}`;
+            }
+        }
+
         // Procesar partidos ya ordenados
         for (const partido of partidos) {
             const { j1, j2, res, marcador, torneo } = partido;
