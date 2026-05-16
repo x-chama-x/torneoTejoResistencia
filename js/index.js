@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // --- Calcular y pintar Top 5 Mayores Invictos ---
-        const invictos = [];
+        const invictosMap = {};
         for (const nombre in matchHistory) {
             let maxNPI = 0;
             let currentNPI = 0;
@@ -221,18 +221,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             if (maxNPI > 0) {
-                invictos.push({ nombre, npi: maxNPI });
+                if (!invictosMap[maxNPI]) {
+                    invictosMap[maxNPI] = [];
+                }
+                invictosMap[maxNPI].push(nombre);
             }
         }
 
-        invictos.sort((a, b) => b.npi - a.npi || a.nombre.localeCompare(b.nombre));
-        const top5Invictos = invictos.slice(0, 5);
+        const agrupadosNPI = Object.keys(invictosMap).map(npi => ({
+            npi: parseInt(npi, 10),
+            nombres: invictosMap[npi].sort()
+        }));
+
+        agrupadosNPI.sort((a, b) => b.npi - a.npi);
+        const top5Invictos = agrupadosNPI.slice(0, 5);
 
         const tbodyInvictos = document.querySelector('#invictos-table tbody');
         if (tbodyInvictos) {
-            top5Invictos.forEach((j, index) => {
+            top5Invictos.forEach((item, index) => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${index + 1}</td><td><strong>${j.nombre}</strong></td><td>${j.npi}</td>`;
+                tr.innerHTML = `<td>${index + 1}</td><td><strong>${item.nombres.join(', ')}</strong></td><td>${item.npi}</td>`;
                 tbodyInvictos.appendChild(tr);
             });
             if (top5Invictos.length === 0) {
