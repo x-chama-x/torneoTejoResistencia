@@ -20,18 +20,62 @@ async function cargarJugadoresDesdeArchivo() {
             const t = linea.trim();
             if (!t || t.startsWith('#')) continue;
             const p = t.split(',');
-            if (p.length >= 4) {
+            if (p.length >= 2) {
                 jugadores.push({
                     nombre: p[0].trim(),
                     ranking: parseInt(p[1].trim()),
-                    winRate: parseFloat(p[2].trim()),
-                    promedioGoles: parseFloat(p[3].trim())
+                    winRate: 0,
+                    promedioGoles: 0
                 });
             }
         }
         if (!jugadores.length) throw new Error('No hay jugadores válidos');
         jugadores.sort((a, b) => b.ranking - a.ranking);
         jugadoresDisponibles = [...jugadores];
+
+        // ---- Calcular stats desde enfrentamientos_directos.txt ----
+        const respMatches = await fetch('enfrentamientos_directos.txt');
+        if (respMatches.ok) {
+            const matchesText = await respMatches.text();
+            const matchesLines = matchesText.split('\n');
+            const stats = {};
+            for (const l of matchesLines) {
+                const line = l.trim();
+                if (!line || line.startsWith('#') || line.startsWith('=')) continue;
+                const partes = line.split(',');
+                if (partes.length >= 7) {
+                    const j1 = partes[0].trim();
+                    const j2 = partes[1].trim();
+                    const res = partes[2].trim();
+                    const marcador = partes[3].trim();
+                    const [g1s, g2s] = marcador.split('-');
+                    const g1 = parseInt(g1s.trim());
+                    const g2 = parseInt(g2s.trim());
+
+                    if (!stats[j1]) stats[j1] = { pj:0, g:0, gf:0 };
+                    if (!stats[j2]) stats[j2] = { pj:0, g:0, gf:0 };
+
+                    if (!isNaN(g1) && !isNaN(g2)) {
+                        stats[j1].pj++; stats[j2].pj++;
+                        stats[j1].gf += g1; stats[j2].gf += g2;
+                        if (res === 'G') stats[j1].g++;
+                        else if (res === 'P') stats[j2].g++;
+                    }
+                }
+            }
+
+            for (const j of jugadoresDisponibles) {
+                const s = stats[j.nombre];
+                if (s && s.pj > 0) {
+                    j.winRate = s.g / s.pj;
+                    j.promedioGoles = s.gf / s.pj;
+                } else {
+                    j.winRate = 0;
+                    j.promedioGoles = 0;
+                }
+            }
+        }
+
         return true;
     } catch (error) {
         console.error('Error cargando jugadores:', error);

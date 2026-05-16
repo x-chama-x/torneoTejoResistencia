@@ -26,12 +26,12 @@ async function cargarJugadoresDesdeArchivo() {
             const lineaTrimmed = linea.trim();
             if (!lineaTrimmed || lineaTrimmed.startsWith('#')) continue;
             const partes = lineaTrimmed.split(',');
-            if (partes.length >= 4) {
+            if (partes.length >= 2) {
                 jugadores.push({
                     nombre: partes[0].trim(),
                     ranking: parseInt(partes[1].trim()),
-                    winRate: parseFloat(partes[2].trim()),
-                    promedioGoles: parseFloat(partes[3].trim())
+                    winRate: 0,
+                    promedioGoles: 0
                 });
             }
         }
@@ -60,38 +60,45 @@ async function cargarHistorialCompleto() {
 
         partidosDetallados = [];
         enfrentamientosDirectos = {};
+        const statsGeneral = {}; // Para calcular winRate y promedioGoles globales
 
-        // Cargar todos los partidos
         for (const linea of lineas) {
             const lineaTrimmed = linea.trim();
-
-            // Ignorar líneas vacías y comentarios
-            if (lineaTrimmed === '' || lineaTrimmed.startsWith('#') || lineaTrimmed.startsWith('=')) {
-                continue;
-            }
+            if (!lineaTrimmed || lineaTrimmed.startsWith('#') || lineaTrimmed.startsWith('=')) continue;
 
             const partes = lineaTrimmed.split(',');
-
             if (partes.length >= 7) {
                 const jugador1 = partes[0].trim();
                 const jugador2 = partes[1].trim();
-                const resultado = partes[2].trim(); // G o P para jugador1
+                const resultado = partes[2].trim();
                 const marcador = partes[3].trim();
-                const [goles1, goles2] = marcador.split('-').map(g => parseInt(g.trim()));
+                const [goles1Str, goles2Str] = marcador.split('-');
+                const goles1 = parseInt(goles1Str.trim());
+                const goles2 = parseInt(goles2Str.trim());
 
-                const partido = {
-                    jugador1,
-                    jugador2,
-                    ganador: resultado === 'G' ? jugador1 : jugador2,
-                    goles1,
-                    goles2
-                };
+                if (!statsGeneral[jugador1]) statsGeneral[jugador1] = { pj: 0, g: 0, gf: 0 };
+                if (!statsGeneral[jugador2]) statsGeneral[jugador2] = { pj: 0, g: 0, gf: 0 };
 
-                partidosDetallados.push(partido);
+                if (!isNaN(goles1) && !isNaN(goles2)) {
+                    statsGeneral[jugador1].pj++;
+                    statsGeneral[jugador2].pj++;
+                    statsGeneral[jugador1].gf += goles1;
+                    statsGeneral[jugador2].gf += goles2;
 
-                // Calcular estadísticas del enfrentamiento automáticamente
+                    if (resultado === 'G') {
+                        statsGeneral[jugador1].g++;
+                    } else if (resultado === 'P') {
+                        statsGeneral[jugador2].g++;
+                    }
+                }
+
+                const ganador = resultado === 'G' ? jugador1 : (resultado === 'P' ? jugador2 : null);
+
+                partidosDetallados.push({
+                    jugador1, jugador2, ganador, goles1, goles2
+                });
+
                 const clave = [jugador1, jugador2].sort().join('_vs_');
-
                 if (!enfrentamientosDirectos[clave]) {
                     enfrentamientosDirectos[clave] = {
                         jugadores: [jugador1, jugador2].sort(),
@@ -100,11 +107,33 @@ async function cargarHistorialCompleto() {
                     enfrentamientosDirectos[clave].victorias[jugador1] = 0;
                     enfrentamientosDirectos[clave].victorias[jugador2] = 0;
                 }
-
-                // Sumar victoria al ganador
-                enfrentamientosDirectos[clave].victorias[partido.ganador]++;
+                if (ganador) {
+                    enfrentamientosDirectos[clave].victorias[ganador]++;
+                }
             }
         }
+
+        // Asignar el winRate y promedioGoles a cada jugador
+        for (const j of jugadoresDisponibles) {
+            const s = statsGeneral[j.nombre];
+            if (s && s.pj > 0) {
+                j.winRate = s.g / s.pj;
+                j.promedioGoles = s.gf / s.pj;
+            } else {
+                j.winRate = 0;
+                j.promedioGoles = 0;
+            }
+        }
+        // Actualizar jugadoresBase y nuevosJugadores si cambiaron
+        jugadoresBase.forEach(j => {
+            const s = statsGeneral[j.nombre];
+            if (s && s.pj > 0) { j.winRate = s.g / s.pj; j.promedioGoles = s.gf / s.pj; }
+        });
+        nuevosJugadores.forEach(j => {
+            const s = statsGeneral[j.nombre];
+            if (s && s.pj > 0) { j.winRate = s.g / s.pj; j.promedioGoles = s.gf / s.pj; }
+        });
+
         return true;
     } catch (error) {
         console.error('❌ Error al cargar historial:', error);
