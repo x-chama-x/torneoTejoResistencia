@@ -1,16 +1,16 @@
 # RANKING FIFA - Simulador Torneo Tejo
-# Formato: nombre,ranking,winRate,promedioGoles
+# Formato: nombre,ranking
 # Una línea por jugador
 # Las líneas que empiezan con # son comentarios
 
-Chama,221,0.7619,6.52
-Tomy,118,0.6923,6.54
-Facu,111,0.5333,5.73
-Marco,80,0.5833,6.08
-Lucas,50,0.75,5.75
-Rafa,35,0.3636,5.42
-Pedro,21,0.3333,5.67
-Hector,20,0.1667,4.67
-Mateo,17,0.50,5.0
-Santi,5,0.2308,4.77
-Kovic,5,0.00,2.6
+Chama,221
+Tomy,118
+Facu,111
+Marco,80
+Lucas,50
+Rafa,35
+Pedro,21
+Hector,20
+Mateo,17
+Santi,5
+Kovic,5

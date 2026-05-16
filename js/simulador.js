@@ -29,12 +29,12 @@ async function cargarJugadoresDesdeArchivo() {
             }
 
             const partes = lineaTrimmed.split(',');
-            if (partes.length >= 4) {
+            if (partes.length >= 2) {
                 jugadores.push({
                     nombre: partes[0].trim(),
                     ranking: parseInt(partes[1].trim()),
-                    winRate: parseFloat(partes[2].trim()),
-                    promedioGoles: parseFloat(partes[3].trim())
+                    winRate: 0,
+                    promedioGoles: 0
                 });
             }
         }
@@ -96,6 +96,7 @@ async function cargarHistorialCompleto() {
 
         partidosDetallados = [];
         enfrentamientosDirectos = {};
+        const statsGeneral = {}; // Para calcular winRate y promedioGoles globales
 
         // Cargar todos los partidos
         for (const linea of lineas) {
@@ -111,14 +112,34 @@ async function cargarHistorialCompleto() {
             if (partes.length >= 7) {
                 const jugador1 = partes[0].trim();
                 const jugador2 = partes[1].trim();
-                const resultado = partes[2].trim(); // G o P para jugador1
+                const resultado = partes[2].trim(); // G o P para jugador1 (E si empate)
                 const marcador = partes[3].trim();
-                const [goles1, goles2] = marcador.split('-').map(g => parseInt(g.trim()));
+                const [goles1Str, goles2Str] = marcador.split('-');
+                const goles1 = parseInt(goles1Str.trim());
+                const goles2 = parseInt(goles2Str.trim());
+
+                if (!statsGeneral[jugador1]) statsGeneral[jugador1] = { pj: 0, g: 0, gf: 0 };
+                if (!statsGeneral[jugador2]) statsGeneral[jugador2] = { pj: 0, g: 0, gf: 0 };
+
+                if (!isNaN(goles1) && !isNaN(goles2)) {
+                    statsGeneral[jugador1].pj++;
+                    statsGeneral[jugador2].pj++;
+                    statsGeneral[jugador1].gf += goles1;
+                    statsGeneral[jugador2].gf += goles2;
+
+                    if (resultado === 'G') {
+                        statsGeneral[jugador1].g++;
+                    } else if (resultado === 'P') {
+                        statsGeneral[jugador2].g++;
+                    }
+                }
+
+                const ganador = resultado === 'G' ? jugador1 : (resultado === 'P' ? jugador2 : null);
 
                 const partido = {
                     jugador1,
                     jugador2,
-                    ganador: resultado === 'G' ? jugador1 : jugador2,
+                    ganador,
                     goles1,
                     goles2
                 };
@@ -138,9 +159,33 @@ async function cargarHistorialCompleto() {
                 }
 
                 // Sumar victoria al ganador
-                enfrentamientosDirectos[clave].victorias[partido.ganador]++;
+                if (ganador) {
+                    enfrentamientosDirectos[clave].victorias[ganador]++;
+                }
             }
         }
+
+        // Asignar el winRate y promedioGoles a cada jugador
+        for (const j of jugadoresDisponibles) {
+            const s = statsGeneral[j.nombre];
+            if (s && s.pj > 0) {
+                j.winRate = s.g / s.pj;
+                j.promedioGoles = s.gf / s.pj;
+            } else {
+                j.winRate = 0;
+                j.promedioGoles = 0;
+            }
+        }
+        // Actualizar jugadoresBase y nuevosJugadores si cambiaron
+        jugadoresBase.forEach(j => {
+            const s = statsGeneral[j.nombre];
+            if (s && s.pj > 0) { j.winRate = s.g / s.pj; j.promedioGoles = s.gf / s.pj; }
+        });
+        nuevosJugadores.forEach(j => {
+            const s = statsGeneral[j.nombre];
+            if (s && s.pj > 0) { j.winRate = s.g / s.pj; j.promedioGoles = s.gf / s.pj; }
+        });
+
         return true;
     } catch (error) {
         console.error('❌ Error al cargar historial:', error);

@@ -11,15 +11,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const l = linea.trim();
             if (l && !l.startsWith('#')) {
                 const partes = l.split(',');
-                if (partes.length >= 4) {
+                if (partes.length >= 2) {
                     const nombre = partes[0].trim();
                     const ranking = parseInt(partes[1].trim() || 0, 10);
                     mapRanking[nombre] = ranking;
                     jugadoresRanking.push({
                         nombre: nombre,
                         ranking: ranking,
-                        winRate: parseFloat(partes[2].trim() || 0),
-                        promedioGoles: parseFloat(partes[3].trim() || 0)
+                        winRate: 0,
+                        promedioGoles: 0
                     });
                 }
             }
@@ -151,6 +151,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
+
+        // Actualizar winRate y promedioGoles en jugadoresRanking desde statsGeneral
+        jugadoresRanking.forEach(j => {
+            const s = statsGeneral[j.nombre];
+            if (s && s.pj > 0) {
+                j.winRate = s.g / s.pj; // g/pj = ganados sobre total
+                j.promedioGoles = s.gf / s.pj;
+            } else {
+                j.winRate = 0;
+                j.promedioGoles = 0;
+            }
+        });
 
         // Pintar tabla ranking
         const tbodyRanking = document.querySelector('#ranking-table tbody');
