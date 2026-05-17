@@ -1,7 +1,7 @@
 // Variables para almacenar el historial de enfrentamientos directos
 // let enfrentamientosDirectos = {}; // Definido mundialmente en simulador.js
 // let partidosDetallados = []; // Definido mundialmente en simulador.js
-let maxEnfrentamientosGlobal = 1; // Máximo de partidos entre cualquier par de jugadores
+// let maxEnfrentamientosGlobal = 1; // Definido mundialmente en simulador.js
 
 // Función para cargar partidos y calcular estadísticas automáticamente
 async function cargarHistorialCompleto() {
