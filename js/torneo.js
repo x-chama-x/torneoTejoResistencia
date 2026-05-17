@@ -171,8 +171,8 @@ function calcularProbabilidadGana1(jugador1, jugador2) {
             const winRateDirecto1 = (historial.victorias[jugador1.nombre] || 0) / totalEnfrentamientos;
             const winRateDirecto2 = (historial.victorias[jugador2.nombre] || 0) / totalEnfrentamientos;
 
-            // El historial directo tiene un peso del 20% adicional
-            const pesoHistorial = Math.min(0.2, totalEnfrentamientos * 0.02);
+            // El historial directo tiene un peso del 40% adicional
+            const pesoHistorial = Math.min(0.4, totalEnfrentamientos * 0.05);
 
             const ajusteHistorial1 = (winRateDirecto1 - 0.5) * 100 * pesoHistorial;
             const ajusteHistorial2 = (winRateDirecto2 - 0.5) * 100 * pesoHistorial;
