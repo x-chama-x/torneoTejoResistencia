@@ -6,6 +6,7 @@ let jugadoresDisponibles = [];
 // Variables para almacenar el historial de enfrentamientos directos
 let enfrentamientosDirectos = {};
 let partidosDetallados = [];
+let maxEnfrentamientosGlobal = 1; // Máximo de partidos entre cualquier par de jugadores
 
 // Variable global para la configuración manual de grupos
 window.gruposManualConfig = null; // { grupoA: [...], grupoB: [...], grupoC: [...] }
@@ -186,6 +187,17 @@ async function cargarHistorialCompleto() {
             if (s && s.pj > 0) { j.winRate = s.g / s.pj; j.promedioGoles = s.gf / s.pj; }
         });
 
+        // Calcular el máximo de enfrentamientos entre cualquier par de jugadores
+        maxEnfrentamientosGlobal = 1; // Mínimo 1 para evitar división por cero
+        for (const clave in enfrentamientosDirectos) {
+            const h = enfrentamientosDirectos[clave];
+            const total = Object.values(h.victorias).reduce((a, b) => a + b, 0);
+            if (total > maxEnfrentamientosGlobal) {
+                maxEnfrentamientosGlobal = total;
+            }
+        }
+        console.log('📊 Máximo de enfrentamientos entre un par de jugadores:', maxEnfrentamientosGlobal);
+
         return true;
     } catch (error) {
         console.error('❌ Error al cargar historial:', error);
@@ -217,8 +229,8 @@ function simularPartido(jugador1, jugador2) {
             const winRateDirecto1 = (historial.victorias[jugador1.nombre] || 0) / totalEnfrentamientos;
             const winRateDirecto2 = (historial.victorias[jugador2.nombre] || 0) / totalEnfrentamientos;
 
-            // El historial directo tiene un peso del 40% adicional
-            const pesoHistorial = Math.min(0.4, totalEnfrentamientos * 0.05);
+            // El historial directo tiene un peso del 40% adicional, proporcional al máximo global
+            const pesoHistorial = 0.4 * (totalEnfrentamientos / maxEnfrentamientosGlobal);
 
             const ajusteHistorial1 = (winRateDirecto1 - 0.5) * 100 * pesoHistorial;
             const ajusteHistorial2 = (winRateDirecto2 - 0.5) * 100 * pesoHistorial;

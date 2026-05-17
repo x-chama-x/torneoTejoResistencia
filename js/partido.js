@@ -1,6 +1,7 @@
 // Variables para almacenar el historial de enfrentamientos directos
 // let enfrentamientosDirectos = {}; // Definido mundialmente en simulador.js
 // let partidosDetallados = []; // Definido mundialmente en simulador.js
+let maxEnfrentamientosGlobal = 1; // Máximo de partidos entre cualquier par de jugadores
 
 // Función para cargar partidos y calcular estadísticas automáticamente
 async function cargarHistorialCompleto() {
@@ -77,6 +78,17 @@ async function cargarHistorialCompleto() {
                 enfrentamientosDirectos[clave].goles[jugador2] += goles2;
             }
         }
+
+        // Calcular el máximo de enfrentamientos entre cualquier par de jugadores
+        maxEnfrentamientosGlobal = 1; // Mínimo 1 para evitar división por cero
+        for (const clave in enfrentamientosDirectos) {
+            const h = enfrentamientosDirectos[clave];
+            const total = Object.values(h.victorias).reduce((a, b) => a + b, 0);
+            if (total > maxEnfrentamientosGlobal) {
+                maxEnfrentamientosGlobal = total;
+            }
+        }
+        console.log('📊 Máximo de enfrentamientos entre un par de jugadores:', maxEnfrentamientosGlobal);
 
         console.log('✅ Partidos cargados:', partidosDetallados.length);
         console.log('✅ Enfrentamientos calculados:', Object.keys(enfrentamientosDirectos).length);
@@ -211,8 +223,8 @@ function calcularProbabilidad(jugador1, jugador2) {
             const winRateDirecto1 = historial.victorias[jugador1.nombre] / totalEnfrentamientos;
             const winRateDirecto2 = historial.victorias[jugador2.nombre] / totalEnfrentamientos;
 
-            // El historial directo tiene un peso del 40% adicional
-            const pesoHistorial = Math.min(0.4, totalEnfrentamientos * 0.05);
+            // El historial directo tiene un peso del 40% adicional, proporcional al máximo global
+            const pesoHistorial = 0.4 * (totalEnfrentamientos / maxEnfrentamientosGlobal);
 
             fuerza1 += (winRateDirecto1 - 0.5) * 100 * pesoHistorial;
             fuerza2 += (winRateDirecto2 - 0.5) * 100 * pesoHistorial;
