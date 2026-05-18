@@ -678,6 +678,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (typeof cargarJugadoresDesdeArchivo === 'function') {
         await cargarJugadoresDesdeArchivo();
     }
+    if (typeof cargarHistorialCompleto === 'function') {
+        await cargarHistorialCompleto();
+    }
 
     const btn = document.getElementById('btnSimular');
     if (btn) {
