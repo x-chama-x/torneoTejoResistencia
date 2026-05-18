@@ -8,6 +8,9 @@
 
 let jugadoresDisponibles = [];
 
+let enfrentamientosDirectos = {};
+let maxEnfrentamientosGlobal = 1;
+
 // ---- Carga de jugadores ----
 async function cargarJugadoresDesdeArchivo() {
     try {
@@ -39,6 +42,9 @@ async function cargarJugadoresDesdeArchivo() {
             const matchesText = await respMatches.text();
             const matchesLines = matchesText.split('\n');
             const stats = {};
+            enfrentamientosDirectos = {};
+            maxEnfrentamientosGlobal = 1;
+
             for (const l of matchesLines) {
                 const line = l.trim();
                 if (!line || line.startsWith('#') || line.startsWith('=')) continue;
@@ -61,7 +67,23 @@ async function cargarJugadoresDesdeArchivo() {
                         if (res === 'G') stats[j1].g++;
                         else if (res === 'P') stats[j2].g++;
                     }
+
+                    const ganador = res === 'G' ? j1 : (res === 'P' ? j2 : null);
+                    if (ganador) {
+                        const clave = [j1, j2].sort().join('_vs_');
+                        if (!enfrentamientosDirectos[clave]) {
+                            enfrentamientosDirectos[clave] = { victorias: {} };
+                            enfrentamientosDirectos[clave].victorias[j1] = 0;
+                            enfrentamientosDirectos[clave].victorias[j2] = 0;
+                        }
+                        enfrentamientosDirectos[clave].victorias[ganador]++;
+                    }
                 }
+            }
+
+            for (const clave in enfrentamientosDirectos) {
+                const total = Object.values(enfrentamientosDirectos[clave].victorias).reduce((a, b) => a + b, 0);
+                if (total > maxEnfrentamientosGlobal) maxEnfrentamientosGlobal = total;
             }
 
             for (const j of jugadoresDisponibles) {
@@ -97,8 +119,23 @@ function shuffleArray(arr) {
 // ---- Probabilidad analítica de que j1 gane contra j2 ----
 // Usa la misma fórmula sigmoide que el resto de las páginas
 function probGanar(j1, j2) {
-    const f1 = (j1.ranking * 0.4) + (j1.winRate * 100 * 0.6);
-    const f2 = (j2.ranking * 0.4) + (j2.winRate * 100 * 0.6);
+    let f1 = (j1.ranking * 0.4) + (j1.winRate * 100 * 0.6);
+    let f2 = (j2.ranking * 0.4) + (j2.winRate * 100 * 0.6);
+
+    const clave = [j1.nombre, j2.nombre].sort().join('_vs_');
+    const historial = enfrentamientosDirectos[clave];
+
+    if (historial) {
+        const total = (historial.victorias[j1.nombre] || 0) + (historial.victorias[j2.nombre] || 0);
+        if (total > 0) {
+            const winRate1 = (historial.victorias[j1.nombre] || 0) / total;
+            const winRate2 = (historial.victorias[j2.nombre] || 0) / total;
+            const peso = 0.4 * (total / maxEnfrentamientosGlobal);
+            f1 += (winRate1 - 0.5) * 100 * peso;
+            f2 += (winRate2 - 0.5) * 100 * peso;
+        }
+    }
+
     return 1 / (1 + Math.exp(-(f1 - f2) / 30));
 }
 

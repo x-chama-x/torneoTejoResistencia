@@ -15,6 +15,7 @@ async function cargarHistorialCompleto() {
 
         partidosDetallados = [];
         enfrentamientosDirectos = {};
+        const statsGeneral = {};
 
         // Cargar todos los partidos
         for (const linea of lineas) {
@@ -54,6 +55,22 @@ async function cargarHistorialCompleto() {
 
                 partidosDetallados.push(partido);
 
+                if (!statsGeneral[jugador1]) statsGeneral[jugador1] = { pj: 0, g: 0, gf: 0 };
+                if (!statsGeneral[jugador2]) statsGeneral[jugador2] = { pj: 0, g: 0, gf: 0 };
+
+                if (!isNaN(goles1) && !isNaN(goles2)) {
+                    statsGeneral[jugador1].pj++;
+                    statsGeneral[jugador2].pj++;
+                    statsGeneral[jugador1].gf += goles1;
+                    statsGeneral[jugador2].gf += goles2;
+
+                    if (resultado === 'G') {
+                        statsGeneral[jugador1].g++;
+                    } else if (resultado === 'P') {
+                        statsGeneral[jugador2].g++;
+                    }
+                }
+
                 // Calcular estadísticas del enfrentamiento automáticamente
                 const clave = [jugador1, jugador2].sort().join('_vs_');
 
@@ -76,6 +93,17 @@ async function cargarHistorialCompleto() {
                 // Sumar goles a cada jugador
                 enfrentamientosDirectos[clave].goles[jugador1] += goles1;
                 enfrentamientosDirectos[clave].goles[jugador2] += goles2;
+            }
+        }
+
+        for (const j of jugadoresDisponibles) {
+            const s = statsGeneral[j.nombre];
+            if (s && s.pj > 0) {
+                j.winRate = s.g / s.pj;
+                j.promedioGoles = s.gf / s.pj;
+            } else {
+                j.winRate = 0;
+                j.promedioGoles = 0;
             }
         }
 
