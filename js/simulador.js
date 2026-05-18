@@ -762,6 +762,9 @@ function simularTorneo() {
     const sf1 = simularPartido(sf1Jugador1, sf1Jugador2);
     const sf2 = simularPartido(sf2Jugador1, sf2Jugador2);
 
+    const perdedorSF1 = sf1.ganador === semifinalistas[0].nombre ? semifinalistas[1].nombre : semifinalistas[0].nombre;
+    const perdedorSF2 = sf2.ganador === semifinalistas[2].nombre ? semifinalistas[3].nombre : semifinalistas[2].nombre;
+
     // Actualizar estadísticas de fase final (semifinales)
     estadisticasJugadores[semifinalistas[0].nombre].golesFaseFinal += sf1.goles1;
     estadisticasJugadores[semifinalistas[0].nombre].gc += sf1.goles2;
@@ -779,7 +782,6 @@ function simularTorneo() {
 
     // Simular Tercer puesto
     const tercerPuesto = simularPartido({ nombre: perdedorSF1 }, { nombre: perdedorSF2 });
-    partidosTorneo.push({ numero: matchNumber++, fase: "Tercer Puesto", azul: perdedorSF1, rojo: perdedorSF2, golesAzul: tercerPuesto.goles1, golesRojo: tercerPuesto.goles2, ganador: tercerPuesto.ganador });
 
     estadisticasJugadores[perdedorSF1].golesFaseFinal += tercerPuesto.goles1;
     estadisticasJugadores[perdedorSF1].gc += tercerPuesto.goles2;
@@ -790,7 +792,6 @@ function simularTorneo() {
 
     // Simular Final
     const final = simularPartido({ nombre: sf1.ganador }, { nombre: sf2.ganador });
-    partidosTorneo.push({ numero: matchNumber++, fase: "Final", azul: sf1.ganador, rojo: sf2.ganador, golesAzul: final.goles1, golesRojo: final.goles2, ganador: final.ganador });
 
     estadisticasJugadores[sf1.ganador].golesFaseFinal += final.goles1;
     estadisticasJugadores[sf1.ganador].gc += final.goles2;
