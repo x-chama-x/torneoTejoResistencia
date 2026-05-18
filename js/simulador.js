@@ -420,9 +420,9 @@ function renderGrupoUIX(partidos, rankingGrupo, clasifCount) {
         const w1 = p.ganador === p.azul;
         const w2 = p.ganador === p.rojo;
         out += `<tr>
-            <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #4CAF50;' : ''}">${p.azul}</td>
+            <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #58a6ff;' : ''}">${p.azul}</td>
             <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${p.golesAzul}-${p.golesRojo}</td>
-            <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #4CAF50;' : ''}">${p.rojo}</td>
+            <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #f85149;' : ''}">${p.rojo}</td>
         </tr>`;
     });
     out += '</tbody></table></div></div>';
@@ -865,7 +865,7 @@ function simularTorneo() {
     // Tabla de estadísticas
     let htmlStats = '<h2>📊 ESTADÍSTICAS DEL TORNEO</h2><br>';
     htmlStats += '<div class="table-responsive"><table class="ranking-table">';
-    const groupLabel = (numJugadores === 7 || numJugadores === 8) ? "G(FL)" : "G(FG)";
+    const groupLabel = numJugadores === 7 ? "G(FL)" : "G(FG)";
     htmlStats += `
         <thead>
             <tr>

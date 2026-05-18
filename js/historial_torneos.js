@@ -72,9 +72,9 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                     const w2 = g[1] > g[0];
                     return `
                     <tr>
-                        <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #4CAF50;' : ''}">${m.j1}</td>
+                        <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #58a6ff;' : ''}">${m.j1}</td>
                         <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${m.marcador}</td>
-                        <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #4CAF50;' : ''}">${m.j2}</td>
+                        <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #f85149;' : ''}">${m.j2}</td>
                     </tr>
                     `;
                 }).join("")}
@@ -194,9 +194,9 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                     const w2 = g[1] > g[0];
                     return `
                                             <tr>
-                                                <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #4CAF50;' : ''}">${m.j1}</td>
+                                                <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #58a6ff;' : ''}">${m.j1}</td>
                                                 <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${m.marcador}</td>
-                                                <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #4CAF50;' : ''}">${m.j2}</td>
+                                                <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #f85149;' : ''}">${m.j2}</td>
                                             </tr>`;
                 }).join("")}
                                     </tbody>
