@@ -315,10 +315,18 @@ function calcularProbabilidades(grupos, numJugadores, n = 10000) {
     // Convertir a porcentajes
     const result = {};
     Object.values(grupos).flat().forEach(j => {
+        let pRep = "0.0";
+        if (numJugadores === 9) {
+            const simsNoDirecto = n - conteoDirecto[j.nombre];
+            if (simsNoDirecto > 0) {
+                pRep = (conteoRepechaje[j.nombre] / simsNoDirecto * 100).toFixed(1);
+            }
+        }
+
         result[j.nombre] = {
             total: (conteo[j.nombre] / n * 100).toFixed(1),
             directo: (conteoDirecto[j.nombre] / n * 100).toFixed(1),
-            repechaje: (conteoRepechaje[j.nombre] / n * 100).toFixed(1)
+            repechaje: pRep
         };
     });
     return result;
