@@ -458,7 +458,7 @@ function mostrarResultados(grupos, probs, numJugadores) {
                 </div>
                 <div class="jugadores-list">`;
 
-            jugadoresOrdenados.forEach(j => {
+            jugadoresOrdenados.forEach((j, idx) => {
                 const prob = parseFloat(probs[j.nombre].total);
                 const barClass = getBarClass(prob);
 
@@ -470,21 +470,29 @@ function mostrarResultados(grupos, probs, numJugadores) {
                             <span class="jugador-nombre">${j.nombre}</span>
                             <span class="jugador-ranking-badge">${j.ranking} pts</span>
                         </div>
-                        <div class="prob-breakdown">
+                        <div class="prob-breakdown">`;
+
+                    if (idx === 0) {
+                        html += `
                             <div class="prob-line">
                                 <span class="prob-type">Directo:</span>
                                 <div class="prob-bar-track small">
                                     <div class="prob-bar-fill alta" style="width:${Math.min(100, pDir)}%"></div>
                                 </div>
                                 <span class="prob-value-small">${pDir}%</span>
-                            </div>
+                            </div>`;
+                    } else {
+                        html += `
                             <div class="prob-line">
                                 <span class="prob-type">Repechaje:</span>
                                 <div class="prob-bar-track small">
                                     <div class="prob-bar-fill media" style="width:${Math.min(100, pRep)}%"></div>
                                 </div>
                                 <span class="prob-value-small">${pRep}%</span>
-                            </div>
+                            </div>`;
+                    }
+
+                    html += `
                         </div>
                     </div>`;
                 } else {
