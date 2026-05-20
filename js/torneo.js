@@ -269,16 +269,16 @@ function calcularProbabilidades(grupos, numJugadores, n = 10000) {
     for (let sim = 0; sim < n; sim++) {
 
         if (numJugadores === 7) {
-            // Liga round-robin: top 4 clasifican
-            simularGrupoUnico(grupos.all).slice(0, 4).forEach(p => conteo[p.nombre]++);
+            // Liga round-robin: ganador de la liga
+            simularGrupoUnico(grupos.all).slice(0, 1).forEach(p => conteo[p.nombre]++);
 
         } else if (numJugadores === 8) {
-            // 2 grupos de 4: top 2 de cada grupo clasifican
-            simularGrupoUnico(grupos.A).slice(0, 2).forEach(p => conteo[p.nombre]++);
-            simularGrupoUnico(grupos.B).slice(0, 2).forEach(p => conteo[p.nombre]++);
+            // 2 grupos de 4: 1 de cada grupo
+            simularGrupoUnico(grupos.A).slice(0, 1).forEach(p => conteo[p.nombre]++);
+            simularGrupoUnico(grupos.B).slice(0, 1).forEach(p => conteo[p.nombre]++);
 
         } else if (numJugadores === 9) {
-            // 3 grupos de 3: 1° directo, resto va a repechaje
+            // 3 grupos de 3: 1 directo, resto va a repechaje
             const sA = simularGrupoUnico(grupos.A);
             const sB = simularGrupoUnico(grupos.B);
             const sC = simularGrupoUnico(grupos.C);
@@ -306,9 +306,9 @@ function calcularProbabilidades(grupos, numJugadores, n = 10000) {
             conteoRepechaje[eliminatorio.ganador]++;
 
         } else if (numJugadores === 10) {
-            // 2 grupos de 5: top 2 de cada grupo clasifican
-            simularGrupoUnico(grupos.A).slice(0, 2).forEach(p => conteo[p.nombre]++);
-            simularGrupoUnico(grupos.B).slice(0, 2).forEach(p => conteo[p.nombre]++);
+            // 2 grupos de 5: 1 de cada grupo
+            simularGrupoUnico(grupos.A).slice(0, 1).forEach(p => conteo[p.nombre]++);
+            simularGrupoUnico(grupos.B).slice(0, 1).forEach(p => conteo[p.nombre]++);
         }
     }
 
@@ -393,16 +393,16 @@ function mostrarResultados(grupos, probs, numJugadores) {
             parseFloat(probs[b.nombre].total) - parseFloat(probs[a.nombre].total)
         );
 
-        html += '<div class="phase-title">📋 PROBABILIDADES DE CLASIFICACIÓN — LIGA</div>';
-        html += '<p class="prob-subtitulo">Probabilidad de terminar Top 4 y clasificar al playoff · 10.000 simulaciones</p>';
+        html += '<div class="phase-title">📋 PROBABILIDADES DE LIGA</div>';
+        html += '<p class="prob-subtitulo">Probabilidad de terminar 1° en la liga · 10.000 simulaciones</p>';
 
         html += '<div class="standings"><div class="standings-inner"><table>';
-        html += '<tr><th>Pos</th><th>Jugador</th><th>Ranking</th><th>P(Clasifica Top 4)</th></tr>';
+        html += '<tr><th>Pos</th><th>Jugador</th><th>Ranking</th><th>P(Ganar Liga)</th></tr>';
 
         jugadoresOrdenados.forEach((j, idx) => {
             const prob = parseFloat(probs[j.nombre].total);
             const barClass = getBarClass(prob);
-            const clasifica = idx < 4 ? 'style="background: rgba(46, 160, 67, 0.15);"' : '';
+            const clasifica = idx < 1 ? 'style="background: rgba(46, 160, 67, 0.15);"' : '';
             html += `<tr ${clasifica}>
                 <td class="position">${idx + 1}°</td>
                 <td><strong>${j.nombre}</strong></td>
@@ -419,19 +419,18 @@ function mostrarResultados(grupos, probs, numJugadores) {
         });
 
         html += '</table></div></div>';
-        html += '<p class="clasifican-note">🟢 Los 4 primeros clasifican a playoffs</p>';
 
     } else {
         // Grupos con barras de probabilidad (8, 9, 10 jugadores)
         if (numJugadores === 9) {
             html += '<div class="phase-title">📋 GRUPOS Y PROBABILIDADES — 3 GRUPOS DE 3</div>';
-            html += '<p class="prob-subtitulo">Los 1° de cada grupo clasifican directo. Los 2° y 3° van a repechaje · 10.000 simulaciones</p>';
+            html += '<p class="prob-subtitulo">Los 1° clasifican directo. 2° y 3° van a repechaje por 1 cupo extra · 10.000 simulaciones</p>';
         } else if (numJugadores === 8) {
             html += '<div class="phase-title">📋 GRUPOS Y PROBABILIDADES — 2 GRUPOS DE 4</div>';
-            html += '<p class="prob-subtitulo">Los 2 primeros de cada grupo clasifican a playoffs · 10.000 simulaciones</p>';
+            html += '<p class="prob-subtitulo">Probabilidad de ganar el grupo (terminar 1°) · 10.000 simulaciones</p>';
         } else {
             html += '<div class="phase-title">📋 GRUPOS Y PROBABILIDADES — 2 GRUPOS DE 5</div>';
-            html += '<p class="prob-subtitulo">Los 2 primeros de cada grupo clasifican a playoffs · 10.000 simulaciones</p>';
+            html += '<p class="prob-subtitulo">Probabilidad de ganar el grupo (terminar 1°) · 10.000 simulaciones</p>';
         }
 
         html += '<div class="grupos-container">';
@@ -442,7 +441,7 @@ function mostrarResultados(grupos, probs, numJugadores) {
             const jugadoresOrdenados = jugadoresGrupo.slice().sort((a, b) =>
                 parseFloat(probs[b.nombre].total) - parseFloat(probs[a.nombre].total)
             );
-            const badgeTexto = numJugadores === 9 ? '1° clasifica directo' : 'Top 2 clasifican';
+            const badgeTexto = numJugadores === 9 ? '1° clasifica directo' : 'P(1°) suma 100%';
 
             html += `<div class="grupo-card">
                 <div class="grupo-header">
@@ -478,13 +477,6 @@ function mostrarResultados(grupos, probs, numJugadores) {
                                 </div>
                                 <span class="prob-value-small">${pRep}%</span>
                             </div>
-                            <div class="prob-total-line">
-                                <span class="prob-type"><strong>Total:</strong></span>
-                                <div class="prob-bar-track">
-                                    <div class="prob-bar-fill ${barClass}" style="width:${Math.min(100, prob)}%"></div>
-                                </div>
-                                <span class="prob-label ${barClass}">${prob}%</span>
-                            </div>
                         </div>
                     </div>`;
                 } else {
@@ -509,11 +501,11 @@ function mostrarResultados(grupos, probs, numJugadores) {
         html += '</div>';
 
         if (numJugadores === 9) {
-            html += `<div class="repechaje-info">
-                <strong>⚖️ Camino de Repechaje (1 cupo a playoffs)</strong>
-                <p>Los <strong>2° de cada grupo</strong> juegan una mini-liga entre ellos (3 partidos) → el 1° avanza al partido eliminatorio.</p>
-                <p>Los <strong>3° de cada grupo</strong> juegan una mini-liga entre ellos (3 partidos) → el 1° avanza al partido eliminatorio.</p>
-                <p>El ganador del <strong>partido eliminatorio</strong> es el 4° clasificado a playoffs.</p>
+            html += `<div class="repechaje-info" style="margin-top: 20px; background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 8px; border-left: 4px solid #f39c12;">
+                <strong style="color: #f39c12; font-size: 1.1em; display: block; margin-bottom: 10px;">⚖️ Camino de Repechaje (1 cupo a playoffs)</strong>
+                <p style="margin-bottom: 5px;">Los <strong>2° de cada grupo</strong> juegan una mini-liga entre ellos (3 partidos) → el 1° avanza al partido eliminatorio.</p>
+                <p style="margin-bottom: 5px;">Los <strong>3° de cada grupo</strong> juegan una mini-liga entre ellos (3 partidos) → el 1° avanza al partido eliminatorio.</p>
+                <p style="margin-bottom: 0;">El ganador del <strong>partido eliminatorio</strong> es el 4° clasificado a playoffs.</p>
             </div>`;
         }
     }
