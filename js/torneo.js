@@ -257,13 +257,13 @@ function getJugadorData(nombre) {
 function calcularProbabilidades(grupos, numJugadores, n = 10000) {
     const conteo = {};
     const conteoDirecto = {};
-    const conteoRepechaje = {};
+    const conteoRepechajeaislado = {};
 
     // Inicializar contadores para todos los jugadores
     Object.values(grupos).flat().forEach(j => {
         conteo[j.nombre] = 0;
         conteoDirecto[j.nombre] = 0;
-        conteoRepechaje[j.nombre] = 0;
+        conteoRepechajeaislado[j.nombre] = 0;
     });
 
     for (let sim = 0; sim < n; sim++) {
@@ -278,37 +278,49 @@ function calcularProbabilidades(grupos, numJugadores, n = 10000) {
             simularGrupoUnico(grupos.B).slice(0, 1).forEach(p => conteo[p.nombre]++);
 
         } else if (numJugadores === 9) {
-            // 3 grupos de 3: 1 directo, resto va a repechaje
+            // Simular para sacar a los primeros
             const sA = simularGrupoUnico(grupos.A);
             const sB = simularGrupoUnico(grupos.B);
             const sC = simularGrupoUnico(grupos.C);
 
-            // Primeros: clasificación directa
+            // Primeros: clasificación directa (para el torneo global normal)
             [sA[0], sB[0], sC[0]].forEach(p => {
                 conteo[p.nombre]++;
                 conteoDirecto[p.nombre]++;
             });
 
-            // Mini-liga entre los 3 segundos
-            const segundosData = [sA[1], sB[1], sC[1]].map(s => getJugadorData(s.nombre));
-            const rSegundos = simularGrupoUnico(segundosData);
-
-            // Mini-liga entre los 3 terceros
-            const tercerosData = [sA[2], sB[2], sC[2]].map(t => getJugadorData(t.nombre));
-            const rTerceros = simularGrupoUnico(tercerosData);
-
-            // Partido eliminatorio: ganador de segundos vs ganador de terceros
-            const eliminatorio = simularPartido(
-                getJugadorData(rSegundos[0].nombre),
-                getJugadorData(rTerceros[0].nombre)
-            );
-            conteo[eliminatorio.ganador]++;
-            conteoRepechaje[eliminatorio.ganador]++;
-
+            // Y AHORA: Simulación extra "aislada", paralela a la realidad
+            // Donde, asumiendo que los que quedaron 1ros estadísticamente fueran
+            // descartados, pelean el repechaje entre los 2dos y 3eros estadísticos promedios.
         } else if (numJugadores === 10) {
             // 2 grupos de 5: 1 de cada grupo
             simularGrupoUnico(grupos.A).slice(0, 1).forEach(p => conteo[p.nombre]++);
             simularGrupoUnico(grupos.B).slice(0, 1).forEach(p => conteo[p.nombre]++);
+        }
+    }
+
+    if (numJugadores === 9) {
+        // En vez de simular el repechaje derivado de cosas que cambian en cada
+        // iteracion normal, definimos a fuego quiénes son los 2dos y 3eros "promedio"
+        // y simulamos 10,000 repescas puras entre ellos seis.
+
+        // Ordenamos cada grupo por fuerza bruta basada en ranking/winrate
+        const jugadoresAOrdenados = grupos.A.slice().sort((a,b) => calcularProbabilidadGana1(b,a) > 0.5 ? 1 : -1);
+        const jugadoresBOrdenados = grupos.B.slice().sort((a,b) => calcularProbabilidadGana1(b,a) > 0.5 ? 1 : -1);
+        const jugadoresCOrdenados = grupos.C.slice().sort((a,b) => calcularProbabilidadGana1(b,a) > 0.5 ? 1 : -1);
+
+        const segundosFijos = [jugadoresAOrdenados[1], jugadoresBOrdenados[1], jugadoresCOrdenados[1]];
+        const tercerosFijos = [jugadoresAOrdenados[2], jugadoresBOrdenados[2], jugadoresCOrdenados[2]];
+
+        for (let simR = 0; simR < n; simR++) {
+            const rSegundos = simularGrupoUnico(segundosFijos);
+            const rTerceros = simularGrupoUnico(tercerosFijos);
+
+            const eliminatorio = simularPartido(
+                getJugadorData(rSegundos[0].nombre),
+                getJugadorData(rTerceros[0].nombre)
+            );
+            conteoRepechajeaislado[eliminatorio.ganador]++;
         }
     }
 
@@ -317,10 +329,7 @@ function calcularProbabilidades(grupos, numJugadores, n = 10000) {
     Object.values(grupos).flat().forEach(j => {
         let pRep = "0.0";
         if (numJugadores === 9) {
-            const simsNoDirecto = n - conteoDirecto[j.nombre];
-            if (simsNoDirecto > 0) {
-                pRep = (conteoRepechaje[j.nombre] / simsNoDirecto * 100).toFixed(1);
-            }
+            pRep = (conteoRepechajeaislado[j.nombre] / n * 100).toFixed(1);
         }
 
         result[j.nombre] = {
