@@ -469,11 +469,9 @@ function mostrarResultados(grupos, probs, numJugadores) {
                         <div class="jugador-info">
                             <span class="jugador-nombre">${j.nombre}</span>
                             <span class="jugador-ranking-badge">${j.ranking} pts</span>
-                        </div>
-                        <div class="prob-breakdown">`;
-
-                    if (idx === 0) {
-                        html += `
+                        </div>`;
+                    html += `
+                        <div class="prob-breakdown">
                             <div class="prob-line">
                                 <span class="prob-type">Directo:</span>
                                 <div class="prob-bar-track small">
@@ -481,7 +479,8 @@ function mostrarResultados(grupos, probs, numJugadores) {
                                 </div>
                                 <span class="prob-value-small">${pDir}%</span>
                             </div>`;
-                    } else {
+                    
+                    if (idx > 0) {
                         html += `
                             <div class="prob-line">
                                 <span class="prob-type">Repechaje:</span>
@@ -491,7 +490,7 @@ function mostrarResultados(grupos, probs, numJugadores) {
                                 <span class="prob-value-small">${pRep}%</span>
                             </div>`;
                     }
-
+                        
                     html += `
                         </div>
                     </div>`;
