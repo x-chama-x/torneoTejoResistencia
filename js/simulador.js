@@ -1317,6 +1317,68 @@ function updateSimularButtonState() {
 }
 
 // ==== MAIN: EVENTOS GLOBALES ====
+
+window.ejecutarSimulacion = function(mantenerGrupos = false) {
+    const num = parseInt(document.getElementById('numPlayers').value);
+    const seleccion = obtenerJugadoresSeleccionadosPorNombre(num);
+    if (seleccion.length !== num) {
+        alert(`Por favor seleccioná exactamente ${num} jugadores antes de simular.`);
+        return;
+    }
+
+    // Verificar si hay grupos manuales configurados cuando el modo es manual
+    const modoGruposEl = document.getElementById('modoGrupos');
+    const modoGrupos = modoGruposEl ? modoGruposEl.value : 'aleatorio';
+
+    if (modoGrupos === 'manual' && num >= 8) {
+        if (!window.gruposManualConfig) {
+            alert('Por favor configurá y confirmá los grupos manualmente antes de simular.');
+            return;
+        }
+    }
+
+    // Llamamos a simularTorneo pero inyectando la selección temporalmente
+    // Guardamos jugadoresBase original
+    const originalBase = [...jugadoresBase];
+    // Reemplazamos jugadoresBase por la selección
+    let seleccionCompleta = [...seleccion];
+    if (seleccionCompleta.length < num) {
+        const faltan = num - seleccionCompleta.length;
+        for (let i = 0; i < faltan; i++) {
+            if (nuevosJugadores[i]) seleccionCompleta.push(nuevosJugadores[i]);
+        }
+    }
+    // reescribimos jugadoresBase temporalmente
+    for (let i = 0; i < jugadoresBase.length; i++) {
+        jugadoresBase[i] = seleccionCompleta[i] || jugadoresBase[i];
+    }
+    // Si hay más seleccionados que jugadoresBase originales, extendemos
+    if (seleccionCompleta.length > jugadoresBase.length) {
+        for (let i = jugadoresBase.length; i < seleccionCompleta.length; i++) jugadoresBase.push(seleccionCompleta[i]);
+    }
+
+    // Ejecutar la simulación (usa la variable jugadoresBase modificada)
+
+    // Ocultar controles y selección de jugadores, dejando solo los nav-links
+    const controls = document.querySelector('.controls');
+    if (controls) {
+        Array.from(controls.children).forEach(child => {
+            if (!child.classList.contains('nav-links')) {
+                child.style.display = 'none';
+            }
+        });
+    }
+    document.getElementById('playerSelection').style.display = 'none';
+    const gruposManualContainer = document.getElementById('gruposManualContainer');
+    if (gruposManualContainer) gruposManualContainer.style.display = 'none';
+
+    simularTorneo(mantenerGrupos);
+
+    // Restaurar jugadoresBase original
+    for (let i = 0; i < originalBase.length; i++) jugadoresBase[i] = originalBase[i];
+    jugadoresBase.length = originalBase.length;
+};
+
 // Enlazar botón simular al DOM
 const simBtn = document.getElementById('simularBtn');
 if (simBtn) {
