@@ -1099,3 +1099,19 @@ select:hover {
     color: #ffffff;
 }
 
+/* Botones de Re-simulación sutiles */
+.re-simular-btn {
+    background: transparent;
+    border: 1px solid #30363d;
+    color: #8b949e;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.re-simular-btn:hover {
+    background: #30363d;
+    color: #c9d1d9;
+}
