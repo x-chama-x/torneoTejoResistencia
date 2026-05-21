@@ -448,7 +448,7 @@ function createMatchCardSimulador(ganador, j1, j2, g1, g2, title) {
     `;
 }
 
-function simularTorneo() {
+function simularTorneo(mantenerGrupos = false) {
     const numJugadores = parseInt(document.getElementById('numPlayers').value);
     let jugadores = [...jugadoresBase];
 
@@ -468,8 +468,21 @@ function simularTorneo() {
     const modoGrupos = modoGruposEl ? modoGruposEl.value : 'aleatorio';
 
     // Solo mezclar si es modo aleatorio O si no hay grupos manuales configurados
-    if (modoGrupos === 'aleatorio' || !window.gruposManualConfig) {
+    if (mantenerGrupos && window.ultimoOrdenJugadores && (modoGrupos === 'aleatorio' || !window.gruposManualConfig)) {
+        // Mantener el orden de jugadores de la simulación anterior para tener los mismos grupos
+        jugadores = window.ultimoOrdenJugadores.map(nombre => jugadores.find(j => j.nombre === nombre)).filter(Boolean);
+        // Si por falta de algún jugador no cuadra, completamos
+        if (jugadores.length < numJugadores) {
+            const faltantes = [...jugadoresBase].filter(j => !jugadores.includes(j));
+            jugadores.push(...faltantes);
+            jugadores = jugadores.slice(0, numJugadores);
+        }
+    } else if (modoGrupos === 'aleatorio' || !window.gruposManualConfig) {
         jugadores = jugadores.sort(() => Math.random() - 0.5);
+        window.ultimoOrdenJugadores = jugadores.map(j => j.nombre);
+    } else {
+        // Para modo manual, guardamos el orden igual como base para futuros cambios si hiciera falta
+        window.ultimoOrdenJugadores = jugadores.map(j => j.nombre);
     }
 
     // Inicializar estadísticas de jugadores para la tabla final
@@ -776,8 +789,6 @@ function simularTorneo() {
     estadisticasJugadores[semifinalistas[3].nombre].gc += sf2.goles1;
     estadisticasJugadores[semifinalistas[3].nombre].partidosJugados++;
 
-
-
     // Tercer Puesto y Final
     const perdedorSF1 = sf1.ganador === semifinalistas[0].nombre ? semifinalistas[1].nombre : semifinalistas[0].nombre;
     const perdedorSF2 = sf2.ganador === semifinalistas[2].nombre ? semifinalistas[3].nombre : semifinalistas[2].nombre;
@@ -937,7 +948,18 @@ function simularTorneo() {
         </p>
     </div>`;
 
-    document.getElementById('resultado').innerHTML = htmlPlayoffs + htmlFase + htmlStats;
+    // Crear el container de acciones sutiles de simulación
+    let reSimulateButtons = `<div style="display:flex; justify-content:center; gap:15px; margin-bottom: 25px; margin-top: 10px;">
+        <button onclick="ejecutarSimulacion(false)" class="re-simular-btn">🔄 Volver a simular torneo</button>`;
+
+    if (numJugadores >= 8) {
+        reSimulateButtons += `
+        <button onclick="ejecutarSimulacion(true)" class="re-simular-btn">🔄 Simular mismos grupos</button>`;
+    }
+    
+    reSimulateButtons += `</div>`;
+
+    document.getElementById('resultado').innerHTML = reSimulateButtons + htmlPlayoffs + htmlFase + htmlStats;
 
     // Draw SVG lines after injecting HTML
     setTimeout(() => {
@@ -1012,17 +1034,17 @@ function renderGruposManualUI() {
     // Verificar que hay jugadores seleccionados
     if (!window.jugadoresSeleccionadosGlobal || window.jugadoresSeleccionadosGlobal.length !== numJugadores) {
         container.style.display = 'block';
-        container.innerHTML = `<div style="background:#fff3cd; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #ffc107;">
-            <p style="margin:0; color:#856404; font-weight:600;">⚠️ Primero seleccioná los ${numJugadores} jugadores para poder armar los grupos manualmente.</p>
+        container.innerHTML = `<div style="background:#2d2008; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #7d4e00;">
+            <p style="margin:0; color:#e3b341; font-weight:600;">⚠️ Primero seleccioná los ${numJugadores} jugadores para poder armar los grupos manualmente.</p>
         </div>`;
         return;
     }
 
     container.style.display = 'block';
 
-    let html = `<div style="background:#e3f2fd; padding:20px; border-radius:10px; margin-bottom:20px; border:2px solid #2196f3;">
-        <h3 style="margin:0 0 15px 0; color:#1565c0; text-align:center;">✋ ARMADO MANUAL DE GRUPOS</h3>
-        <p style="margin:0 0 15px 0; text-align:center; color:#333;">Arrastrá los jugadores a cada grupo o usá los selectores</p>`;
+    let html = `<div style="background:#161b22; padding:20px; border-radius:10px; margin-bottom:20px; border:2px solid #58a6ff;">
+        <h3 style="margin:0 0 15px 0; color:#58a6ff; text-align:center;">✋ ARMADO MANUAL DE GRUPOS</h3>
+        <p style="margin:0 0 15px 0; text-align:center; color:#c9d1d9;">Arrastrá los jugadores a cada grupo o usá los selectores</p>`;
 
     const jugadoresSeleccionados = window.jugadoresSeleccionadosGlobal;
 
@@ -1042,20 +1064,20 @@ function renderGruposManualUI() {
     }
 
     html += `<div style="text-align:center; margin-top:15px;">
-        <button id="confirmarGruposBtn" style="background:#4caf50; color:white; padding:10px 25px; border:none; border-radius:6px; cursor:pointer; font-weight:bold; font-size:14px;">
+        <button id="confirmarGruposBtn" style="background:#238636; color:white; padding:10px 25px; border:none; border-radius:6px; cursor:pointer; font-weight:bold; font-size:14px;">
             ✅ Confirmar Grupos
         </button>
-        <button id="resetGruposBtn" style="background:#ff9800; color:white; padding:10px 25px; border:none; border-radius:6px; cursor:pointer; font-weight:bold; font-size:14px; margin-left:10px;">
+        <button id="resetGruposBtn" style="background:#8b949e; color:white; padding:10px 25px; border:none; border-radius:6px; cursor:pointer; font-weight:bold; font-size:14px; margin-left:10px;">
             🔄 Resetear
         </button>
     </div>`;
 
-    html += `<div id="gruposConfirmados" style="display:none; margin-top:15px; padding:10px; background:#c8e6c9; border-radius:6px; text-align:center;">
-        <p style="margin:0; color:#2e7d32; font-weight:bold;">✅ Grupos confirmados correctamente</p>
+    html += `<div id="gruposConfirmados" style="display:none; margin-top:15px; padding:10px; background:#1e3a1f; border-radius:6px; text-align:center;">
+        <p style="margin:0; color:#3fb950; font-weight:bold;">✅ Grupos confirmados correctamente</p>
     </div>`;
 
-    html += `<div id="gruposError" style="display:none; margin-top:15px; padding:10px; background:#ffcdd2; border-radius:6px; text-align:center;">
-        <p style="margin:0; color:#c62828; font-weight:bold;" id="gruposErrorMsg"></p>
+    html += `<div id="gruposError" style="display:none; margin-top:15px; padding:10px; background:#4a1e1e; border-radius:6px; text-align:center;">
+        <p style="margin:0; color:#ff7b72; font-weight:bold;" id="gruposErrorMsg"></p>
     </div>`;
 
     html += '</div>';
@@ -1080,12 +1102,12 @@ function renderGruposManualUI() {
 
 // Función para renderizar un selector de grupo
 function renderGrupoSelector(nombreGrupo, cantidad, jugadoresDisponiblesLista) {
-    let html = `<div class="grupo-manual-container" style="background:white; padding:15px; border-radius:8px; margin-bottom:10px; border:1px solid #ddd;">
+    let html = `<div class="grupo-manual-container" style="background:#21262d; padding:15px; border-radius:8px; margin-bottom:10px; border:1px solid #30363d;">
         <h4 style="margin:0 0 10px 0; color:#667eea;">🔷 Grupo ${nombreGrupo} (${cantidad} jugadores)</h4>
         <div class="grupo-selectors" style="display:flex; flex-wrap:wrap; gap:10px;">`;
 
     for (let i = 0; i < cantidad; i++) {
-        html += `<select class="grupo-select" data-grupo="${nombreGrupo}" data-pos="${i}" style="padding:8px 12px; border-radius:5px; border:1px solid #ccc; min-width:150px;">
+        html += `<select class="grupo-select" data-grupo="${nombreGrupo}" data-pos="${i}" style="padding:8px 12px; border-radius:5px; border:1px solid #30363d; background:#0d1117; color:#c9d1d9; min-width:150px;">
             <option value="">-- Seleccionar --</option>`;
         jugadoresDisponiblesLista.forEach(nombre => {
             html += `<option value="${nombre}">${nombre}</option>`;
@@ -1299,64 +1321,7 @@ function updateSimularButtonState() {
 const simBtn = document.getElementById('simularBtn');
 if (simBtn) {
     simBtn.addEventListener('click', () => {
-        const num = parseInt(document.getElementById('numPlayers').value);
-        const seleccion = obtenerJugadoresSeleccionadosPorNombre(num);
-        if (seleccion.length !== num) {
-            alert(`Por favor seleccioná exactamente ${num} jugadores antes de simular.`);
-            return;
-        }
-
-        // Verificar si hay grupos manuales configurados cuando el modo es manual
-        const modoGruposEl = document.getElementById('modoGrupos');
-        const modoGrupos = modoGruposEl ? modoGruposEl.value : 'aleatorio';
-
-        if (modoGrupos === 'manual' && num >= 8) {
-            if (!window.gruposManualConfig) {
-                alert('Por favor configurá y confirmá los grupos manualmente antes de simular.');
-                return;
-            }
-        }
-
-        // Llamamos a simularTorneo pero inyectando la selección temporalmente
-        // Guardamos jugadoresBase original
-        const originalBase = [...jugadoresBase];
-        // Reemplazamos jugadoresBase por la selección
-        let seleccionCompleta = [...seleccion];
-        if (seleccionCompleta.length < num) {
-            const faltan = num - seleccionCompleta.length;
-            for (let i = 0; i < faltan; i++) {
-                if (nuevosJugadores[i]) seleccionCompleta.push(nuevosJugadores[i]);
-            }
-        }
-        // reescribimos jugadoresBase temporalmente
-        for (let i = 0; i < jugadoresBase.length; i++) {
-            jugadoresBase[i] = seleccionCompleta[i] || jugadoresBase[i];
-        }
-        // Si hay más seleccionados que jugadoresBase originales, extendemos
-        if (seleccionCompleta.length > jugadoresBase.length) {
-            for (let i = jugadoresBase.length; i < seleccionCompleta.length; i++) jugadoresBase.push(seleccionCompleta[i]);
-        }
-
-        // Ejecutar la simulación (usa la variable jugadoresBase modificada)
-
-        // Ocultar controles y selección de jugadores, dejando solo los nav-links
-        const controls = document.querySelector('.controls');
-        if (controls) {
-            Array.from(controls.children).forEach(child => {
-                if (!child.classList.contains('nav-links')) {
-                    child.style.display = 'none';
-                }
-            });
-        }
-        document.getElementById('playerSelection').style.display = 'none';
-        const gruposManualContainer = document.getElementById('gruposManualContainer');
-        if (gruposManualContainer) gruposManualContainer.style.display = 'none';
-
-        simularTorneo();
-
-        // Restaurar jugadoresBase original
-        for (let i = 0; i < originalBase.length; i++) jugadoresBase[i] = originalBase[i];
-        jugadoresBase.length = originalBase.length;
+        ejecutarSimulacion(false);
     });
 }
 
