@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <a href="playoffs.html" title="Playoffs">Playoffs</a>
         <a href="torneo1.html" title="Primer Torneo">Primer Torneo</a>
         <a href="torneo2.html" title="Segundo Torneo">Segundo Torneo</a>
+        <a href="airhockeygame.html" title="Air Hockey">🎮 Air Hockey</a>
         <div class="sidebar-footer">
             <img src="img/favicon2.png" alt="Logo">
             <br>
@@ -26,6 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (menuToggle && sidebar) {
         menuToggle.addEventListener('click', () => {
             sidebar.classList.toggle('open');
+        });
+
+        // Add active class to current page link
+        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        const links = sidebar.querySelectorAll('a');
+        links.forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            }
         });
 
         // Close sidebar when clicking outside on mobile

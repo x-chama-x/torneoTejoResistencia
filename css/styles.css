@@ -833,6 +833,8 @@ select:hover {
 .sidebar a[href="playoffs.html"] { background: #9c27b0; }
 .sidebar a[href="torneo1.html"] { background: #2196f3; }
 .sidebar a[href="torneo2.html"] { background: #ff5722; }
+.sidebar a[href="airhockeygame.html"] { background: #00bcd4; }
+.sidebar a.active { outline: 2px solid rgba(255,255,255,0.4); }
 
 .sidebar-footer {
     margin-top: auto;
@@ -1114,4 +1116,161 @@ select:hover {
 .re-simular-btn:hover {
     background: #30363d;
     color: #c9d1d9;
+}
+
+/* ================================================
+   AIR HOCKEY
+   ================================================ */
+.page-subtitle {
+    text-align: center;
+    color: #8b949e;
+    font-size: 1em;
+    margin: 0 0 28px 0;
+    font-style: italic;
+}
+
+/* ── MENU SCREEN ── */
+#screen-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+}
+
+.menu-card {
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 16px;
+    padding: 32px 36px;
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+
+.menu-puck {
+    width: 60px; height: 60px; border-radius: 50%;
+    background: #c9d1d9;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+}
+.menu-puck-inner { width: 20px; height: 20px; border-radius: 50%; background: #161b22; }
+
+.menu-card h2 { color: #c9d1d9; font-size: 1.6em; font-weight: bold; text-align: center; }
+.menu-card p  { color: #8b949e; font-size: .95em; text-align: center; }
+
+.menu-divider { width: 100%; border: none; border-top: 1px solid #30363d; }
+
+/* difficulty cards */
+.diff-section-label {
+    font-size: .8em; font-weight: 700; color: #8b949e;
+    text-transform: uppercase; letter-spacing: .06em; text-align: center;
+}
+.diff-grid {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 10px; width: 100%;
+}
+.diff-card {
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 16px 8px;
+    cursor: pointer;
+    text-align: center;
+    display: flex; flex-direction: column; gap: 6px; align-items: center;
+    transition: border-color .15s, background .15s;
+    background: #161b22;
+}
+.diff-card:hover { background: #30363d; }
+.diff-card.active { border: 2px solid #58a6ff; background: rgba(31,111,235,.12); }
+.diff-icon { font-size: 22px; }
+.diff-label { font-size: .9em; font-weight: 700; color: #c9d1d9; }
+.diff-card.active .diff-label { color: #58a6ff; }
+.diff-desc  { font-size: .75em; color: #8b949e; line-height: 1.3; }
+
+/* how-to row */
+.how-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; width: 100%; }
+.how-item { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: .8em; color: #8b949e; text-align: center; }
+.how-item .how-icon { font-size: 20px; }
+
+/* start button */
+.btn-start {
+    width: 100%; padding: 13px;
+    background: #238636; color: white;
+    border: 1px solid #2ea043;
+    border-radius: 10px; font-size: 1.05em; font-weight: 700;
+    cursor: pointer; transition: background .2s, transform .2s, box-shadow .2s;
+    box-shadow: 0 4px 15px rgba(35,134,54,.35);
+}
+.btn-start:hover { background: #2ea043; transform: translateY(-2px); box-shadow: 0 7px 22px rgba(35,134,54,.5); }
+
+/* ── GAME SCREEN ── */
+#screen-game { display: none; flex-direction: column; align-items: center; touch-action: none; }
+
+.hud {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; max-width: 500px;
+    padding: 10px 4px; margin-bottom: 6px;
+}
+.hud-score { display: flex; align-items: baseline; gap: 7px; }
+.hud-name  { font-size: .78em; color: #8b949e; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.hud-num   { font-size: 2.2em; font-weight: bold; color: #c9d1d9; min-width: 24px; text-align: center; }
+.hud-badge {
+    font-size: .78em; font-weight: 700; padding: 4px 12px;
+    border-radius: 20px; background: #21262d;
+    color: #8b949e; border: 1px solid #30363d;
+}
+
+.table-wrap { position: relative; }
+.table-wrap canvas {
+    border-radius: 14px;
+    border: 2px solid #30363d;
+    touch-action: none; cursor: none; display: block;
+}
+
+/* overlay */
+.overlay {
+    position: absolute; inset: 0; border-radius: 14px;
+    display: none; flex-direction: column;
+    align-items: center; justify-content: center; gap: 14px;
+    background: rgba(0,0,0,.65);
+}
+.overlay-title { font-size: 2em; font-weight: bold; color: #c9d1d9; }
+.overlay-sub   { font-size: .95em; color: #8b949e; }
+.overlay-score { font-size: 1.6em; font-weight: bold; color: #58a6ff; }
+.overlay button {
+    background: #238636; color: white;
+    border: 1px solid #2ea043;
+    padding: 10px 28px; font-size: .95em; font-weight: 700;
+    border-radius: 8px; cursor: pointer; transition: background .2s;
+}
+.overlay button:hover { background: #2ea043; }
+.overlay .btn-menu-ov {
+    background: #21262d; border-color: #30363d; color: #c9d1d9;
+}
+.overlay .btn-menu-ov:hover { background: #30363d; }
+
+/* msg & bottom buttons */
+.msg-bar {
+    height: 28px; display: flex; align-items: center; justify-content: center;
+    font-size: .85em; color: #8b949e; margin-top: 8px;
+}
+.btn-row { display: flex; gap: 10px; margin-top: 8px; }
+.btn-row button {
+    padding: 9px 22px;
+    border: 1px solid #30363d; background: #21262d;
+    border-radius: 8px; font-size: .9em; font-weight: 700;
+    color: #c9d1d9; cursor: pointer; transition: background .2s, transform .2s;
+}
+.btn-row button:hover { background: #30363d; transform: translateY(-1px); }
+
+/* ── RESPONSIVE AIR HOCKEY ── */
+@media (max-width: 520px) {
+    .table-wrap canvas { width: 340px !important; height: 480px !important; }
+    .hud { max-width: 340px; }
+    .table-wrap { width: 340px; }
+    .menu-card { padding: 24px 16px; }
+    .diff-desc { display: none; }
 }
