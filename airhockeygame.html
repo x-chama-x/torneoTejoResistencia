@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Air Hockey - Tejo Hockey</title>
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 20px 20px 20px 270px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #161b22;
+            border-radius: 20px;
+            border: 1px solid #30363d;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        h1 {
+            text-align: center;
+            color: #c9d1d9;
+            margin-bottom: 8px;
+            font-size: 2em;
+        }
+
+        .page-subtitle {
+            text-align: center;
+            color: #8b949e;
+            font-size: 1em;
+            margin: 0 0 28px 0;
+            font-style: italic;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: 250px;
+            background: #161b22;
+            border-right: 1px solid #30363d;
+            height: 100vh;
+            position: fixed;
+            top: 0; left: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+        .sidebar h2 { color: #c9d1d9; text-align: center; margin-bottom: 20px; font-size: 1.5em; }
+        .sidebar a {
+            padding: 12px 15px;
+            text-decoration: none;
+            color: white;
+            border-radius: 8px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .sidebar a:hover { transform: translateX(5px); }
+        .sidebar a[href="simulador.html"]  { background: #43a047; }
+        .sidebar a[href="index.html"]      { background: #ff9800; }
+        .sidebar a[href="montecarlo.html"] { background: #667eea; }
+        .sidebar a[href="partido.html"]    { background: #e91e63; }
+        .sidebar a[href="torneo.html"]     { background: #11998e; }
+        .sidebar a[href="playoffs.html"]   { background: #9c27b0; }
+        .sidebar a[href="torneo1.html"]    { background: #2196f3; }
+        .sidebar a[href="torneo2.html"]    { background: #ff5722; }
+        .sidebar a[href="airhockey.html"]  { background: #00bcd4; }
+        .sidebar a.active                  { outline: 2px solid rgba(255,255,255,0.4); }
+
+        .sidebar-footer { margin-top: auto; text-align: center; padding-top: 30px; }
+        .sidebar-footer img { width: 80px; margin-bottom: 10px; }
+        .sidebar-footer .github-link {
+            font-size: .9em; padding: 0; display: inline-block;
+            background: transparent !important; color: #f85149; text-decoration: none;
+        }
+        .sidebar-footer .github-link:hover { transform: translateY(-2px); }
+
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px; left: 15px;
+            z-index: 1001;
+            background: #00bcd4;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1.4em;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* ── MENU SCREEN ── */
+        #screen-menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+        }
+
+        .menu-card {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            padding: 32px 36px;
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 22px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        }
+
+        .menu-puck {
+            width: 60px; height: 60px; border-radius: 50%;
+            background: #c9d1d9;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+        }
+        .menu-puck-inner { width: 20px; height: 20px; border-radius: 50%; background: #161b22; }
+
+        .menu-card h2 { color: #c9d1d9; font-size: 1.6em; font-weight: bold; text-align: center; }
+        .menu-card p  { color: #8b949e; font-size: .95em; text-align: center; }
+
+        .menu-divider { width: 100%; border: none; border-top: 1px solid #30363d; }
+
+        /* difficulty cards */
+        .diff-section-label {
+            font-size: .8em; font-weight: 700; color: #8b949e;
+            text-transform: uppercase; letter-spacing: .06em; text-align: center;
+        }
+        .diff-grid {
+            display: grid; grid-template-columns: repeat(3,1fr);
+            gap: 10px; width: 100%;
+        }
+        .diff-card {
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            padding: 16px 8px;
+            cursor: pointer;
+            text-align: center;
+            display: flex; flex-direction: column; gap: 6px; align-items: center;
+            transition: border-color .15s, background .15s;
+            background: #161b22;
+        }
+        .diff-card:hover { background: #30363d; }
+        .diff-card.active { border: 2px solid #58a6ff; background: rgba(31,111,235,.12); }
+        .diff-icon { font-size: 22px; }
+        .diff-label { font-size: .9em; font-weight: 700; color: #c9d1d9; }
+        .diff-card.active .diff-label { color: #58a6ff; }
+        .diff-desc  { font-size: .75em; color: #8b949e; line-height: 1.3; }
+
+        /* how-to row */
+        .how-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; width: 100%; }
+        .how-item { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: .8em; color: #8b949e; text-align: center; }
+        .how-item .how-icon { font-size: 20px; }
+
+        /* start button */
+        .btn-start {
+            width: 100%; padding: 13px;
+            background: #238636; color: white;
+            border: 1px solid #2ea043;
+            border-radius: 10px; font-size: 1.05em; font-weight: 700;
+            cursor: pointer; transition: background .2s, transform .2s, box-shadow .2s;
+            box-shadow: 0 4px 15px rgba(35,134,54,.35);
+        }
+        .btn-start:hover { background: #2ea043; transform: translateY(-2px); box-shadow: 0 7px 22px rgba(35,134,54,.5); }
+
+        /* ── GAME SCREEN ── */
+        #screen-game { display: none; flex-direction: column; align-items: center; touch-action: none; }
+
+        .hud {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 100%; max-width: 500px;
+            padding: 10px 4px; margin-bottom: 6px;
+        }
+        .hud-score { display: flex; align-items: baseline; gap: 7px; }
+        .hud-name  { font-size: .78em; color: #8b949e; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+        .hud-num   { font-size: 2.2em; font-weight: bold; color: #c9d1d9; min-width: 24px; text-align: center; }
+        .hud-badge {
+            font-size: .78em; font-weight: 700; padding: 4px 12px;
+            border-radius: 20px; background: #21262d;
+            color: #8b949e; border: 1px solid #30363d;
+        }
+
+        .table-wrap { position: relative; }
+        canvas {
+            border-radius: 14px;
+            border: 2px solid #30363d;
+            touch-action: none; cursor: none; display: block;
+        }
+
+        /* overlay */
+        .overlay {
+            position: absolute; inset: 0; border-radius: 14px;
+            display: none; flex-direction: column;
+            align-items: center; justify-content: center; gap: 14px;
+            background: rgba(0,0,0,.65);
+        }
+        .overlay-title { font-size: 2em; font-weight: bold; color: #c9d1d9; }
+        .overlay-sub   { font-size: .95em; color: #8b949e; }
+        .overlay-score { font-size: 1.6em; font-weight: bold; color: #58a6ff; }
+        .overlay button {
+            background: #238636; color: white;
+            border: 1px solid #2ea043;
+            padding: 10px 28px; font-size: .95em; font-weight: 700;
+            border-radius: 8px; cursor: pointer; transition: background .2s;
+        }
+        .overlay button:hover { background: #2ea043; }
+        .overlay .btn-menu-ov {
+            background: #21262d; border-color: #30363d; color: #c9d1d9;
+        }
+        .overlay .btn-menu-ov:hover { background: #30363d; }
+
+        /* msg & bottom buttons */
+        .msg-bar {
+            height: 28px; display: flex; align-items: center; justify-content: center;
+            font-size: .85em; color: #8b949e; margin-top: 8px;
+        }
+        .btn-row { display: flex; gap: 10px; margin-top: 8px; }
+        .btn-row button {
+            padding: 9px 22px;
+            border: 1px solid #30363d; background: #21262d;
+            border-radius: 8px; font-size: .9em; font-weight: 700;
+            color: #c9d1d9; cursor: pointer; transition: background .2s, transform .2s;
+        }
+        .btn-row button:hover { background: #30363d; transform: translateY(-1px); }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            body { padding: 70px 10px 10px 10px; }
+            .container { background: transparent; border: none; box-shadow: none; padding: 10px; border-radius: 0; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); box-shadow: 5px 0 15px rgba(0,0,0,.5); }
+            .menu-toggle { display: block; }
+            .sidebar-footer { margin-top: 20px; padding-bottom: 20px; }
+        }
+
+        @media (max-width: 520px) {
+            canvas { width: 340px !important; height: 480px !important; }
+            .hud { max-width: 340px; }
+            .table-wrap { width: 340px; }
+            .menu-card { padding: 24px 16px; }
+            .diff-desc { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<button class="menu-toggle" id="menuToggle">☰</button>
+<div class="sidebar" id="sidebar">
+    <h2>🏒 Tejo Hockey</h2>
+    <a href="index.html">🏠 Inicio</a>
+    <a href="simulador.html">⚽ Simulador</a>
+    <a href="partido.html">🆚 Partido 1vs1</a>
+    <a href="torneo.html">🏆 Torneo</a>
+    <a href="playoffs.html">🎯 Playoffs</a>
+    <a href="montecarlo.html">🎲 Montecarlo</a>
+    <a href="torneo1.html">📊 Torneo 1</a>
+    <a href="torneo2.html">📊 Torneo 2</a>
+    <a href="airhockey.html" class="active">🎮 Air Hockey</a>
+    <div class="sidebar-footer">
+        <img src="img/favicon.png" alt="logo" onerror="this.style.display='none'">
+    </div>
+</div>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<div class="container">
+    <h1>🏒 Air Hockey</h1>
+    <p class="page-subtitle">Jugador vs Computadora · Primero en 7 goles gana</p>
+
+    <!-- ── MENU SCREEN ── -->
+    <div id="screen-menu">
+        <div class="menu-card">
+            <div class="menu-puck"><div class="menu-puck-inner"></div></div>
+
+            <div>
+                <h2>Air Hockey</h2>
+                <p style="margin-top:6px">Desafiá a la CPU en el clásico juego de mesa.<br>Metele 7 goles para ganar la partida.</p>
+            </div>
+
+            <hr class="menu-divider">
+
+            <div style="width:100%">
+                <div class="diff-section-label" style="margin-bottom:10px">Dificultad</div>
+                <div class="diff-grid">
+                    <div class="diff-card" data-level="easy">
+                        <span class="diff-icon">😊</span>
+                        <div class="diff-label">Fácil</div>
+                        <div class="diff-desc">CPU lenta · Ideal para empezar</div>
+                    </div>
+                    <div class="diff-card active" data-level="medium">
+                        <span class="diff-icon">🔥</span>
+                        <div class="diff-label">Intermedio</div>
+                        <div class="diff-desc">CPU equilibrada · Buen desafío</div>
+                    </div>
+                    <div class="diff-card" data-level="hard">
+                        <span class="diff-icon">💀</span>
+                        <div class="diff-label">Difícil</div>
+                        <div class="diff-desc">CPU rápida · Para expertos</div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="menu-divider">
+
+            <div class="how-grid">
+                <div class="how-item"><span class="how-icon">🖱️</span>Mové el mazo con el mouse</div>
+                <div class="how-item"><span class="how-icon">⚡</span>Solo jugás en tu mitad</div>
+                <div class="how-item"><span class="how-icon">🎯</span>7 goles para ganar</div>
+            </div>
+
+            <button class="btn-start" id="btn-start">▶ &nbsp;Comenzar partida</button>
+        </div>
+    </div>
+
+    <!-- ── GAME SCREEN ── -->
+    <div id="screen-game">
+        <div class="hud">
+            <div class="hud-score">
+                <span class="hud-name">CPU</span>
+                <span class="hud-num" id="s-cpu">0</span>
+            </div>
+            <span class="hud-badge" id="hud-badge">Intermedio</span>
+            <div class="hud-score">
+                <span class="hud-num" id="s-ply">0</span>
+                <span class="hud-name">Vos</span>
+            </div>
+        </div>
+
+        <div class="table-wrap" id="table-wrap">
+            <canvas id="ah-canvas" width="500" height="640"></canvas>
+            <div class="overlay" id="overlay">
+                <div class="overlay-title" id="ov-title"></div>
+                <div class="overlay-sub"   id="ov-sub"></div>
+                <div class="overlay-score" id="ov-score"></div>
+                <button id="btn-replay">🔄 &nbsp;Jugar de nuevo</button>
+                <button class="btn-menu-ov" id="btn-menu-ov">🏠 &nbsp;Menú principal</button>
+            </div>
+        </div>
+
+        <div class="msg-bar" id="msg-bar">Mové tu mazo con el mouse o el dedo</div>
+
+        <div class="btn-row">
+            <button id="btn-menu2">🏠 Menú</button>
+            <button id="btn-restart">🔄 Reiniciar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    /* ─── SIDEBAR ─── */
+    const toggle  = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    toggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+    document.addEventListener('click', e => {
+        if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== toggle)
+            sidebar.classList.remove('open');
+    });
+
+    /* ─── DIFFICULTY CARDS ─── */
+    document.querySelectorAll('.diff-card').forEach(c => {
+        c.addEventListener('click', () => {
+            document.querySelectorAll('.diff-card').forEach(x => x.classList.remove('active'));
+            c.classList.add('active');
+            currentLevel = c.dataset.level;
+        });
+    });
+
+    /* ─── LEVELS CONFIG ─── */
+    const LEVELS = {
+        easy:   { cpuSpeed: 2.6,  maxPuck: 10, label: 'Fácil',      predict: 0.40 },
+        medium: { cpuSpeed: 4.0,  maxPuck: 13, label: 'Intermedio', predict: 0.72 },
+        hard:   { cpuSpeed: 6.0,  maxPuck: 15, label: 'Difícil',    predict: 0.97 }
+    };
+    let currentLevel = 'medium';
+
+    /* ─── CANVAS SETUP ─── */
+    const canvas  = document.getElementById('ah-canvas');
+    const ctx     = canvas.getContext('2d');
+    let W = canvas.width, H = canvas.height;
+
+    // Responsive resize
+    function resizeCanvas() {
+        const maxW = Math.min(500, window.innerWidth - 40);
+        const scale = maxW / 500;
+        canvas.style.width  = (500 * scale) + 'px';
+        canvas.style.height = (640 * scale) + 'px';
+        document.getElementById('table-wrap').style.width = (500 * scale) + 'px';
+        document.querySelector('.hud').style.maxWidth     = (500 * scale) + 'px';
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    /* ─── CONSTANTS ─── */
+    const GOAL_W  = 160;
+    const GOAL_X  = (W - GOAL_W) / 2;
+    const PR  = 18;   // puck radius
+    const MR  = 28;   // mallet radius
+    const MAX_SCORE = 7;
+
+    /* ─── STATE ─── */
+    let gs = null, animId = null;
+    let mouseX = W/2, mouseY = H - 100;
+    let prevMX = W/2, prevMY = H - 100;
+
+    /* ─── MOUSE / TOUCH ─── */
+    function getPos(e) {
+        const r = canvas.getBoundingClientRect();
+        const scaleX = W / r.width, scaleY = H / r.height;
+        const src = e.touches ? e.touches[0] : e;
+        return {
+            x: (src.clientX - r.left) * scaleX,
+            y: (src.clientY - r.top)  * scaleY
+        };
+    }
+    function applyPos(e) { const p = getPos(e); mouseX = p.x; mouseY = p.y; }
+    canvas.addEventListener('mousemove',  applyPos);
+    canvas.addEventListener('touchstart', e => { e.preventDefault(); applyPos(e); }, { passive: false });
+    canvas.addEventListener('touchmove',  e => { e.preventDefault(); applyPos(e); }, { passive: false });
+    if ('ontouchstart' in window) {
+        document.getElementById('msg-bar').textContent = 'Arrastrá el dedo en tu mitad de la mesa';
+    }
+
+    /* ─── NAVIGATION BUTTONS ─── */
+    document.getElementById('btn-start').addEventListener('click',    startGame);
+    document.getElementById('btn-restart').addEventListener('click',  restartGame);
+    document.getElementById('btn-replay').addEventListener('click',   restartGame);
+    document.getElementById('btn-menu-ov').addEventListener('click',  goMenu);
+    document.getElementById('btn-menu2').addEventListener('click',    goMenu);
+
+    /* ─── HELPERS ─── */
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+    function makeState() {
+        const dir = Math.random() > 0.5 ? 1 : -1;
+        const spd = 4.5 + Math.random();
+        const a   = (Math.random() - 0.5) * 0.8;
+        return {
+            puck:   { x: W/2, y: H/2, vx: Math.sin(a)*spd, vy: dir*spd },
+            player: { x: W/2, y: H - 100 },
+            cpu:    { x: W/2, y: 100 },
+            scores: { cpu: 0, player: 0 },
+            over:   false,
+            stuckTimer: 0,
+            lastPuckPos: { x: W/2, y: H/2 }
+        };
+    }
+
+    function resetPuck(dir) {
+        const p = gs.puck;
+        p.x = W/2; p.y = H/2 + (dir > 0 ? 65 : -65);
+        const spd = 4.2 + Math.random() * 0.8;
+        const a   = (Math.random() - 0.5) * 0.75;
+        p.vx = Math.sin(a) * spd;
+        p.vy = dir * spd;
+        gs.stuckTimer   = 0;
+        gs.lastPuckPos  = { x: p.x, y: p.y };
+    }
+
+    function updateScoreUI() {
+        document.getElementById('s-cpu').textContent = gs.scores.cpu;
+        document.getElementById('s-ply').textContent = gs.scores.player;
+    }
+
+    /* ─── CPU AI ─── */
+    function cpuAI() {
+        const lv = LEVELS[currentLevel];
+        const p  = gs.puck, c = gs.cpu;
+
+        // Distance from CPU mallet to puck
+        const dxP  = p.x - c.x, dyP = p.y - c.y;
+        const distP = Math.sqrt(dxP*dxP + dyP*dyP);
+        const tooClose = distP < (PR + MR + 8); // inside "hug zone"
+
+        let tx, ty;
+
+        // Safe Y limit: CPU mallet must never get closer than MR+4 to its own goal line (y=0)
+        // AND must never cross the center line
+        const CPU_Y_MIN = MR + 4;
+        const CPU_Y_MAX = H/2 - MR - 2;
+
+        if (tooClose) {
+            // Back away along the normal — never chase the puck when already touching it.
+            tx = c.x - dxP * 1.5;
+            ty = c.y - dyP * 1.5;
+            tx = clamp(tx, MR + 2, W - MR - 2);
+            ty = clamp(ty, CPU_Y_MIN, CPU_Y_MAX);
+        } else if (p.vy > 0) {
+            // Puck moving toward player — retreat to safe spot
+            tx = W / 2;
+            ty = 80;
+        } else {
+            // Puck incoming — predict intercept point
+            if (Math.random() < lv.predict) {
+                const t = Math.abs((c.y - p.y) / (p.vy || -0.01));
+                tx = clamp(p.x + p.vx * t * 0.55, MR + 8, W - MR - 8);
+            } else {
+                tx = p.x;
+            }
+            // Target: slightly in front of puck (toward center), never on top of it
+            ty = clamp(p.y - (PR + MR + 8), CPU_Y_MIN, CPU_Y_MAX);
+        }
+
+        const dx   = tx - c.x, dy = ty - c.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist > 0.5) {
+            const spd = tooClose ? lv.cpuSpeed * 1.4 : lv.cpuSpeed;
+            c.x += (dx/dist) * Math.min(spd, dist);
+            c.y += (dy/dist) * Math.min(spd * 0.88, dist);
+        }
+        // Hard clamp — CPU mallet can NEVER exit its half or reach its own goal
+        c.x = clamp(c.x, MR + 2, W - MR - 2);
+        c.y = clamp(c.y, CPU_Y_MIN, CPU_Y_MAX);
+    }
+
+    /* ─── MALLET COLLISION ─── */
+    function malletHit(mallet, dvx, dvy, isCpu) {
+        const p    = gs.puck;
+        const lv   = LEVELS[currentLevel];
+        const dx   = p.x - mallet.x, dy = p.y - mallet.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        const minD = PR + MR;
+        if (dist < minD && dist > 0.1) {
+            const nx = dx / (dist || 1), ny = dy / (dist || 1);
+            // Separate puck fully — extra gap to avoid re-triggering next frame
+            p.x = mallet.x + nx * (minD + 2);
+            p.y = mallet.y + ny * (minD + 2);
+            // Reflect velocity relative to mallet motion
+            const dot = (p.vx - dvx)*nx + (p.vy - dvy)*ny;
+            if (dot < 0) {
+                p.vx -= 2 * dot * nx - dvx * 0.7;
+                p.vy -= 2 * dot * ny - dvy * 0.7;
+            } else {
+                // Already moving away but still overlapping — gentle push out
+                p.vx += nx * 2;
+                p.vy += ny * 2;
+            }
+            // For CPU mallet: puck MUST leave moving toward player (vy > 0)
+            // This prevents the mallet's backward motion from sending the puck into the CPU's own goal
+            if (isCpu && p.vy < 1.5) {
+                p.vy = 1.5 + Math.random() * 2;
+            }
+            // Speed clamp
+            const spd = Math.sqrt(p.vx*p.vx + p.vy*p.vy);
+            if (spd > lv.maxPuck) { p.vx = p.vx/spd*lv.maxPuck; p.vy = p.vy/spd*lv.maxPuck; }
+            if (spd < 3.5)        { p.vx *= 3.5/spd;             p.vy *= 3.5/spd;             }
+        }
+    }
+
+    /* ─── STUCK DETECTION ─── */
+    function checkStuck() {
+        const p   = gs.puck;
+        const dx  = p.x - gs.lastPuckPos.x;
+        const dy  = p.y - gs.lastPuckPos.y;
+        const mov = Math.sqrt(dx*dx + dy*dy);
+
+        if (mov < 1.2) {
+            gs.stuckTimer++;
+        } else {
+            gs.stuckTimer   = 0;
+            gs.lastPuckPos  = { x: p.x, y: p.y };
+        }
+
+        // If stuck for ~45 frames (~0.75 s), rescue it
+        if (gs.stuckTimer > 45) {
+            gs.stuckTimer = 0;
+            const dir = p.y < H/2 ? 1 : -1;
+            const spd = 5 + Math.random() * 2;
+            const a   = ((Math.random() > 0.5 ? 1 : -1) * (0.4 + Math.random() * 0.5));
+            p.vx = Math.cos(a) * spd;
+            p.vy = dir * Math.abs(Math.sin(a)) * spd || dir * spd;
+            gs.lastPuckPos = { x: p.x, y: p.y };
+        }
+    }
+
+    /* ─── UPDATE ─── */
+    function update() {
+        if (!gs || gs.over) return;
+        const p  = gs.puck;
+        const pl = gs.player;
+
+        // Player mallet velocity
+        const pvx = (mouseX - pl.x) * 0.5;
+        const pvy = (mouseY - pl.y) * 0.5;
+        pl.x = clamp(mouseX, MR + 2, W - MR - 2);
+        pl.y = clamp(mouseY, H/2 + MR + 2, H - MR - 2);
+
+        cpuAI();
+
+        // Move puck
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vx *= 0.9998;
+        p.vy *= 0.9998;
+
+        // Wall collisions (sides)
+        if (p.x - PR < 2)     { p.x = PR + 2;    p.vx =  Math.abs(p.vx); }
+        if (p.x + PR > W - 2) { p.x = W - PR - 2; p.vx = -Math.abs(p.vx); }
+
+        // Top wall / goal
+        if (p.y - PR < 2) {
+            if (p.x > GOAL_X && p.x < GOAL_X + GOAL_W) {
+                gs.scores.player++;
+                updateScoreUI();
+                if (gs.scores.player >= MAX_SCORE) { endGame(true);  return; }
+                resetPuck(1);
+            } else {
+                p.y  = PR + 2;
+                p.vy = Math.abs(p.vy);
+            }
+        }
+        // Bottom wall / goal
+        if (p.y + PR > H - 2) {
+            if (p.x > GOAL_X && p.x < GOAL_X + GOAL_W) {
+                gs.scores.cpu++;
+                updateScoreUI();
+                if (gs.scores.cpu >= MAX_SCORE) { endGame(false); return; }
+                resetPuck(-1);
+            } else {
+                p.y  = H - PR - 2;
+                p.vy = -Math.abs(p.vy);
+            }
+        }
+
+        malletHit(pl,      pvx, pvy, false);
+        malletHit(gs.cpu,  0,   0,   true);
+        checkStuck();
+    }
+
+    /* ─── DRAW ─── */
+    function draw() {
+        if (!gs) return;
+        ctx.clearRect(0, 0, W, H);
+
+        // Table background
+        ctx.fillStyle = '#0d2a1a';
+        ctx.beginPath(); ctx.roundRect(0, 0, W, H, 14); ctx.fill();
+
+        // Center line
+        ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+        ctx.lineWidth   = 2;
+        ctx.setLineDash([10, 6]);
+        ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Center circle
+        ctx.beginPath(); ctx.arc(W/2, H/2, 65, 0, Math.PI*2);
+        ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.beginPath(); ctx.arc(W/2, H/2, 5, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,255,255,0.15)'; ctx.fill();
+
+        // Goals
+        ctx.fillStyle = 'rgba(255,255,255,0.06)';
+        ctx.beginPath(); ctx.roundRect(GOAL_X, 0,        GOAL_W, 14, [0,0,8,8]); ctx.fill();
+        ctx.beginPath(); ctx.roundRect(GOAL_X, H - 14,   GOAL_W, 14, [8,8,0,0]); ctx.fill();
+
+        // Goal posts
+        ctx.strokeStyle = '#2ea043'; ctx.lineWidth = 3;
+        [[GOAL_X, 2, GOAL_X, 16], [GOAL_X+GOAL_W, 2, GOAL_X+GOAL_W, 16],
+         [GOAL_X, H-2, GOAL_X, H-16], [GOAL_X+GOAL_W, H-2, GOAL_X+GOAL_W, H-16]
+        ].forEach(([x1,y1,x2,y2]) => {
+            ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+        });
+
+        // Puck
+        const p = gs.puck;
+        ctx.beginPath(); ctx.arc(p.x, p.y, PR, 0, Math.PI*2);
+        ctx.fillStyle = '#ccc'; ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.beginPath(); ctx.arc(p.x - 4, p.y - 4, PR * 0.35, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.fill();
+
+        // Mallets
+        function drawMallet(x, y, fill, glow) {
+            ctx.beginPath(); ctx.arc(x, y, MR, 0, Math.PI*2);
+            ctx.fillStyle   = fill; ctx.fill();
+            ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 2.5; ctx.stroke();
+            ctx.beginPath(); ctx.arc(x, y, 10, 0, Math.PI*2);
+            ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fill();
+        }
+        drawMallet(gs.cpu.x,    gs.cpu.y,    '#da3633', '#f85149');
+        drawMallet(gs.player.x, gs.player.y, '#1f6feb', '#58a6ff');
+
+        // Level watermark
+        ctx.font        = 'bold 11px Segoe UI, sans-serif';
+        ctx.textAlign   = 'left';
+        ctx.fillStyle   = 'rgba(255,255,255,0.18)';
+        ctx.fillText(LEVELS[currentLevel].label.toUpperCase(), 10, H/2 - 10);
+    }
+
+    /* ─── OVERLAY ─── */
+    function endGame(playerWon) {
+        gs.over = true;
+        const ov = document.getElementById('overlay');
+        document.getElementById('ov-title').textContent  = playerWon ? '¡Ganaste! 🎉' : 'CPU gana 🤖';
+        document.getElementById('ov-sub').textContent    = playerWon ? '¡Excelente partida!' : 'La computadora fue mejor esta vez';
+        document.getElementById('ov-score').textContent  = `${gs.scores.player} – ${gs.scores.cpu}`;
+        ov.style.display = 'flex';
+    }
+
+    /* ─── LOOP ─── */
+    function loop() {
+        update();
+        draw();
+        animId = requestAnimationFrame(loop);
+    }
+
+    /* ─── SCREEN TRANSITIONS ─── */
+    function startGame() {
+        document.getElementById('screen-menu').style.display = 'none';
+        document.getElementById('screen-game').style.display = 'flex';
+        document.getElementById('hud-badge').textContent     = LEVELS[currentLevel].label;
+        mouseX = W/2; mouseY = H - 100;
+        launchGame();
+    }
+
+    function restartGame() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('msg-bar').textContent   = 'Mové tu mazo con el mouse o el dedo';
+        launchGame();
+    }
+
+    function goMenu() {
+        if (animId) { cancelAnimationFrame(animId); animId = null; }
+        document.getElementById('overlay').style.display      = 'none';
+        document.getElementById('screen-game').style.display  = 'none';
+        document.getElementById('screen-menu').style.display  = 'flex';
+    }
+
+    function launchGame() {
+        if (animId) { cancelAnimationFrame(animId); animId = null; }
+        gs = makeState();
+        updateScoreUI();
+        loop();
+    }
+
+})();
+</script>
+</body>
+</html>
