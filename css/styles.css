@@ -1274,3 +1274,7 @@ select:hover {
     .menu-card { padding: 24px 16px; }
     .diff-desc { display: none; }
 }
+.ah-container { max-width: 700px; padding: 20px; }
+
+@media (min-width: 901px) { .ah-mobile-title { display: none; } }
+
