@@ -13,13 +13,12 @@
 
 <!-- ═══════════════ MAIN ═══════════════ -->
 <div class="container ah-container">
-    <div class="ah-mobile-title">
-        <h1>🏒 Air Hockey</h1>
-        <p class="page-subtitle">Jugador vs Computadora · Primero en 7 goles gana</p>
-    </div>
-
     <!-- ── MENU SCREEN ── -->
     <div id="screen-menu">
+        <div class="ah-mobile-title">
+            <h1>🏒 Air Hockey</h1>
+            <p class="page-subtitle">Jugador vs Computadora · Primero en 7 goles gana</p>
+        </div>
         <div class="menu-card">
             <div class="menu-puck"><div class="menu-puck-inner"></div></div>
 
@@ -65,34 +64,37 @@
 
     <!-- ── GAME SCREEN ── -->
     <div id="screen-game">
-        <div class="hud">
-            <div class="hud-score">
-                <span class="hud-name">CPU</span>
-                <span class="hud-num" id="s-cpu">0</span>
-            </div>
-            <span class="hud-badge" id="hud-badge">Intermedio</span>
-            <div class="hud-score">
-                <span class="hud-num" id="s-ply">0</span>
-                <span class="hud-name">Vos</span>
+        <div class="game-side-panel">
+            <div class="msg-bar" id="msg-bar">Mové tu mazo con el mouse o el dedo</div>
+            <div class="btn-row">
+                <button id="btn-menu2">🏠 Menú</button>
+                <button id="btn-restart">🔄 Reiniciar</button>
             </div>
         </div>
 
-        <div class="table-wrap" id="table-wrap">
-            <canvas id="ah-canvas" width="500" height="640"></canvas>
-            <div class="overlay" id="overlay">
-                <div class="overlay-title" id="ov-title"></div>
-                <div class="overlay-sub"   id="ov-sub"></div>
-                <div class="overlay-score" id="ov-score"></div>
-                <button id="btn-replay">🔄 &nbsp;Jugar de nuevo</button>
-                <button class="btn-menu-ov" id="btn-menu-ov">🏠 &nbsp;Menú principal</button>
+        <div class="game-main-panel">
+            <div class="hud">
+                <div class="hud-score">
+                    <span class="hud-name">CPU</span>
+                    <span class="hud-num" id="s-cpu">0</span>
+                </div>
+                <span class="hud-badge" id="hud-badge">Intermedio</span>
+                <div class="hud-score">
+                    <span class="hud-num" id="s-ply">0</span>
+                    <span class="hud-name">Vos</span>
+                </div>
             </div>
-        </div>
 
-        <div class="msg-bar" id="msg-bar">Mové tu mazo con el mouse o el dedo</div>
-
-        <div class="btn-row">
-            <button id="btn-menu2">🏠 Menú</button>
-            <button id="btn-restart">🔄 Reiniciar</button>
+            <div class="table-wrap" id="table-wrap">
+                <canvas id="ah-canvas" width="500" height="640"></canvas>
+                <div class="overlay" id="overlay">
+                    <div class="overlay-title" id="ov-title"></div>
+                    <div class="overlay-sub"   id="ov-sub"></div>
+                    <div class="overlay-score" id="ov-score"></div>
+                    <button id="btn-replay">🔄 &nbsp;Jugar de nuevo</button>
+                    <button class="btn-menu-ov" id="btn-menu-ov">🏠 &nbsp;Menú principal</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
