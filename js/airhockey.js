@@ -1,20 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-    /* ─── DIFFICULTY CARDS ─── */
-    document.querySelectorAll('.diff-card').forEach(c => {
-        c.addEventListener('click', () => {
-            document.querySelectorAll('.diff-card').forEach(x => x.classList.remove('active'));
-            c.classList.add('active');
-            currentLevel = c.dataset.level;
-        });
-    });
-
-    /* ─── LEVELS CONFIG ─── */
-    const LEVELS = {
-        easy:   { cpuSpeed: 2.6,  maxPuck: 10, label: 'Fácil',      predict: 0.40 },
-        medium: { cpuSpeed: 4.0,  maxPuck: 13, label: 'Intermedio', predict: 0.72 },
-        hard:   { cpuSpeed: 6.0,  maxPuck: 15, label: 'Difícil',    predict: 0.97 }
-    };
-    let currentLevel = 'medium';
+    /* ─── GAME CONFIG ─── */
+    const cpuSpeed = 6.0;
+    const maxPuck = 16;
+    const predict = 0.97;
 
     /* ─── CANVAS SETUP ─── */
     const canvas  = document.getElementById('ah-canvas');
@@ -110,51 +98,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* ─── CPU AI ─── */
     function cpuAI() {
-        const lv = LEVELS[currentLevel];
         const p  = gs.puck, c = gs.cpu;
 
-        // Distance from CPU mallet to puck
-        const dxP  = p.x - c.x, dyP = p.y - c.y;
-        const distP = Math.sqrt(dxP*dxP + dyP*dyP);
-        const tooClose = distP < (PR + MR + 8); // inside "hug zone"
-
-        let tx, ty;
-
-        // Safe Y limit: CPU mallet must never get closer than MR+4 to its own goal line (y=0)
-        // AND must never cross the center line
         const CPU_Y_MIN = MR + 4;
         const CPU_Y_MAX = H/2 - MR - 2;
+        let tx, ty;
 
-        if (tooClose) {
-            // Back away along the normal — never chase the puck when already touching it.
-            tx = c.x - dxP * 1.5;
-            ty = c.y - dyP * 1.5;
-            tx = clamp(tx, MR + 2, W - MR - 2);
-            ty = clamp(ty, CPU_Y_MIN, CPU_Y_MAX);
-        } else if (p.vy > 0) {
-            // Puck moving toward player — retreat to safe spot
+        if (p.vy > 0 && p.y > H / 2) {
+            // Disco se aleja hacia la mitad del jugador. La CPU vuelve a su base a defender.
             tx = W / 2;
-            ty = 80;
+            ty = CPU_Y_MIN + 30;
         } else {
-            // Puck incoming — predict intercept point
-            if (Math.random() < lv.predict) {
+            // Predecir intersección X
+            if (Math.random() < predict) {
                 const t = Math.abs((c.y - p.y) / (p.vy || -0.01));
-                tx = clamp(p.x + p.vx * t * 0.55, MR + 8, W - MR - 8);
+                tx = clamp(p.x + p.vx * t * 0.6, MR + 8, W - MR - 8);
             } else {
                 tx = p.x;
             }
-            // Target: slightly in front of puck (toward center), never on top of it
-            ty = clamp(p.y - (PR + MR + 8), CPU_Y_MIN, CPU_Y_MAX);
+
+            // *** PREVENCIÓN DE AUTOGOLES Y MOVIMIENTO RARO HACIA ATRÁS ***
+            // Si el disco está detrás del mazo rojo (entre el mazo y su propia meta y=0)
+            if (p.y < c.y && Math.abs(p.x - c.x) < (MR + PR + 10)) {
+                // Hacer un paso al costado rápido para recuperar posición sin empujar el disco a la meta
+                tx = (p.x > W / 2) ? c.x - 60 : c.x + 60;
+                ty = CPU_Y_MIN;
+            } else {
+                // Posicionarse levemente por detrás del disco
+                ty = clamp(p.y - (PR + MR + 10), CPU_Y_MIN, CPU_Y_MAX);
+
+                // Si el disco está cerca, hacer un 'strike' (golpear hacia adelante)
+                const distToPuck = Math.sqrt((p.x - c.x)**2 + (p.y - c.y)**2);
+                if (distToPuck < 140) {
+                    ty = p.y + 25; // Golpea atravesando el disco hacia adelante
+                }
+            }
         }
 
-        const dx   = tx - c.x, dy = ty - c.y;
+        const dx = tx - c.x, dy = ty - c.y;
         const dist = Math.sqrt(dx*dx + dy*dy);
         if (dist > 0.5) {
-            const spd = tooClose ? lv.cpuSpeed * 1.4 : lv.cpuSpeed;
-            c.x += (dx/dist) * Math.min(spd, dist);
-            c.y += (dy/dist) * Math.min(spd * 0.88, dist);
+            c.x += (dx/dist) * Math.min(cpuSpeed, dist);
+            c.y += (dy/dist) * Math.min(cpuSpeed, dist);
         }
-        // Hard clamp — CPU mallet can NEVER exit its half or reach its own goal
+
         c.x = clamp(c.x, MR + 2, W - MR - 2);
         c.y = clamp(c.y, CPU_Y_MIN, CPU_Y_MAX);
     }
@@ -162,7 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ─── MALLET COLLISION ─── */
     function malletHit(mallet, dvx, dvy, isCpu) {
         const p    = gs.puck;
-        const lv   = LEVELS[currentLevel];
         const dx   = p.x - mallet.x, dy = p.y - mallet.y;
         const dist = Math.sqrt(dx*dx + dy*dy);
         const minD = PR + MR;
@@ -188,8 +174,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             // Speed clamp
             const spd = Math.sqrt(p.vx*p.vx + p.vy*p.vy);
-            if (spd > lv.maxPuck) { p.vx = p.vx/spd*lv.maxPuck; p.vy = p.vy/spd*lv.maxPuck; }
-            if (spd < 3.5)        { p.vx *= 3.5/spd;             p.vy *= 3.5/spd;             }
+            if (spd > maxPuck) { p.vx = p.vx/spd*maxPuck; p.vy = p.vy/spd*maxPuck; }
+            if (spd < 3.5)     { p.vx *= 3.5/spd;         p.vy *= 3.5/spd;         }
         }
     }
 
@@ -231,7 +217,12 @@ document.addEventListener('DOMContentLoaded', () => {
         pl.x = clamp(mouseX, MR + 2, W - MR - 2);
         pl.y = clamp(mouseY, H/2 + MR + 2, H - MR - 2);
 
+        // CPU mallet velocity calculada (para que pegue con fuerza en vez de amortiguarlo)
+        const prevCpuX = gs.cpu.x;
+        const prevCpuY = gs.cpu.y;
         cpuAI();
+        const cvx = (gs.cpu.x - prevCpuX) * 0.5;
+        const cvy = (gs.cpu.y - prevCpuY) * 0.5;
 
         // Move puck
         p.x += p.vx;
@@ -269,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         malletHit(pl,      pvx, pvy, false);
-        malletHit(gs.cpu,  0,   0,   true);
+        malletHit(gs.cpu,  cvx, cvy, true);
         checkStuck();
     }
 
@@ -326,12 +317,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         drawMallet(gs.cpu.x,    gs.cpu.y,    '#da3633', '#f85149');
         drawMallet(gs.player.x, gs.player.y, '#1f6feb', '#58a6ff');
-
-        // Level watermark
-        ctx.font        = 'bold 11px Segoe UI, sans-serif';
-        ctx.textAlign   = 'left';
-        ctx.fillStyle   = 'rgba(255,255,255,0.18)';
-        ctx.fillText(LEVELS[currentLevel].label.toUpperCase(), 10, H/2 - 10);
     }
 
     /* ─── OVERLAY ─── */
@@ -355,7 +340,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function startGame() {
         document.getElementById('screen-menu').style.display = 'none';
         document.getElementById('screen-game').style.display = 'flex';
-        document.getElementById('hud-badge').textContent     = LEVELS[currentLevel].label;
         mouseX = W/2; mouseY = H - 100;
 
         // Hacemos un scroll automático arriba y garantizamos el resize con el nuevo elemento
