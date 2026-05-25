@@ -68,16 +68,11 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.addEventListener('mousemove',  applyPos);
     canvas.addEventListener('touchstart', e => { e.preventDefault(); applyPos(e); }, { passive: false });
     canvas.addEventListener('touchmove',  e => { e.preventDefault(); applyPos(e); }, { passive: false });
-    if ('ontouchstart' in window) {
-        document.getElementById('msg-bar').textContent = 'Arrastrá el dedo en tu mitad de la mesa';
-    }
 
     /* ─── NAVIGATION BUTTONS ─── */
     document.getElementById('btn-start').addEventListener('click',    startGame);
-    document.getElementById('btn-restart').addEventListener('click',  restartGame);
     document.getElementById('btn-replay').addEventListener('click',   restartGame);
     document.getElementById('btn-menu-ov').addEventListener('click',  goMenu);
-    document.getElementById('btn-menu2').addEventListener('click',    goMenu);
 
     /* ─── HELPERS ─── */
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -372,7 +367,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function restartGame() {
         document.getElementById('overlay').style.display = 'none';
-        document.getElementById('msg-bar').textContent   = 'Mové tu mazo con el mouse o el dedo';
         launchGame();
     }
 
