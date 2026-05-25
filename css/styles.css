@@ -1280,7 +1280,6 @@ select:hover {
 .ah-container .menu-card { margin: 0 auto; } /* centramos el menú en caso de PC */
 
 @media (min-width: 901px) {
-    .ah-mobile-title { display: none; }
     #screen-game { flex-direction: row; justify-content: center; align-items: center; gap: 30px; }
     .game-side-panel { flex-direction: column; width: 180px; }
     .btn-row { flex-direction: column; width: 100%; }
