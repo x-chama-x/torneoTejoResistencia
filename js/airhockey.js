@@ -330,8 +330,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ─── LOOP ─── */
-    function loop() {
-        update();
+    let lastTime = 0;
+    const TIME_STEP = 1000 / 60; // 60 FPS fijos (16.66ms)
+    let accumulator = 0;
+
+    function loop(time) {
+        if (!lastTime) lastTime = time;
+        const dt = time - lastTime;
+        lastTime = time;
+
+        accumulator += dt;
+        // Evitar espiral de la muerte si se cambia de pestaña (max 100ms)
+        if (accumulator > 100) accumulator = 100;
+
+        // Ejecutar update a velocidad constante independientemente del refresco de pantalla
+        while (accumulator >= TIME_STEP) {
+            update();
+            accumulator -= TIME_STEP;
+        }
+
         draw();
         animId = requestAnimationFrame(loop);
     }
@@ -365,6 +382,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (animId) { cancelAnimationFrame(animId); animId = null; }
         gs = makeState();
         updateScoreUI();
-        loop();
+        lastTime = performance.now();
+        accumulator = 0;
+        animId = requestAnimationFrame(loop);
     }
 });
