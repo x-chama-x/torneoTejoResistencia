@@ -24,8 +24,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Responsive resize
     function resizeCanvas() {
+        // En móviles o PC pequeñas, el alto también puede hacer que se corte
+        // Calculamos un margen vertical para HUD, botones, padding, etc.
+        const offH = window.innerWidth <= 900 ? 120 : 160;
+
         const maxW = Math.min(500, window.innerWidth - 40);
-        const scale = maxW / 500;
+        const maxH = Math.min(640, window.innerHeight - offH);
+
+        // El factor de escala elige el menor para asegurarse de que quepa de ancho y de alto sin hacer scroll
+        const scale = Math.min(maxW / 500, maxH / 640);
+
         canvas.style.width  = (500 * scale) + 'px';
         canvas.style.height = (640 * scale) + 'px';
         document.getElementById('table-wrap').style.width = (500 * scale) + 'px';
@@ -354,6 +362,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('screen-game').style.display = 'flex';
         document.getElementById('hud-badge').textContent     = LEVELS[currentLevel].label;
         mouseX = W/2; mouseY = H - 100;
+
+        // Hacemos un scroll automático arriba y garantizamos el resize con el nuevo elemento
+        resizeCanvas();
+        setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
+
         launchGame();
     }
 
