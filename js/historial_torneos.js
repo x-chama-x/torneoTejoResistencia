@@ -243,26 +243,36 @@ function drawBracketLines() {
 
     if (!sf1El || !sf2El || !finalEl || !connEl || !svg) return;
 
-    const connRect = connEl.getBoundingClientRect();
-    const sf1Rect = sf1El.getBoundingClientRect();
-    const sf2Rect = sf2El.getBoundingClientRect();
-    const finalRect = finalEl.getBoundingClientRect();
+    const sf1Card = sf1El.querySelector('.match-card');
+    const sf2Card = sf2El.querySelector('.match-card');
+    const finalCard = finalEl.querySelector('.match-card');
 
-    const sf1Mid = (sf1Rect.top + sf1Rect.bottom) / 2 - connRect.top;
-    const sf2Mid = (sf2Rect.top + sf2Rect.bottom) / 2 - connRect.top;
-    const finalMid = (finalRect.top + finalRect.bottom) / 2 - connRect.top;
+    if (!sf1Card || !sf2Card || !finalCard) return;
+
+    const connRect = connEl.getBoundingClientRect();
+    const sf1CardRect = sf1Card.getBoundingClientRect();
+    const sf2CardRect = sf2Card.getBoundingClientRect();
+    const finalCardRect = finalCard.getBoundingClientRect();
+
+    const sf1Mid = (sf1CardRect.top + sf1CardRect.bottom) / 2 - connRect.top;
+    const sf2Mid = (sf2CardRect.top + sf2CardRect.bottom) / 2 - connRect.top;
+    const finalMid = (finalCardRect.top + finalCardRect.bottom) / 2 - connRect.top;
     const w = connRect.width;
     const h = connRect.height;
+
+    const leftX1 = sf1CardRect.right - connRect.left;
+    const leftX2 = sf2CardRect.right - connRect.left;
+    const rightX = finalCardRect.left - connRect.left;
 
     svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
     svg.setAttribute("width", w);
     svg.setAttribute("height", h);
 
     svg.innerHTML = `
-        <line x1="0" y1="${sf1Mid.toFixed(1)}" x2="${(w/2).toFixed(1)}" y2="${sf1Mid.toFixed(1)}" stroke="#58a6ff" stroke-width="2" stroke-linecap="round"/>
+        <line x1="${leftX1.toFixed(1)}" y1="${sf1Mid.toFixed(1)}" x2="${(w/2).toFixed(1)}" y2="${sf1Mid.toFixed(1)}" stroke="#58a6ff" stroke-width="2" stroke-linecap="round"/>
         <line x1="${(w/2).toFixed(1)}" y1="${sf1Mid.toFixed(1)}" x2="${(w/2).toFixed(1)}" y2="${sf2Mid.toFixed(1)}" stroke="#58a6ff" stroke-width="2" stroke-linecap="round"/>
-        <line x1="0" y1="${sf2Mid.toFixed(1)}" x2="${(w/2).toFixed(1)}" y2="${sf2Mid.toFixed(1)}" stroke="#58a6ff" stroke-width="2" stroke-linecap="round"/>
-        <line x1="${(w/2).toFixed(1)}" y1="${finalMid.toFixed(1)}" x2="${w.toFixed(1)}" y2="${finalMid.toFixed(1)}" stroke="#58a6ff" stroke-width="2" stroke-linecap="round"/>
+        <line x1="${leftX2.toFixed(1)}" y1="${sf2Mid.toFixed(1)}" x2="${(w/2).toFixed(1)}" y2="${sf2Mid.toFixed(1)}" stroke="#58a6ff" stroke-width="2" stroke-linecap="round"/>
+        <line x1="${(w/2).toFixed(1)}" y1="${finalMid.toFixed(1)}" x2="${rightX.toFixed(1)}" y2="${finalMid.toFixed(1)}" stroke="#58a6ff" stroke-width="2" stroke-linecap="round"/>
     `;
 }
 
@@ -286,6 +296,7 @@ function renderPlayoffs(semis, final, tercerPuesto) {
             </div>
         `;
         requestAnimationFrame(() => drawBracketLines());
+        window.addEventListener('resize', drawBracketLines);
     }
 
     const tpc = document.getElementById("tercer-puesto-container");
