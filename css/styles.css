@@ -1003,7 +1003,7 @@ select:hover {
     width: 100%;
     border-collapse: collapse;
     margin-top: 0;
-    font-size: 0.95rem;
+    font-size: 0.88rem;
 }
 
 .ranking-table.large-table-font {
@@ -1011,15 +1011,18 @@ select:hover {
 }
 
 .ranking-table th, .ranking-table td {
-    padding: 8px 10px; /* Reducido espacio entre columnas */
-    text-align: left;
+    padding: 6px 5px;
+    text-align: center;
     border-bottom: 1px solid #30363d;
+}
+.ranking-table th:first-child, .ranking-table td:first-child {
+    text-align: left;
 }
 .ranking-table th {
     background: #21262d;
     color: #c9d1d9 !important;
     font-weight: bold;
-    padding: 10px;
+    padding: 6px 5px;
 }
 
 .ranking-table.large-table-font th, .ranking-table.large-table-font td {
