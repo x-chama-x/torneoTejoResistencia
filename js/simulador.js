@@ -328,11 +328,15 @@ function simularGrupo(jugadoresGrupo, nombreGrupo, matchNumberInicial, estadisti
                     estadisticasGlobales[jugadoresGrupo[i].nombre].golesLiga += resultado.goles1;
                     estadisticasGlobales[jugadoresGrupo[i].nombre].gc += resultado.goles2;
                     estadisticasGlobales[jugadoresGrupo[i].nombre].partidosJugados++;
+                    if (resultado.ganador === jugadoresGrupo[i].nombre) estadisticasGlobales[jugadoresGrupo[i].nombre].pg++;
+                    else estadisticasGlobales[jugadoresGrupo[i].nombre].pp++;
                 }
                 if (estadisticasGlobales[jugadoresGrupo[j].nombre]) {
                     estadisticasGlobales[jugadoresGrupo[j].nombre].golesLiga += resultado.goles2;
                     estadisticasGlobales[jugadoresGrupo[j].nombre].gc += resultado.goles1;
                     estadisticasGlobales[jugadoresGrupo[j].nombre].partidosJugados++;
+                    if (resultado.ganador === jugadoresGrupo[j].nombre) estadisticasGlobales[jugadoresGrupo[j].nombre].pg++;
+                    else estadisticasGlobales[jugadoresGrupo[j].nombre].pp++;
                 }
             }
 
@@ -502,7 +506,9 @@ function simularTorneo(mantenerGrupos = false) {
             golesLiga: 0,
             golesFaseFinal: 0,
             gc: 0,
-            partidosJugados: 0
+            partidosJugados: 0,
+            pg: 0,
+            pp: 0
         };
     });
 
@@ -621,11 +627,15 @@ function simularTorneo(mantenerGrupos = false) {
                     estadisticasJugadores[j1.nombre].golesLiga += resultadoMini.goles1;
                     estadisticasJugadores[j1.nombre].gc += resultadoMini.goles2;
                     estadisticasJugadores[j1.nombre].partidosJugados++;
+                    if (resultadoMini.ganador === j1.nombre) estadisticasJugadores[j1.nombre].pg++;
+                    else estadisticasJugadores[j1.nombre].pp++;
                 }
                 if (estadisticasJugadores[j2.nombre]) {
                     estadisticasJugadores[j2.nombre].golesLiga += resultadoMini.goles2;
                     estadisticasJugadores[j2.nombre].gc += resultadoMini.goles1;
                     estadisticasJugadores[j2.nombre].partidosJugados++;
+                    if (resultadoMini.ganador === j2.nombre) estadisticasJugadores[j2.nombre].pg++;
+                    else estadisticasJugadores[j2.nombre].pp++;
                 }
 
                 if (resultadoMini.ganador === j1.nombre) {
@@ -687,11 +697,15 @@ function simularTorneo(mantenerGrupos = false) {
                     estadisticasJugadores[j1.nombre].golesLiga += resultadoMini.goles1;
                     estadisticasJugadores[j1.nombre].gc += resultadoMini.goles2;
                     estadisticasJugadores[j1.nombre].partidosJugados++;
+                    if (resultadoMini.ganador === j1.nombre) estadisticasJugadores[j1.nombre].pg++;
+                    else estadisticasJugadores[j1.nombre].pp++;
                 }
                 if (estadisticasJugadores[j2.nombre]) {
                     estadisticasJugadores[j2.nombre].golesLiga += resultadoMini.goles2;
                     estadisticasJugadores[j2.nombre].gc += resultadoMini.goles1;
                     estadisticasJugadores[j2.nombre].partidosJugados++;
+                    if (resultadoMini.ganador === j2.nombre) estadisticasJugadores[j2.nombre].pg++;
+                    else estadisticasJugadores[j2.nombre].pp++;
                 }
 
                 if (resultadoMini.ganador === j1.nombre) {
@@ -730,11 +744,15 @@ function simularTorneo(mantenerGrupos = false) {
             estadisticasJugadores[primeroSegundos.nombre].golesFaseFinal += repechajePre.goles1;
             estadisticasJugadores[primeroSegundos.nombre].gc += repechajePre.goles2;
             estadisticasJugadores[primeroSegundos.nombre].partidosJugados++;
+            if (repechajePre.ganador === primeroSegundos.nombre) estadisticasJugadores[primeroSegundos.nombre].pg++;
+            else estadisticasJugadores[primeroSegundos.nombre].pp++;
         }
         if (estadisticasJugadores[primeroTerceros.nombre]) {
             estadisticasJugadores[primeroTerceros.nombre].golesFaseFinal += repechajePre.goles2;
             estadisticasJugadores[primeroTerceros.nombre].gc += repechajePre.goles1;
             estadisticasJugadores[primeroTerceros.nombre].partidosJugados++;
+            if (repechajePre.ganador === primeroTerceros.nombre) estadisticasJugadores[primeroTerceros.nombre].pg++;
+            else estadisticasJugadores[primeroTerceros.nombre].pp++;
         }
 
         // El ganador del partido eliminatorio es el 4° clasificado
@@ -789,15 +807,19 @@ function simularTorneo(mantenerGrupos = false) {
     estadisticasJugadores[semifinalistas[0].nombre].golesFaseFinal += sf1.goles1;
     estadisticasJugadores[semifinalistas[0].nombre].gc += sf1.goles2;
     estadisticasJugadores[semifinalistas[0].nombre].partidosJugados++;
+    if (sf1.ganador === semifinalistas[0].nombre) estadisticasJugadores[semifinalistas[0].nombre].pg++; else estadisticasJugadores[semifinalistas[0].nombre].pp++;
     estadisticasJugadores[semifinalistas[1].nombre].golesFaseFinal += sf1.goles2;
     estadisticasJugadores[semifinalistas[1].nombre].gc += sf1.goles1;
     estadisticasJugadores[semifinalistas[1].nombre].partidosJugados++;
+    if (sf1.ganador === semifinalistas[1].nombre) estadisticasJugadores[semifinalistas[1].nombre].pg++; else estadisticasJugadores[semifinalistas[1].nombre].pp++;
     estadisticasJugadores[semifinalistas[2].nombre].golesFaseFinal += sf2.goles1;
     estadisticasJugadores[semifinalistas[2].nombre].gc += sf2.goles2;
     estadisticasJugadores[semifinalistas[2].nombre].partidosJugados++;
+    if (sf2.ganador === semifinalistas[2].nombre) estadisticasJugadores[semifinalistas[2].nombre].pg++; else estadisticasJugadores[semifinalistas[2].nombre].pp++;
     estadisticasJugadores[semifinalistas[3].nombre].golesFaseFinal += sf2.goles2;
     estadisticasJugadores[semifinalistas[3].nombre].gc += sf2.goles1;
     estadisticasJugadores[semifinalistas[3].nombre].partidosJugados++;
+    if (sf2.ganador === semifinalistas[3].nombre) estadisticasJugadores[semifinalistas[3].nombre].pg++; else estadisticasJugadores[semifinalistas[3].nombre].pp++;
 
     // Tercer Puesto y Final
     const perdedorSF1 = sf1.ganador === semifinalistas[0].nombre ? semifinalistas[1].nombre : semifinalistas[0].nombre;
@@ -811,9 +833,11 @@ function simularTorneo(mantenerGrupos = false) {
     estadisticasJugadores[perdedorSF1].golesFaseFinal += tercerPuesto.goles1;
     estadisticasJugadores[perdedorSF1].gc += tercerPuesto.goles2;
     estadisticasJugadores[perdedorSF1].partidosJugados++;
+    if (tercerPuesto.ganador === perdedorSF1) estadisticasJugadores[perdedorSF1].pg++; else estadisticasJugadores[perdedorSF1].pp++;
     estadisticasJugadores[perdedorSF2].golesFaseFinal += tercerPuesto.goles2;
     estadisticasJugadores[perdedorSF2].gc += tercerPuesto.goles1;
     estadisticasJugadores[perdedorSF2].partidosJugados++;
+    if (tercerPuesto.ganador === perdedorSF2) estadisticasJugadores[perdedorSF2].pg++; else estadisticasJugadores[perdedorSF2].pp++;
 
     const finalistaJ1 = jugadores.find(j => j.nombre === sf1.ganador);
     const finalistaJ2 = jugadores.find(j => j.nombre === sf2.ganador);
@@ -823,9 +847,11 @@ function simularTorneo(mantenerGrupos = false) {
     estadisticasJugadores[sf1.ganador].golesFaseFinal += final.goles1;
     estadisticasJugadores[sf1.ganador].gc += final.goles2;
     estadisticasJugadores[sf1.ganador].partidosJugados++;
+    if (final.ganador === sf1.ganador) estadisticasJugadores[sf1.ganador].pg++; else estadisticasJugadores[sf1.ganador].pp++;
     estadisticasJugadores[sf2.ganador].golesFaseFinal += final.goles2;
     estadisticasJugadores[sf2.ganador].gc += final.goles1;
     estadisticasJugadores[sf2.ganador].partidosJugados++;
+    if (final.ganador === sf2.ganador) estadisticasJugadores[sf2.ganador].pg++; else estadisticasJugadores[sf2.ganador].pp++;
 
     // Generar html para playoffs con formato bracket y conector de SVG
     htmlPlayoffs += `
@@ -904,6 +930,8 @@ function simularTorneo(mantenerGrupos = false) {
                 <th>GC</th>
                 <th>DIF</th>
                 <th>PJ</th>
+                <th>PG</th>
+                <th>PP</th>
                 <th>Prom TG/PJ</th>
             </tr>
         </thead>
@@ -920,6 +948,8 @@ function simularTorneo(mantenerGrupos = false) {
             gc: stats.gc,
             dif: totalGoles - stats.gc,
             partidosJugados: stats.partidosJugados,
+            pg: stats.pg,
+            pp: stats.pp,
             promedio: stats.partidosJugados > 0 ? (totalGoles / stats.partidosJugados) : 0,
             promedioStr: stats.partidosJugados > 0 ? (totalGoles / stats.partidosJugados).toFixed(2) : '0.00'
         };
@@ -935,6 +965,8 @@ function simularTorneo(mantenerGrupos = false) {
                 <td>${stat.gc}</td>
                 <td>${stat.dif > 0 ? '+' : ''}${stat.dif}</td>
                 <td>${stat.partidosJugados}</td>
+                <td>${stat.pg}</td>
+                <td>${stat.pp}</td>
                 <td><strong>${stat.promedioStr}</strong></td>
             </tr>`;
     });
