@@ -324,8 +324,8 @@ function renderTournamentStats(allMatches, nombreTorneo) {
 
     function addGoals(matches, phase) {
         matches.forEach(m => {
-            if (!stats[m.j1]) stats[m.j1] = { golesGrupo: 0, golesFinal: 0, golesContra: 0, partidos: 0 };
-            if (!stats[m.j2]) stats[m.j2] = { golesGrupo: 0, golesFinal: 0, golesContra: 0, partidos: 0 };
+            if (!stats[m.j1]) stats[m.j1] = { golesGrupo: 0, golesFinal: 0, golesContra: 0, partidos: 0, pg: 0, pp: 0 };
+            if (!stats[m.j2]) stats[m.j2] = { golesGrupo: 0, golesFinal: 0, golesContra: 0, partidos: 0, pg: 0, pp: 0 };
             const g = m.marcador.split("-").map(Number);
             if (phase === "grupo") {
                 stats[m.j1].golesGrupo += g[0];
@@ -338,6 +338,8 @@ function renderTournamentStats(allMatches, nombreTorneo) {
             stats[m.j2].golesContra += g[0];
             stats[m.j1].partidos++;
             stats[m.j2].partidos++;
+            if (g[0] > g[1]) { stats[m.j1].pg++; stats[m.j2].pp++; }
+            else if (g[1] > g[0]) { stats[m.j2].pg++; stats[m.j1].pp++; }
         });
     }
 
@@ -354,6 +356,8 @@ function renderTournamentStats(allMatches, nombreTorneo) {
             gc: s.golesContra,
             dif: (difGoles > 0 ? '+' : '') + difGoles,
             partidos: s.partidos,
+            pg: s.pg,
+            pp: s.pp,
             promedio: s.partidos > 0 ? (s.golesGrupo + s.golesFinal) / s.partidos : 0,
             promedioStr: s.partidos > 0 ? ((s.golesGrupo + s.golesFinal) / s.partidos).toFixed(2) : "0.00"
         };
@@ -378,6 +382,8 @@ function renderTournamentStats(allMatches, nombreTorneo) {
                 <th>GC</th>
                 <th>DIF</th>
                 <th>PJ</th>
+                <th>PG</th>
+                <th>PP</th>
                 <th>Prom TG/PJ</th>
             </tr></thead>
             <tbody>${statsArray.map(s => `
@@ -389,6 +395,8 @@ function renderTournamentStats(allMatches, nombreTorneo) {
                     <td>${s.gc}</td>
                     <td>${s.dif}</td>
                     <td>${s.partidos}</td>
+                    <td>${s.pg}</td>
+                    <td>${s.pp}</td>
                     <td><strong>${s.promedioStr}</strong></td>
                 </tr>
             `).join("")}</tbody>
