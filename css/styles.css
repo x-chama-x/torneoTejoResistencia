@@ -904,6 +904,7 @@ select:hover {
     }
     .sidebar {
         transform: translateX(-100%);
+        padding-top: 70px; /* deja lugar al botón ☰ fijo arriba para que no pise el primer link */
     }
     .sidebar.open {
         transform: translateX(0);
