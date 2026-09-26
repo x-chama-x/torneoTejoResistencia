@@ -8,20 +8,27 @@
 // Regla de puntos: los "puntos" totales (PTS = GF) se muestran igual que en
 // el resto del sitio (ver historial_torneos.js), pero a diferencia del resto
 // de los torneos, ACÁ la tabla de posiciones no se ordena por PTS total, sino
-// por promedio de goles por partido (PG = GF / PJ). Es una decisión a
-// propósito: como los amistosos se juegan "cuando pinta" y no todos acumulan
-// la misma cantidad de partidos, ordenar por rendimiento en vez de por
-// volumen es más justo para esta liga en particular.
+// por rendimiento por partido. Es una decisión a propósito: como los
+// amistosos se juegan "cuando pinta" y no todos acumulan la misma cantidad
+// de partidos, ordenar por rendimiento en vez de por volumen es más justo
+// para esta liga en particular.
 //
-// Orden de la tabla: PG desc > DIF por partido desc > WR (% de victorias)
-// desc > PTS total desc (como último desempate).
+// PG* (promedio ajustado): en vez de usar el promedio en bruto (GF/PJ), que
+// deja a alguien con 1 solo partidazo en el primer puesto, se usa un
+// "promedio ajustado" (la misma idea que usa IMDb para rankear películas
+// con pocos votos): a cada jugador se le suman unos "partidos fantasma" con
+// el promedio general de la liga, así el que jugó poco arranca cerca del
+// promedio y va acercándose a su rendimiento real a medida que juega más.
+// No hay ningún corte ni mínimo explícito: todos entran a la misma tabla,
+// solo que un partido aislado no alcanza para despegarse del promedio.
+//   PG* = (PARTIDOS_FANTASMA × promedioLiga + GF) / (PARTIDOS_FANTASMA + PJ)
 //
-// Ajuste de justicia adicional: el podio (🥇🥈🥉) requiere un mínimo de
-// partidos jugados en la edición, para que un solo partidazo con pocos
-// partidos jugados no lidere la tabla.
+// Orden de la tabla: PG* desc > DIF por partido desc > WR (% de victorias)
+// desc > PTS total desc (como último desempate). Las medallas (🥇🥈🥉) van
+// para los primeros 3 puestos de la tabla.
 // =====================================================
 
-const MIN_PARTIDOS_PODIO = 3; // partidos mínimos en la edición para optar al podio
+const PARTIDOS_FANTASMA = 4; // cuántos "partidos promedio" se le asumen a todos antes de confiar en su promedio real
 
 document.addEventListener('DOMContentLoaded', () => {
     fetch('enfrentamientos_directos.txt')
@@ -88,6 +95,8 @@ function renderSelectorAnios(anios, seleccionado, onChange) {
 // Calcula la tabla de posiciones de una edición (array de partidos de un año).
 function calcularPosiciones(partidos) {
     const stats = {};
+    let totalGf = 0;
+    let totalPj = 0;
 
     partidos.forEach(m => {
         const g = m.marcador.split('-').map(Number);
@@ -102,20 +111,26 @@ function calcularPosiciones(partidos) {
 
         if (m.res === 'G') { stats[m.j1].g++; stats[m.j2].p++; }
         else { stats[m.j2].g++; stats[m.j1].p++; }
+
+        totalGf += g[0] + g[1];
+        totalPj += 2;
     });
+
+    // Promedio general de goles por partido en toda la edición (el "m" del promedio ajustado).
+    const promedioLiga = totalPj > 0 ? totalGf / totalPj : 0;
 
     return Object.values(stats)
         .map(s => ({
             ...s,
             dif: s.gf - s.gc,
             pts: s.gf, // PTS = goles a favor (se muestra, pero ya no ordena la tabla)
-            pg: s.pj > 0 ? s.gf / s.pj : 0, // promedio de goles por partido
+            pg: s.pj > 0 ? s.gf / s.pj : 0, // promedio real de goles por partido
+            pgAjustado: (PARTIDOS_FANTASMA * promedioLiga + s.gf) / (PARTIDOS_FANTASMA + s.pj), // promedio ajustado (ver comentario arriba)
             difPromedio: s.pj > 0 ? (s.gf - s.gc) / s.pj : 0, // diferencia de gol por partido
-            wr: s.pj > 0 ? s.g / s.pj : 0, // % de victorias
-            calificaPodio: s.pj >= MIN_PARTIDOS_PODIO
+            wr: s.pj > 0 ? s.g / s.pj : 0 // % de victorias
         }))
-        // Ordena por rendimiento (promedio), no por volumen (total):
-        .sort((a, b) => b.pg - a.pg || b.difPromedio - a.difPromedio || b.wr - a.wr || b.pts - a.pts);
+        // Ordena por rendimiento ajustado, no por promedio en bruto ni por volumen (total):
+        .sort((a, b) => b.pgAjustado - a.pgAjustado || b.difPromedio - a.difPromedio || b.wr - a.wr || b.pts - a.pts);
 }
 
 function renderPosiciones(posiciones) {
@@ -127,18 +142,9 @@ function renderPosiciones(posiciones) {
         return;
     }
 
-    // Medallas de podio: se asignan en el mismo orden de la tabla (PG > DIF/PJ > WR > PTS),
-    // salteando a quien todavía no llega al mínimo de partidos (MIN_PARTIDOS_PODIO).
+    // Medallas de podio para los primeros 3 puestos de la tabla (PG* > DIF/PJ > WR > PTS).
     const medallas = ['🥇', '🥈', '🥉'];
-    let siguienteMedalla = 0;
-    const filas = posiciones.map(s => {
-        let medalla = '';
-        if (s.calificaPodio && siguienteMedalla < medallas.length) {
-            medalla = medallas[siguienteMedalla];
-            siguienteMedalla++;
-        }
-        return { ...s, medalla };
-    });
+    const filas = posiciones.map((s, i) => ({ ...s, medalla: medallas[i] || '' }));
 
     tbody.innerHTML = filas.map((s, i) => `
         <tr>
@@ -150,7 +156,7 @@ function renderPosiciones(posiciones) {
             <td>${s.gf}</td>
             <td>${s.gc}</td>
             <td>${s.dif > 0 ? '+' : ''}${s.dif}</td>
-            <td><strong>${s.pg.toFixed(2)}</strong></td>
+            <td><strong>${s.pgAjustado.toFixed(2)}</strong></td>
         </tr>
     `).join('');
 }
