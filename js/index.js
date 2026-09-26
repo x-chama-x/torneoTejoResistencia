@@ -371,6 +371,37 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // --- Procesar Historial de ganadores: Tejo Nations League ---
+        // Solo se muestran ediciones cerradas (años anteriores al actual), ya que
+        // son anuales y la del año en curso todavía se está jugando.
+        const tbodyNL = document.querySelector('#nations-league-champions-table tbody');
+        if (tbodyNL) {
+            const amistosos = parsearAmistosos(matchesData);
+            const anioActual = new Date().getFullYear();
+            const aniosCerrados = [...new Set(amistosos.map(p => p.anio))]
+                .filter(anio => anio < anioActual)
+                .sort((a, b) => b - a);
+
+            aniosCerrados.forEach(anio => {
+                const posiciones = calcularPosicionesNL(amistosos.filter(p => p.anio === anio));
+                const campeon = posiciones[0];
+                const subcampeon = posiciones[1];
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${anio}</td>
+                    <td><strong>${campeon ? campeon.nombre : '-'}</strong></td>
+                    <td>${subcampeon ? subcampeon.nombre : '-'}</td>
+                `;
+                tbodyNL.appendChild(tr);
+            });
+
+            if (aniosCerrados.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="3" style="text-align:center; color:#8b949e;">Aún no hay ediciones cerradas</td>`;
+                tbodyNL.appendChild(tr);
+            }
+        }
+
     }).catch(error => {
         console.error('Error al cargar datos:', error);
     });
