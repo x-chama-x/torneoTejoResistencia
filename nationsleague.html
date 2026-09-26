@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tejo Nations League - Air Hockey</title>
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* Layout de dos columnas (posiciones + resultados), igual que en los torneos */
+        @media (min-width: 901px) {
+            #col-posiciones-nl { grid-column: 1; grid-row: 1; }
+            #col-resultados-nl { grid-column: 2; grid-row: 1 / span 2; }
+        }
+        @media (max-width: 900px) {
+            .home-container { display: flex; flex-direction: column; }
+            #col-posiciones-nl { order: 1; }
+            #col-resultados-nl { order: 2; }
+        }
+
+        .year-selector {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+        }
+        .year-btn {
+            padding: 8px 22px;
+            border-radius: 20px;
+            border: 1px solid #30363d;
+            background: #21262d;
+            color: #c9d1d9;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s, color 0.2s;
+        }
+        .year-btn:hover {
+            border-color: #58a6ff;
+            color: #ffffff;
+        }
+        .year-btn.active {
+            background: #58a6ff;
+            border-color: #58a6ff;
+            color: #0d1117;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><img src="img/favicon.png" alt="logo" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 5px;"> Tejo Nations League</h1>
+        <p class="page-subtitle">Liga anual de partidos amistosos entre La Resistencia</p>
+
+        <div class="year-selector" id="year-selector">
+            <!-- Poblado por JS -->
+        </div>
+        <p id="nl-partidos-count" style="text-align: center; color: #8b949e; font-size: 0.9em; margin-bottom: 1.5rem;"></p>
+
+        <div class="home-container">
+            <div id="col-posiciones-nl">
+                <h3 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Posiciones</h3>
+                <div class="table-responsive">
+                    <table class="ranking-table" id="tabla-posiciones-nl">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Jugador</th>
+                                <th>PJ</th>
+                                <th>G</th>
+                                <th>P</th>
+                                <th>GF</th>
+                                <th>GC</th>
+                                <th>DIF</th>
+                                <th>PTS(GF)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Poblado por JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="col-resultados-nl">
+                <h3 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Resultados</h3>
+                <div id="resultados-nl">
+                    <!-- Poblado por JS -->
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <h2>⚽ Goleadores</h2>
+            <div class="table-responsive">
+                <table class="ranking-table large-table-font" id="tabla-goleadores-nl">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Jugador</th>
+                            <th>Goles</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Poblado por JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <h2>📊 Estadísticas Generales</h2>
+            <div class="table-responsive">
+                <table class="ranking-table" id="tabla-stats-nl">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Jugador</th>
+                            <th>PJ</th>
+                            <th>G</th>
+                            <th>P</th>
+                            <th>WR</th>
+                            <th>GF</th>
+                            <th>GC</th>
+                            <th>DIF</th>
+                            <th>PG</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Poblado por JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="js/menu.js"></script>
+    <script src="js/nations_league.js"></script>
+</body>
+</html>
