@@ -7,7 +7,16 @@
 //
 // Regla de puntos: igual que el resto del sitio (ver historial_torneos.js),
 // los "puntos" de la tabla son los goles anotados a favor (PTS = GF).
+//
+// Ajuste de justicia: como los amistosos se juegan "cuando pinta" y no todos
+// acumulan la misma cantidad de partidos, el podio (🥇🥈🥉) requiere un mínimo
+// de partidos jugados en la edición. El orden de la tabla no cambia (sigue
+// siendo PTS > DIF > GF, igual que el resto del sitio) pero además se suma
+// la columna PG (promedio de goles por partido) para ver de un vistazo quién
+// rinde mejor partido a partido, no solo quién acumuló más volumen.
 // =====================================================
+
+const MIN_PARTIDOS_PODIO = 3; // partidos mínimos en la edición para optar al podio
 
 document.addEventListener('DOMContentLoaded', () => {
     fetch('enfrentamientos_directos.txt')
@@ -91,7 +100,13 @@ function calcularPosiciones(partidos) {
     });
 
     return Object.values(stats)
-        .map(s => ({ ...s, dif: s.gf - s.gc, pts: s.gf })) // PTS = goles a favor
+        .map(s => ({
+            ...s,
+            dif: s.gf - s.gc,
+            pts: s.gf, // PTS = goles a favor
+            pg: s.pj > 0 ? s.gf / s.pj : 0, // promedio de goles por partido
+            calificaPodio: s.pj >= MIN_PARTIDOS_PODIO
+        }))
         .sort((a, b) => b.pts - a.pts || b.dif - a.dif || b.gf - a.gf);
 }
 
@@ -100,13 +115,26 @@ function renderPosiciones(posiciones) {
     if (!tbody) return;
 
     if (posiciones.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:#8b949e;">Sin partidos amistosos en esta edición</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:#8b949e;">Sin partidos amistosos en esta edición</td></tr>';
         return;
     }
 
-    tbody.innerHTML = posiciones.map((s, i) => `
+    // Medallas de podio: se asignan en el mismo orden de la tabla (PTS > DIF > GF),
+    // salteando a quien todavía no llega al mínimo de partidos (MIN_PARTIDOS_PODIO).
+    const medallas = ['🥇', '🥈', '🥉'];
+    let siguienteMedalla = 0;
+    const filas = posiciones.map(s => {
+        let medalla = '';
+        if (s.calificaPodio && siguienteMedalla < medallas.length) {
+            medalla = medallas[siguienteMedalla];
+            siguienteMedalla++;
+        }
+        return { ...s, medalla };
+    });
+
+    tbody.innerHTML = filas.map((s, i) => `
         <tr>
-            <td>${i + 1}</td>
+            <td>${s.medalla || (i + 1)}</td>
             <td><strong>${s.nombre}</strong></td>
             <td>${s.pj}</td>
             <td>${s.g}</td>
@@ -114,6 +142,7 @@ function renderPosiciones(posiciones) {
             <td>${s.gf}</td>
             <td>${s.gc}</td>
             <td>${s.dif > 0 ? '+' : ''}${s.dif}</td>
+            <td>${s.pg.toFixed(2)}</td>
             <td><strong>${s.pts}</strong></td>
         </tr>
     `).join('');
