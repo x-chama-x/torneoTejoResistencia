@@ -5,15 +5,20 @@
 // enfrentamientos_directos.txt. Cada año calendario es una edición
 // distinta de la liga (se elige con el selector de año).
 //
-// Regla de puntos: igual que el resto del sitio (ver historial_torneos.js),
-// los "puntos" de la tabla son los goles anotados a favor (PTS = GF).
+// Regla de puntos: los "puntos" totales (PTS = GF) se muestran igual que en
+// el resto del sitio (ver historial_torneos.js), pero a diferencia del resto
+// de los torneos, ACÁ la tabla de posiciones no se ordena por PTS total, sino
+// por promedio de goles por partido (PG = GF / PJ). Es una decisión a
+// propósito: como los amistosos se juegan "cuando pinta" y no todos acumulan
+// la misma cantidad de partidos, ordenar por rendimiento en vez de por
+// volumen es más justo para esta liga en particular.
 //
-// Ajuste de justicia: como los amistosos se juegan "cuando pinta" y no todos
-// acumulan la misma cantidad de partidos, el podio (🥇🥈🥉) requiere un mínimo
-// de partidos jugados en la edición. El orden de la tabla no cambia (sigue
-// siendo PTS > DIF > GF, igual que el resto del sitio) pero además se suma
-// la columna PG (promedio de goles por partido) para ver de un vistazo quién
-// rinde mejor partido a partido, no solo quién acumuló más volumen.
+// Orden de la tabla: PG desc > DIF por partido desc > WR (% de victorias)
+// desc > PTS total desc (como último desempate).
+//
+// Ajuste de justicia adicional: el podio (🥇🥈🥉) requiere un mínimo de
+// partidos jugados en la edición, para que un solo partidazo con pocos
+// partidos jugados no lidere la tabla.
 // =====================================================
 
 const MIN_PARTIDOS_PODIO = 3; // partidos mínimos en la edición para optar al podio
@@ -103,11 +108,14 @@ function calcularPosiciones(partidos) {
         .map(s => ({
             ...s,
             dif: s.gf - s.gc,
-            pts: s.gf, // PTS = goles a favor
+            pts: s.gf, // PTS = goles a favor (se muestra, pero ya no ordena la tabla)
             pg: s.pj > 0 ? s.gf / s.pj : 0, // promedio de goles por partido
+            difPromedio: s.pj > 0 ? (s.gf - s.gc) / s.pj : 0, // diferencia de gol por partido
+            wr: s.pj > 0 ? s.g / s.pj : 0, // % de victorias
             calificaPodio: s.pj >= MIN_PARTIDOS_PODIO
         }))
-        .sort((a, b) => b.pts - a.pts || b.dif - a.dif || b.gf - a.gf);
+        // Ordena por rendimiento (promedio), no por volumen (total):
+        .sort((a, b) => b.pg - a.pg || b.difPromedio - a.difPromedio || b.wr - a.wr || b.pts - a.pts);
 }
 
 function renderPosiciones(posiciones) {
@@ -115,11 +123,11 @@ function renderPosiciones(posiciones) {
     if (!tbody) return;
 
     if (posiciones.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:#8b949e;">Sin partidos amistosos en esta edición</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:#8b949e;">Sin partidos amistosos en esta edición</td></tr>';
         return;
     }
 
-    // Medallas de podio: se asignan en el mismo orden de la tabla (PTS > DIF > GF),
+    // Medallas de podio: se asignan en el mismo orden de la tabla (PG > DIF/PJ > WR > PTS),
     // salteando a quien todavía no llega al mínimo de partidos (MIN_PARTIDOS_PODIO).
     const medallas = ['🥇', '🥈', '🥉'];
     let siguienteMedalla = 0;
@@ -142,8 +150,7 @@ function renderPosiciones(posiciones) {
             <td>${s.gf}</td>
             <td>${s.gc}</td>
             <td>${s.dif > 0 ? '+' : ''}${s.dif}</td>
-            <td>${s.pg.toFixed(2)}</td>
-            <td><strong>${s.pts}</strong></td>
+            <td><strong>${s.pg.toFixed(2)}</strong></td>
         </tr>
     `).join('');
 }
