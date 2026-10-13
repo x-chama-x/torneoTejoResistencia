@@ -78,13 +78,6 @@ La aplicacion utiliza un sistema de probabilidades basado en una **funcion sigmo
 - Visualizacion de cruces con probabilidades de cada partido
 - Calculo de probabilidades del campeon
 
-### Cargar Partido (`cargar.html`) - pagina privada, no listada en el menu
-- No tiene link en el menu de navegacion ni en el inicio a proposito: se accede escribiendo la URL directo (`.../cargar.html`), para que solo lo use el admin del grupo
-- Formulario pensado para cargar resultados desde el celular (amistosos o partidos de torneo), sin imprimir fixtures ni tocar el `.txt` a mano
-- Al enviar, hace commit directo a `enfrentamientos_directos.txt` en GitHub via `api/cargar-partido.js` (misma logica que el resto del sitio: el `.txt` sigue siendo la unica fuente de datos)
-- Soporta cargar partidos parciales (ej. jugar semifinales otro dia, como paso en el Torneo 3)
-- Panel de **Verificacion de Clasificacion**: indicando cuantos jugadores tiene una fase (Liga, Grupos, Repechaje, etc.) y cuantos clasifican, calcula la tabla de posiciones automaticamente apenas se completan todos los partidos de esa fase y muestra quienes pasan
-
 ---
 
 ## Formatos de Torneo Soportados
@@ -158,7 +151,6 @@ torneoTejoResistencia/
 ├── simulador.html                # Simulador de torneo individual
 ├── montecarlo.html               # Simulador Monte Carlo
 ├── partido.html                  # Simulador de partido 1vs1
-├── cargar.html                   # Cargar partido desde el celular + verificacion de clasificacion
 ├── playoffs.html                 # Configurador de playoffs
 ├── torneo1.html                  # Historial del primer torneo
 ├── torneo2.html                  # Historial del segundo torneo
@@ -166,9 +158,9 @@ torneoTejoResistencia/
 ├── formatos.md                   # Documentacion de formatos
 ├── README.md                     # Este archivo
 ├── api/
-│   └── cargar-partido.js         # API serverless: commit de partidos a GitHub
+│   └── poll.js                   # API serverless para encuestas (Redis)
 ├── css/
-│   ├── styles.css                # Estilos principales (incluye Cargar Partido)
+│   ├── styles.css                # Estilos principales
 │   ├── montecarlo.css            # Estilos Monte Carlo
 │   ├── partido.css               # Estilos Partido 1vs1
 │   ├── torneo.css                # Estilos Creador de Torneo
@@ -182,7 +174,6 @@ torneoTejoResistencia/
 │   ├── partido.js                # Logica de partido 1vs1
 │   ├── torneo.js                 # Logica del creador de torneo
 │   ├── playoffs.js               # Logica de playoffs
-│   ├── cargar.js                 # Logica de Cargar Partido y verificacion de clasificacion
 │   ├── rankingCalculator.js      # Calcula el ranking FIFA desde enfrentamientos_directos.txt
 │   └── historial_torneos.js      # Carga y renderiza torneos historicos
 └── img/
@@ -230,20 +221,8 @@ npx serve
 Luego abrir `http://localhost:8000` en el navegador.
 
 ### Para actualizar el ranking:
-1. Agregar el partido jugado como una nueva linea en `enfrentamientos_directos.txt` (a mano, o desde `cargar.html` en el celular)
+1. Agregar el partido jugado como una nueva linea en `enfrentamientos_directos.txt`
 2. Recargar la pagina: el ranking FIFA se recalcula automaticamente
-
-### api/cargar-partido.js (commit automatico desde el celular)
-Funcion serverless que recibe el partido cargado en `cargar.html` y lo commitea directo a `enfrentamientos_directos.txt` en GitHub, usando la API de Contents de GitHub. Necesita estas variables de entorno configuradas en Vercel (Project Settings -> Environment Variables):
-
-| Variable | Valor |
-|----------|-------|
-| `GITHUB_TOKEN` | Personal Access Token con permiso de escritura (**Contents: Read and write**) sobre el repo. Se genera en GitHub -> Settings -> Developer settings -> Fine-grained tokens, restringido solo al repo `torneoTejoResistencia`. |
-| `GITHUB_OWNER` | `x-chama-x` (default si no se configura) |
-| `GITHUB_REPO` | `torneoTejoResistencia` (default si no se configura) |
-| `GITHUB_BRANCH` | Rama sobre la que hace el commit (default `master` si no se configura) - usar la misma rama que Vercel tiene configurada como Production Branch |
-
-Despues de guardar las variables hay que hacer un redeploy en Vercel para que tomen efecto.
 
 ---
 
