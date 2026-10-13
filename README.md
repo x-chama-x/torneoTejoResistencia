@@ -158,7 +158,13 @@ torneoTejoResistencia/
 ├── formatos.md                   # Documentacion de formatos
 ├── README.md                     # Este archivo
 ├── api/
-│   └── poll.js                   # API serverless para encuestas (Redis)
+│   ├── poll.js                   # API serverless para encuestas (Redis)
+│   └── cargar-partido.js         # API serverless: agrega un partido al .txt (commit a GitHub)
+├── app/                          # App de carga (PWA, se instala en el celular)
+│   ├── index.html                # Interfaz de carga de amistosos
+│   ├── app.js                    # Logica de la app
+│   ├── manifest.json             # Manifest de la PWA
+│   └── sw.js                     # Service worker (cache del shell)
 ├── css/
 │   ├── styles.css                # Estilos principales
 │   ├── montecarlo.css            # Estilos Monte Carlo
@@ -190,6 +196,31 @@ Historial de partidos jugados. Es la unica fuente de datos: a partir de este arc
 jugador1,jugador2,resultado_j1,marcador,torneo,fecha,fase
 Chama,Rafa,G,7-2,Primer torneo de hockey de mesa,3/5/2025,Final
 ```
+
+---
+
+## App de Carga (`/app`)
+
+PWA personal para cargar partidos amistosos de la Tejo Nations League desde el celular, sin tocar una computadora. Esta aislada del sitio: no aparece en el menu y no comparte estilos ni scripts con las demas paginas.
+
+- **URL**: https://torneo-tejo-resistencia.vercel.app/app/
+- **Instalacion**: abrir esa URL en el celular y elegir "Agregar a pantalla de inicio". Queda con icono propio y se abre en pantalla completa.
+- **Como carga**: como en el tejo siempre se juega a 7, el ganador siempre hace 7 goles. Entonces alcanza con tocar ganador, perdedor y los goles del perdedor (0-6).
+- **Dos modos**: "uno por uno" (commitea al instante) y "tanda" (vas armando la lista de la jornada y despues se suben todos). La tanda queda guardada en el celular, asi que no se pierde si se cierra la app o se corta la señal.
+- **Que hace**: cada partido se agrega como una linea nueva en `enfrentamientos_directos.txt` mediante un commit directo a `master` via la API de GitHub (un commit por partido). Vercel redeploya solo y el sitio queda actualizado.
+
+### Variables de entorno (configurar en Vercel)
+
+| Variable | Requerida | Default | Descripcion |
+|---|---|---|---|
+| `GITHUB_TOKEN` | Si | - | Personal Access Token con permiso `contents: write` sobre el repo |
+| `GITHUB_OWNER` | No | `x-chama-x` | Dueño del repo |
+| `GITHUB_REPO` | No | `torneoTejoResistencia` | Nombre del repo |
+| `GITHUB_BRANCH` | No | `master` | Rama donde se commitea |
+
+Sin `GITHUB_TOKEN` configurado, la app responde error 500 al intentar cargar un partido.
+
+> **Nota**: el endpoint no tiene autenticacion, igual que el `cargar.html` viejo. Cualquiera que conozca la URL puede cargar partidos.
 
 ---
 
