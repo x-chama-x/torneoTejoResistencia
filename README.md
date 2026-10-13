@@ -159,7 +159,10 @@ torneoTejoResistencia/
 ├── README.md                     # Este archivo
 ├── api/
 │   ├── poll.js                   # API serverless para encuestas (Redis)
-│   └── cargar-partido.js         # API serverless: agrega un partido al .txt (commit a GitHub)
+│   ├── cargar-partido.js         # API serverless: agrega un partido al .txt (commit a GitHub)
+│   └── partidos.js               # API serverless: lista, edita y borra partidos
+├── lib/
+│   └── github.js                 # Helpers de GitHub y formato del .txt (compartidos por /api)
 ├── app/                          # App de carga (PWA, se instala en el celular)
 │   ├── index.html                # Interfaz de carga de amistosos
 │   ├── app.js                    # Logica de la app
@@ -206,8 +209,27 @@ PWA personal para cargar partidos amistosos de la Tejo Nations League desde el c
 - **URL**: https://torneo-tejo-resistencia.vercel.app/app/
 - **Instalacion**: abrir esa URL en el celular y elegir "Agregar a pantalla de inicio". Queda con icono propio y se abre en pantalla completa.
 - **Como carga**: como en el tejo siempre se juega a 7, el ganador siempre hace 7 goles. Entonces alcanza con tocar ganador, perdedor y los goles del perdedor (0-6).
-- **Dos modos**: "uno por uno" (commitea al instante) y "tanda" (vas armando la lista de la jornada y despues se suben todos). La tanda queda guardada en el celular, asi que no se pierde si se cierra la app o se corta la señal.
+- **Tres modos**: "uno por uno" (commitea al instante), "tanda" (vas armando la lista de la jornada y despues se suben todos) e "historial" (editar o borrar partidos ya cargados). La tanda queda guardada en el celular, asi que no se pierde si se cierra la app o se corta la señal.
 - **Que hace**: cada partido se agrega como una linea nueva en `enfrentamientos_directos.txt` mediante un commit directo a `master` via la API de GitHub (un commit por partido). Vercel redeploya solo y el sitio queda actualizado.
+
+### Editar y borrar
+
+Desde el modo "historial" se listan los ultimos partidos (por defecto solo amistosos, con un filtro para ver todos) y cada uno se puede editar o borrar.
+
+Para identificar que linea tocar, la app manda el **numero de linea** mas el **contenido esperado** de esa linea. El numero dice cual y el contenido confirma que el archivo no cambio en el medio: si no coinciden, el endpoint devuelve 409 y no modifica nada. Esto importa porque el archivo tiene lineas repetidas (partidos identicos jugados el mismo dia), asi que buscar solo por contenido seria ambiguo y podria borrar el partido equivocado.
+
+Al editar se conservan el `torneo` y la `fase` originales, asi tambien se pueden corregir partidos de torneos sin convertirlos sin querer en amistosos.
+
+### Endpoints
+
+| Metodo | Ruta | Que hace |
+|---|---|---|
+| `POST` | `/api/cargar-partido` | Agrega un partido al final del archivo |
+| `GET` | `/api/partidos?limit=25&torneo=Amistoso` | Lista los partidos mas recientes con su indice de linea |
+| `PUT` | `/api/partidos` | Reemplaza la linea indicada (`indice` + `lineaEsperada` + `partido`) |
+| `DELETE` | `/api/partidos` | Borra la linea indicada (`indice` + `lineaEsperada`) |
+
+La logica compartida de GitHub y del formato del archivo vive en `lib/github.js` (fuera de `/api`, porque cada archivo dentro de `/api` se vuelve una funcion serverless).
 
 ### Variables de entorno (configurar en Vercel)
 

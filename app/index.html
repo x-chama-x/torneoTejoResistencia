@@ -204,11 +204,12 @@
         }
         .btn-success { background: var(--green); color: #0d1117; }
         .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        #accion-edicion { margin-bottom: 18px; }
 
         /* --- Modo --- */
         .modo-switch {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 5px;
             background: var(--surface-2);
             border: 1px solid var(--border);
@@ -217,12 +218,12 @@
             margin-bottom: 16px;
         }
         .modo-btn {
-            padding: 11px 6px;
+            padding: 11px 4px;
             border-radius: 9px;
             border: none;
             background: transparent;
             color: var(--text-dim);
-            font-size: 0.86rem;
+            font-size: 0.8rem;
             font-weight: 700;
             cursor: pointer;
             font-family: inherit;
@@ -261,6 +262,90 @@
             color: var(--text-dim);
             font-size: 0.88rem;
             padding: 22px 10px;
+        }
+
+        /* --- Historial --- */
+        .hist-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 12px;
+            border-radius: 10px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            margin-bottom: 8px;
+        }
+        .hist-item.editando { border-color: var(--amber); }
+        .hist-texto { flex: 1; min-width: 0; font-size: 0.92rem; }
+        .hist-texto .mk { font-weight: 800; letter-spacing: 1px; }
+        .hist-meta {
+            display: block;
+            color: var(--text-dim);
+            font-size: 0.74rem;
+            margin-top: 3px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 5px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            background: var(--border);
+            color: var(--text-dim);
+            margin-left: 4px;
+        }
+        .badge.torneo { background: #3d2f12; color: var(--amber); }
+        .hist-acciones { display: flex; gap: 4px; flex-shrink: 0; }
+        .icon-btn {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            width: 36px;
+            height: 36px;
+            font-size: 1rem;
+            cursor: pointer;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon-btn:active { transform: scale(0.92); }
+        .icon-btn.borrar { border-color: #5c2220; }
+
+        .filtro-row {
+            display: flex;
+            gap: 7px;
+            margin-bottom: 12px;
+        }
+        .filtro-btn {
+            flex: 1;
+            padding: 9px;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            color: var(--text-dim);
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .filtro-btn.active { border-color: var(--accent); color: var(--accent); }
+
+        /* Banner de edición en curso */
+        .editando-banner {
+            background: #3d2f12;
+            border: 1px solid var(--amber);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 16px;
+            font-size: 0.88rem;
+        }
+        .editando-banner strong { color: var(--amber); }
+        .editando-banner .orig {
+            display: block;
+            color: var(--text-dim);
+            font-size: 0.78rem;
+            margin-top: 4px;
         }
 
         /* --- Toast --- */
@@ -308,43 +393,62 @@
     <div class="modo-switch">
         <button class="modo-btn active" id="modo-directo">⚡ Uno por uno</button>
         <button class="modo-btn" id="modo-tanda">📋 Tanda</button>
+        <button class="modo-btn" id="modo-historial">🕑 Historial</button>
     </div>
 
-    <!-- Jugadores -->
-    <div class="card">
-        <label>Jugadores</label>
-        <div class="chips" id="chips-jugadores"></div>
-        <p class="hint" id="hint-jugadores">Tocá el ganador y después el perdedor.</p>
+    <!-- Banner cuando estás editando un partido existente -->
+    <div class="editando-banner" id="editando-banner" style="display: none;">
+        <strong>✏️ Editando un partido cargado</strong>
+        <span class="orig" id="editando-original"></span>
     </div>
 
-    <!-- Marcador -->
-    <div class="card">
-        <label>Marcador</label>
-        <div class="vs-row">
-            <div class="vs-player p1 vacio" id="vs-p1">Ganador</div>
-            <div class="vs-sep">VS</div>
-            <div class="vs-player p2 vacio" id="vs-p2">Perdedor</div>
+    <!-- Formulario (carga y edición) -->
+    <div id="formulario">
+        <!-- Jugadores -->
+        <div class="card">
+            <label>Jugadores</label>
+            <div class="chips" id="chips-jugadores"></div>
+            <p class="hint" id="hint-jugadores">Tocá el ganador y después el perdedor.</p>
         </div>
 
-        <label style="margin-top: 4px;">Goles del perdedor</label>
-        <div class="goles-grid" id="goles-grid"></div>
+        <!-- Marcador -->
+        <div class="card">
+            <label>Marcador</label>
+            <div class="vs-row">
+                <div class="vs-player p1 vacio" id="vs-p1">Ganador</div>
+                <div class="vs-sep">VS</div>
+                <div class="vs-player p2 vacio" id="vs-p2">Perdedor</div>
+            </div>
 
-        <div class="marcador-preview" id="marcador-preview">
-            <span class="vacio">Elegí los jugadores y los goles</span>
+            <label style="margin-top: 4px;">Goles del perdedor</label>
+            <div class="goles-grid" id="goles-grid"></div>
+
+            <div class="marcador-preview" id="marcador-preview">
+                <span class="vacio">Elegí los jugadores y los goles</span>
+            </div>
+        </div>
+
+        <!-- Fecha -->
+        <div class="card">
+            <label>Fecha</label>
+            <input type="date" id="fecha">
         </div>
     </div>
 
-    <!-- Fecha -->
-    <div class="card">
-        <label>Fecha</label>
-        <input type="date" id="fecha">
+    <!-- Acción: edición -->
+    <div id="accion-edicion" style="display: none;">
+        <div class="btn-row">
+            <button class="btn btn-secondary" id="btn-cancelar-edicion">Cancelar</button>
+            <button class="btn btn-primary" id="btn-guardar-edicion" disabled>Guardar</button>
+        </div>
     </div>
 
-    <!-- Acción -->
+    <!-- Acción: uno por uno -->
     <div id="accion-directo">
         <button class="btn btn-primary" id="btn-cargar" disabled>Cargar partido</button>
     </div>
 
+    <!-- Acción: tanda -->
     <div id="accion-tanda" style="display: none;">
         <button class="btn btn-secondary" id="btn-agregar" disabled>+ Agregar a la tanda</button>
 
@@ -355,6 +459,23 @@
             </div>
             <button class="btn btn-success" id="btn-subir-tanda" style="margin-top: 10px;" disabled>
                 Subir tanda
+            </button>
+        </div>
+    </div>
+
+    <!-- Historial -->
+    <div id="seccion-historial" style="display: none;">
+        <div class="filtro-row">
+            <button class="filtro-btn active" id="filtro-amistosos">Solo amistosos</button>
+            <button class="filtro-btn" id="filtro-todos">Todos</button>
+        </div>
+        <div class="card">
+            <label>Últimos partidos cargados</label>
+            <div id="lista-historial">
+                <div class="vacio-msg">Cargando...</div>
+            </div>
+            <button class="btn btn-secondary" id="btn-refrescar" style="margin-top: 10px;">
+                ↻ Actualizar
             </button>
         </div>
     </div>
