@@ -10,7 +10,7 @@
 // reintentarlo cuando vuelva la señal.
 // =====================================================
 
-const CACHE = 'tejo-cargar-v1';
+const CACHE = 'tejo-cargar-v2';
 const SHELL = [
     './',
     './index.html',

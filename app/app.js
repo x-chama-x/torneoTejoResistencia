@@ -9,17 +9,25 @@
 // archivo). Por eso solo hay que elegir ganador, perdedor y los
 // goles del perdedor (0 a 6): 3 toques por partido.
 //
-// Dos modos:
+// Dos modos de carga:
 //   - Uno por uno: carga y commitea al toque.
 //   - Tanda: vas armando la lista de la jornada y después se suben
 //     todos, uno por uno (un commit por partido), de forma
 //     secuencial para no pisarse entre ellos.
+//
+// Y un tercer modo, Historial, para editar o borrar partidos ya
+// cargados. Cada partido se identifica por su número de línea en el
+// archivo más el contenido esperado de esa línea: el índice dice
+// cuál, y el contenido confirma que el archivo no cambió en el medio
+// (hay partidos repetidos, así que buscar por contenido solo sería
+// ambiguo).
 //
 // Los partidos se guardan en localStorage, así que si se cierra la
 // app (o se corta la señal) la tanda no se pierde.
 // =====================================================
 
 const API_URL = '/api/cargar-partido';
+const API_PARTIDOS = '/api/partidos';
 const TXT_URL = '/enfrentamientos_directos.txt';
 const STORAGE_TANDA = 'tejo-cargar-tanda';
 const STORAGE_JUGADORES = 'tejo-cargar-jugadores-extra';
@@ -29,13 +37,17 @@ const TORNEO = 'Amistoso';
 const FASE = 'Amistoso';
 
 const estado = {
-    modo: 'directo',        // 'directo' | 'tanda'
+    modo: 'directo',        // 'directo' | 'tanda' | 'historial'
     jugadores: [],          // lista completa de nombres disponibles
     ganador: null,
     perdedor: null,
     golesPerdedor: null,
     tanda: [],              // [{ id, ganador, perdedor, golesPerdedor, fecha, estado }]
-    subiendo: false
+    subiendo: false,
+    historial: [],          // partidos traídos del servidor
+    filtroHistorial: 'amistosos', // 'amistosos' | 'todos'
+    cargandoHistorial: false,
+    editando: null          // { indice, lineaEsperada, torneo, fase, resumen }
 };
 
 // =====================================================
@@ -223,6 +235,7 @@ function actualizarUI() {
     const listo = !!(ganador && perdedor && golesPerdedor !== null) && !estado.subiendo;
     document.getElementById('btn-cargar').disabled = !listo;
     document.getElementById('btn-agregar').disabled = !listo;
+    document.getElementById('btn-guardar-edicion').disabled = !listo;
 
     const pendientes = estado.tanda.filter(p => p.estado !== 'ok').length;
     document.getElementById('btn-subir-tanda').disabled = pendientes === 0 || estado.subiendo;
@@ -232,11 +245,22 @@ function actualizarUI() {
 }
 
 function cambiarModo(modo) {
+    // Cambiar de modo cancela una edición en curso, para no guardar sin querer
+    if (estado.editando && modo !== estado.modo) cancelarEdicion(true);
+
     estado.modo = modo;
     document.getElementById('modo-directo').classList.toggle('active', modo === 'directo');
     document.getElementById('modo-tanda').classList.toggle('active', modo === 'tanda');
+    document.getElementById('modo-historial').classList.toggle('active', modo === 'historial');
+
+    document.getElementById('formulario').style.display = modo === 'historial' ? 'none' : '';
     document.getElementById('accion-directo').style.display = modo === 'directo' ? '' : 'none';
     document.getElementById('accion-tanda').style.display = modo === 'tanda' ? '' : 'none';
+    document.getElementById('seccion-historial').style.display = modo === 'historial' ? '' : 'none';
+
+    if (modo === 'historial' && estado.historial.length === 0) {
+        cargarHistorial();
+    }
     actualizarUI();
 }
 
@@ -352,6 +376,217 @@ async function subirTanda() {
 }
 
 // =====================================================
+// Historial: listar, borrar y editar partidos ya cargados
+// =====================================================
+
+async function cargarHistorial() {
+    if (estado.cargandoHistorial) return;
+    estado.cargandoHistorial = true;
+
+    const cont = document.getElementById('lista-historial');
+    cont.innerHTML = '<div class="vacio-msg">Cargando...</div>';
+
+    const params = new URLSearchParams({ limit: '25' });
+    if (estado.filtroHistorial === 'amistosos') params.set('torneo', TORNEO);
+
+    try {
+        const res = await fetch(`${API_PARTIDOS}?${params}`, { cache: 'no-store' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+
+        estado.historial = data.partidos || [];
+        renderHistorial();
+    } catch (err) {
+        cont.innerHTML = `<div class="vacio-msg">No se pudo cargar: ${escaparHtml(err.message)}</div>`;
+    } finally {
+        estado.cargandoHistorial = false;
+    }
+}
+
+function renderHistorial() {
+    const cont = document.getElementById('lista-historial');
+
+    if (estado.historial.length === 0) {
+        cont.innerHTML = '<div class="vacio-msg">No hay partidos cargados</div>';
+        return;
+    }
+
+    cont.innerHTML = estado.historial.map(p => {
+        // En el archivo el ganador puede estar en cualquiera de las dos columnas
+        const [g1, g2] = p.marcador.split('-').map(Number);
+        const ganador = g1 > g2 ? p.jugador1 : p.jugador2;
+        const perdedor = g1 > g2 ? p.jugador2 : p.jugador1;
+        const golesPerdedor = Math.min(g1, g2);
+
+        const esAmistoso = p.torneo.toLowerCase() === 'amistoso';
+        const badge = esAmistoso
+            ? '<span class="badge">Amistoso</span>'
+            : `<span class="badge torneo">${escaparHtml(p.torneo)}</span>`;
+
+        const editandoEste = estado.editando && estado.editando.indice === p.indice;
+
+        return `
+            <div class="hist-item ${editandoEste ? 'editando' : ''}">
+                <span class="hist-texto">
+                    ${escaparHtml(ganador)} <span class="mk">7-${golesPerdedor}</span> ${escaparHtml(perdedor)}
+                    <span class="hist-meta">${escaparHtml(p.fecha)} ${badge}</span>
+                </span>
+                <span class="hist-acciones">
+                    <button class="icon-btn" data-editar="${p.indice}" title="Editar">✏️</button>
+                    <button class="icon-btn borrar" data-borrar-partido="${p.indice}" title="Borrar">🗑️</button>
+                </span>
+            </div>
+        `;
+    }).join('');
+
+    cont.querySelectorAll('[data-editar]').forEach(btn => {
+        btn.addEventListener('click', () => empezarEdicion(parseInt(btn.dataset.editar, 10)));
+    });
+    cont.querySelectorAll('[data-borrar-partido]').forEach(btn => {
+        btn.addEventListener('click', () => borrarPartido(parseInt(btn.dataset.borrarPartido, 10)));
+    });
+}
+
+async function borrarPartido(indice) {
+    const p = estado.historial.find(x => x.indice === indice);
+    if (!p) return;
+
+    const [g1, g2] = p.marcador.split('-').map(Number);
+    const ganador = g1 > g2 ? p.jugador1 : p.jugador2;
+    const perdedor = g1 > g2 ? p.jugador2 : p.jugador1;
+
+    const esAmistoso = p.torneo.toLowerCase() === 'amistoso';
+    const aviso = esAmistoso
+        ? ''
+        : `\n\n⚠️ OJO: este partido NO es un amistoso, es de "${p.torneo}".`;
+
+    if (!confirm(`¿Borrar este partido?\n\n${ganador} ${p.marcador.includes('-') ? `7-${Math.min(g1, g2)}` : p.marcador} ${perdedor}\n${p.fecha}${aviso}`)) {
+        return;
+    }
+
+    try {
+        const res = await fetch(API_PARTIDOS, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ indice: p.indice, lineaEsperada: p.linea })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+
+        mostrarToast('🗑️ Partido borrado', 'ok');
+        await cargarHistorial();
+    } catch (err) {
+        mostrarToast(`No se pudo borrar: ${err.message}`, 'error');
+    }
+}
+
+// Carga el partido en el formulario de arriba para modificarlo.
+// Mantiene el torneo y la fase originales: así se pueden corregir también
+// partidos de torneos sin convertirlos sin querer en amistosos.
+function empezarEdicion(indice) {
+    const p = estado.historial.find(x => x.indice === indice);
+    if (!p) return;
+
+    const [g1, g2] = p.marcador.split('-').map(Number);
+    const ganador = g1 > g2 ? p.jugador1 : p.jugador2;
+    const perdedor = g1 > g2 ? p.jugador2 : p.jugador1;
+
+    estado.editando = {
+        indice: p.indice,
+        lineaEsperada: p.linea,
+        torneo: p.torneo,
+        fase: p.fase,
+        resumen: `${ganador} 7-${Math.min(g1, g2)} ${perdedor} · ${p.fecha}`
+    };
+
+    estado.ganador = ganador;
+    estado.perdedor = perdedor;
+    estado.golesPerdedor = Math.min(g1, g2);
+    document.getElementById('fecha').value = fechaAISO(p.fecha);
+
+    // Muestra el formulario con los botones de edición
+    document.getElementById('formulario').style.display = '';
+    document.getElementById('accion-directo').style.display = 'none';
+    document.getElementById('accion-tanda').style.display = 'none';
+    document.getElementById('accion-edicion').style.display = '';
+    document.getElementById('editando-banner').style.display = '';
+    document.getElementById('editando-original').textContent = `Original: ${estado.editando.resumen}`;
+
+    renderChips();
+    renderHistorial();
+    actualizarUI();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function cancelarEdicion(silencioso = false) {
+    estado.editando = null;
+    document.getElementById('accion-edicion').style.display = 'none';
+    document.getElementById('editando-banner').style.display = 'none';
+    document.getElementById('fecha').value = hoyISO();
+    limpiarFormulario();
+
+    if (estado.modo === 'historial') {
+        document.getElementById('formulario').style.display = 'none';
+        renderHistorial();
+    } else {
+        cambiarModo(estado.modo);
+    }
+    if (!silencioso) mostrarToast('Edición cancelada');
+}
+
+async function guardarEdicion() {
+    if (!estado.editando || estado.subiendo) return;
+    estado.subiendo = true;
+    actualizarUI();
+
+    const { indice, lineaEsperada, torneo, fase } = estado.editando;
+
+    try {
+        const res = await fetch(API_PARTIDOS, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                indice,
+                lineaEsperada,
+                partido: {
+                    jugador1: estado.ganador,
+                    jugador2: estado.perdedor,
+                    resultado: 'G',
+                    marcador: `7-${estado.golesPerdedor}`,
+                    torneo,
+                    fase,
+                    fecha: fechaFormateada()
+                }
+            })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+
+        mostrarToast('✅ Partido actualizado', 'ok');
+        estado.subiendo = false;
+        estado.editando = null;
+        document.getElementById('accion-edicion').style.display = 'none';
+        document.getElementById('editando-banner').style.display = 'none';
+        document.getElementById('formulario').style.display = 'none';
+        document.getElementById('fecha').value = hoyISO();
+        limpiarFormulario();
+        await cargarHistorial();
+    } catch (err) {
+        mostrarToast(`No se pudo guardar: ${err.message}`, 'error');
+    } finally {
+        estado.subiendo = false;
+        actualizarUI();
+    }
+}
+
+function cambiarFiltroHistorial(filtro) {
+    estado.filtroHistorial = filtro;
+    document.getElementById('filtro-amistosos').classList.toggle('active', filtro === 'amistosos');
+    document.getElementById('filtro-todos').classList.toggle('active', filtro === 'todos');
+    cargarHistorial();
+}
+
+// =====================================================
 // Envío al backend
 // =====================================================
 
@@ -408,9 +643,15 @@ async function cargarDirecto() {
 function bindEventos() {
     document.getElementById('modo-directo').addEventListener('click', () => cambiarModo('directo'));
     document.getElementById('modo-tanda').addEventListener('click', () => cambiarModo('tanda'));
+    document.getElementById('modo-historial').addEventListener('click', () => cambiarModo('historial'));
     document.getElementById('btn-cargar').addEventListener('click', cargarDirecto);
     document.getElementById('btn-agregar').addEventListener('click', agregarATanda);
     document.getElementById('btn-subir-tanda').addEventListener('click', subirTanda);
+    document.getElementById('btn-refrescar').addEventListener('click', cargarHistorial);
+    document.getElementById('btn-guardar-edicion').addEventListener('click', guardarEdicion);
+    document.getElementById('btn-cancelar-edicion').addEventListener('click', () => cancelarEdicion());
+    document.getElementById('filtro-amistosos').addEventListener('click', () => cambiarFiltroHistorial('amistosos'));
+    document.getElementById('filtro-todos').addEventListener('click', () => cambiarFiltroHistorial('todos'));
 }
 
 // =====================================================
@@ -429,6 +670,16 @@ function fechaFormateada() {
     const valor = document.getElementById('fecha').value || hoyISO();
     const [anio, mes, dia] = valor.split('-').map(n => parseInt(n, 10));
     return `${dia}/${mes}/${anio}`;
+}
+
+// La inversa: D/M/AAAA -> AAAA-MM-DD, para cargar una fecha del archivo
+// dentro del input date al editar.
+function fechaAISO(fecha) {
+    const p = String(fecha).split('/');
+    if (p.length !== 3) return hoyISO();
+    const [dia, mes, anio] = p.map(n => parseInt(n, 10));
+    if ([dia, mes, anio].some(isNaN)) return hoyISO();
+    return `${anio}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
 }
 
 function escaparHtml(str) {
