@@ -10,11 +10,14 @@
 // reintentarlo cuando vuelva la señal.
 // =====================================================
 
-const CACHE = 'tejo-cargar-v2';
+const CACHE = 'tejo-cargar-v3';
 const SHELL = [
     './',
     './index.html',
     './app.js',
+    './torneo.js',
+    '../js/historial_torneos.js',
+    '../lib/torneo-formatos.js',
     './manifest.json',
     './icon-192.png',
     './icon-512.png'

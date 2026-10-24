@@ -160,12 +160,16 @@ torneoTejoResistencia/
 ├── api/
 │   ├── poll.js                   # API serverless para encuestas (Redis)
 │   ├── cargar-partido.js         # API serverless: agrega un partido al .txt (commit a GitHub)
-│   └── partidos.js               # API serverless: lista, edita y borra partidos
+│   ├── partidos.js               # API serverless: lista, edita y borra partidos
+│   └── torneo-estado.js          # API serverless: guarda y lee el sorteo de un torneo
 ├── lib/
-│   └── github.js                 # Helpers de GitHub y formato del .txt (compartidos por /api)
+│   ├── github.js                 # Helpers de GitHub y formato del .txt (compartidos por /api)
+│   └── torneo-formatos.js        # Formatos, fixture, repechajes y siembra de playoffs
+├── torneos/                      # Sorteos de torneos en curso (JSON, creados por la app)
 ├── app/                          # App de carga (PWA, se instala en el celular)
-│   ├── index.html                # Interfaz de carga de amistosos
+│   ├── index.html                # Interfaz de carga
 │   ├── app.js                    # Logica de la app
+│   ├── torneo.js                 # Modo Torneo (sorteo, fixture, tabla y playoffs)
 │   ├── manifest.json             # Manifest de la PWA
 │   └── sw.js                     # Service worker (cache del shell)
 ├── css/
@@ -209,7 +213,7 @@ PWA personal para cargar partidos amistosos de la Tejo Nations League desde el c
 - **URL**: https://torneo-tejo-resistencia.vercel.app/app/
 - **Instalacion**: abrir esa URL en el celular y elegir "Agregar a pantalla de inicio". Queda con icono propio y se abre en pantalla completa.
 - **Como carga**: como en el tejo siempre se juega a 7, el ganador siempre hace 7 goles. Entonces alcanza con tocar ganador, perdedor y los goles del perdedor (0-6).
-- **Tres modos**: "uno por uno" (commitea al instante), "tanda" (vas armando la lista de la jornada y despues se suben todos) e "historial" (editar o borrar partidos ya cargados). La tanda queda guardada en el celular, asi que no se pierde si se cierra la app o se corta la señal.
+- **Cuatro modos**: "uno" (commitea al instante), "tanda" (vas armando la lista de la jornada y despues se suben todos), "historial" (editar o borrar partidos ya cargados) y "torneo" (ver abajo). La tanda queda guardada en el celular, asi que no se pierde si se cierra la app o se corta la señal.
 - **Que hace**: cada partido se agrega como una linea nueva en `enfrentamientos_directos.txt` mediante un commit directo a `master` via la API de GitHub (un commit por partido). Vercel redeploya solo y el sitio queda actualizado.
 
 ### Editar y borrar
@@ -259,6 +263,50 @@ El formato tambien se deduce del archivo: si alguna fase dice `Fase de Liga` se 
 El orden es: puntos (goles a favor), diferencia de gol, goles a favor. Si dos jugadores quedan empatados en los tres, desempata el **enfrentamiento directo** entre ellos.
 
 Con tres o mas empatados no se aplica, porque el mano a mano puede ser circular (A le gana a B, B a C y C a A) y no existiria un orden valido. En ese caso la tabla muestra un aviso para definir ese tramo a mano.
+
+---
+
+## Modo Torneo (en la app)
+
+Permite llevar un torneo entero desde el celular: sorteo, fixture, carga de resultados, tabla en vivo y playoffs. Soporta los cinco formatos (6, 7, 8, 9 y 10 jugadores).
+
+### Como se guarda el estado
+
+El JSON en `torneos/<slug>.json` guarda **solo el sorteo**: nombre, formato, fecha y quien quedo en que grupo. Es lo unico que no se puede deducir de otro lado. Los resultados NO se guardan ahi: viven en `enfrentamientos_directos.txt`, que sigue siendo la unica fuente de verdad.
+
+Todo lo demas se deduce cruzando las dos cosas:
+
+| Dato | De donde sale |
+|---|---|
+| Fixture | sorteo + formato (`lib/torneo-formatos.js`) |
+| Partidos jugados | los que estan en el `.txt` con ese nombre de torneo |
+| Pendientes | fixture menos jugados |
+| Tabla | `processStandings` de `js/historial_torneos.js`, la misma funcion que usa el sitio |
+
+Gracias a eso no hay nada que sincronizar: si cambiaś de celular, la app baja el sorteo y el `.txt` y aparece exactamente donde estabas. Y la tabla de la app nunca puede diferir de la de la web, porque es literalmente el mismo codigo.
+
+### Flujo
+
+1. **Crear**: formato, jugadores y sorteo de grupos. Se commitea el JSON del sorteo.
+2. **Fase regular**: todos contra todos (por grupo si el formato los tiene). Cada resultado se commitea al `.txt` apenas se carga.
+3. **Repechajes** (solo formato de 9): cuando termina la fase de grupos, los tres segundos juegan una mini-liga y los tres terceros otra. Los ganadores definen el ultimo lugar de playoffs en el **Partido Eliminatorio**.
+4. **Semifinales**: se siembran solas desde la tabla. Liga: 1v4 y 2v3. Dos grupos: A1vB2 y B1vA2. Tres grupos: el mejor ganador de grupo contra el que entro por repechaje, y los otros dos entre si.
+5. **Final y tercer puesto**: salen de las dos semis. **El tercer puesto va siempre**, para que no vuelva a pasar lo del Tercer torneo, donde se lo saltearon por olvido.
+
+### Partidos pendientes de torneos viejos
+
+Si un torneo tiene dos semifinales y final pero no tiene `Tercer Puesto`, la app lo detecta y ofrece cargarlo: el cruce son los dos perdedores de semis. Es el caso del Tercer torneo (Chama vs Marco).
+
+### Fases que escribe
+
+Estas cadenas van tal cual al `.txt` y **no son cosmeticas**: `historial_torneos.js` detecta el formato preguntando si alguna fase es exactamente `Fase de Liga`, y `rankingCalculator.js` reparte los puntos base del Ranking FIFA segun la fase.
+
+| Fase | Puntos base |
+|---|---|
+| `Fase de Liga`, `Fase de Grupos (A/B/C)` | 20 |
+| `Repechaje 2° Puestos`, `Repechaje 3° Puestos` | 20 |
+| `Partido Eliminatorio` | 30 |
+| `Semifinal`, `Tercer Puesto`, `Final` | 30 |
 
 ---
 

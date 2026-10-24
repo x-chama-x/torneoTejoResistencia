@@ -209,7 +209,7 @@
         /* --- Modo --- */
         .modo-switch {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: repeat(4, 1fr);
             gap: 5px;
             background: var(--surface-2);
             border: 1px solid var(--border);
@@ -223,7 +223,7 @@
             border: none;
             background: transparent;
             color: var(--text-dim);
-            font-size: 0.8rem;
+            font-size: 0.72rem;
             font-weight: 700;
             cursor: pointer;
             font-family: inherit;
@@ -348,6 +348,27 @@
             margin-top: 4px;
         }
 
+        /* --- Tabla compacta del torneo --- */
+        .tabla-mini {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+        }
+        .tabla-mini th {
+            text-align: center;
+            padding: 6px 3px;
+            color: var(--text-dim);
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+        }
+        .tabla-mini td {
+            text-align: center;
+            padding: 7px 3px;
+            border-bottom: 1px solid rgba(48,54,61,0.5);
+        }
+        .tabla-mini td:nth-child(2) { text-align: left; }
+
         /* --- Toast --- */
         #toast {
             position: fixed;
@@ -391,15 +412,22 @@
     </header>
 
     <div class="modo-switch">
-        <button class="modo-btn active" id="modo-directo">⚡ Uno por uno</button>
+        <button class="modo-btn active" id="modo-directo">⚡ Uno</button>
         <button class="modo-btn" id="modo-tanda">📋 Tanda</button>
         <button class="modo-btn" id="modo-historial">🕑 Historial</button>
+        <button class="modo-btn" id="modo-torneo">🏆 Torneo</button>
     </div>
 
     <!-- Banner cuando estás editando un partido existente -->
     <div class="editando-banner" id="editando-banner" style="display: none;">
         <strong>✏️ Editando un partido cargado</strong>
         <span class="orig" id="editando-original"></span>
+    </div>
+
+    <!-- Banner cuando estás cargando un partido del fixture de un torneo -->
+    <div class="editando-banner" id="fixture-banner" style="display: none; background: #12291a; border-color: var(--green);">
+        <strong style="color: var(--green);">🏆 Partido del torneo</strong>
+        <span class="orig" id="fixture-info"></span>
     </div>
 
     <!-- Formulario (carga y edición) -->
@@ -443,6 +471,14 @@
         </div>
     </div>
 
+    <!-- Acción: partido del fixture de un torneo -->
+    <div id="accion-fixture" style="display: none;">
+        <div class="btn-row">
+            <button class="btn btn-secondary" id="btn-cancelar-fixture">Cancelar</button>
+            <button class="btn btn-success" id="btn-guardar-fixture" disabled>Cargar</button>
+        </div>
+    </div>
+
     <!-- Acción: uno por uno -->
     <div id="accion-directo">
         <button class="btn btn-primary" id="btn-cargar" disabled>Cargar partido</button>
@@ -480,6 +516,9 @@
         </div>
     </div>
 
+    <!-- Torneo -->
+    <div id="seccion-torneo" style="display: none;"></div>
+
     <p class="footer-nota">
         Cada partido se commitea directo a <strong>master</strong> en GitHub.<br>
         El sitio se actualiza solo cuando Vercel redeploya.
@@ -487,6 +526,11 @@
 
     <div id="toast"></div>
 
+    <!-- processStandings sale del mismo archivo que usa el sitio, para que la
+         tabla de la app y la de la web nunca den distinto -->
+    <script src="../js/historial_torneos.js"></script>
+    <script src="../lib/torneo-formatos.js"></script>
     <script src="app.js"></script>
+    <script src="torneo.js"></script>
 </body>
 </html>

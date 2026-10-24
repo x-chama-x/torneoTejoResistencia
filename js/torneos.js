@@ -104,7 +104,7 @@ function detectarEsLiga(texto, nombreTorneo) {
 // (por ejemplo, viniendo de un torneo de liga a uno de grupos) se quedarían
 // con la tabla vieja colgada.
 function limpiarRestos() {
-    ['resultados-fase', 'tabla-body', 'grupos-container', 'stats-container', 'playoff-bracket', 'tercer-puesto-container']
+    ['resultados-fase', 'tabla-body', 'grupos-container', 'stats-container', 'playoff-bracket', 'tercer-puesto-container', 'repechajes-container']
         .forEach(id => {
             const el = document.getElementById(id);
             if (el) el.innerHTML = '';

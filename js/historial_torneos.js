@@ -12,13 +12,115 @@ function cargarTorneo(nombreTorneo) {
                 .filter(m => m.torneo === nombreTorneo);
             // Separate matches
             const groupMatches = matches.filter(m => m.fase.includes("Fase"));
+            const repechajes = matches.filter(m => m.fase.includes("Repechaje"));
+            const eliminatorio = matches.filter(m => m.fase.includes("Eliminatorio"));
             const semis = matches.filter(m => m.fase.includes("Semifinal"));
             const final = matches.filter(m => m.fase.includes("Final"));
             const tercerPuesto = matches.filter(m => m.fase.includes("Tercer Puesto"));
             renderGroupMatchesAndStandings(groupMatches, nombreTorneo);
+            renderRepechajes(repechajes, eliminatorio);
             renderPlayoffs(semis, final, tercerPuesto);
             renderTournamentStats(matches, nombreTorneo);
         });
+}
+
+// Repechajes y partido eliminatorio: solo existen en el formato de 9 jugadores
+// (dos mini-ligas, de segundos y de terceros, y un partido entre sus ganadores
+// que define el cuarto lugar de playoffs). Si el torneo no los tiene, el
+// contenedor queda vacío y no se muestra nada.
+function renderRepechajes(repechajes, eliminatorio) {
+    const cont = document.getElementById("repechajes-container");
+    if (!cont) return;
+
+    cont.innerHTML = "";
+    if (repechajes.length === 0 && eliminatorio.length === 0) {
+        cont.style.display = "none";
+        return;
+    }
+    cont.style.display = "";
+
+    const fases = [...new Set(repechajes.map(m => m.fase))].sort();
+    fases.forEach(fase => {
+        const delFase = repechajes.filter(m => m.fase === fase);
+        const tabla = processStandings(delFase);
+
+        const div = document.createElement("div");
+        div.style.marginBottom = "2rem";
+        div.innerHTML = `
+            <h3 style="margin-bottom: 1rem; color: #58a6ff;">${fase}</h3>
+            <div class="home-container">
+                <div>
+                    <h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Posiciones</h4>
+                    <div class="table-responsive">
+                        <table class="ranking-table">
+                            <thead>
+                                <tr><th>#</th><th>Jugador</th><th>PJ</th><th>G</th><th>P</th><th>GF</th><th>GC</th><th>DIF</th><th>PTS(GF)</th></tr>
+                            </thead>
+                            <tbody>
+                                ${tabla.map((s, i) => `
+                                    <tr${i === 0 ? ' style="background: rgba(46, 160, 67, 0.15);"' : ''}>
+                                        <td>${i + 1}</td>
+                                        <td><strong>${s.nombre}</strong></td>
+                                        <td>${s.p}</td>
+                                        <td>${s.w}</td>
+                                        <td>${s.l}</td>
+                                        <td>${s.gf}</td>
+                                        <td>${s.gc}</td>
+                                        <td>${s.dif > 0 ? "+" + s.dif : s.dif}</td>
+                                        <td><strong>${s.pts}</strong></td>
+                                    </tr>`).join("")}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="leyenda-clasificacion" style="margin-top: 10px; font-size: 0.85rem; color: #8b949e;">
+                        <span style="display:inline-block; width:12px; height:12px; background: rgba(46, 160, 67, 0.5); border-radius: 2px; margin-right: 5px; vertical-align: middle;"></span>
+                        <span style="vertical-align: middle;">[1] Avanza al partido eliminatorio</span>
+                    </div>
+                </div>
+                <div>
+                    <h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Resultados</h4>
+                    <div class="table-responsive">
+                        <table class="ranking-table align-center large-table-font">
+                            <thead>
+                                <tr><th style="text-align:right;">Azul</th><th style="text-align:center;">Resultado</th><th style="text-align:left;">Rojo</th></tr>
+                            </thead>
+                            <tbody>
+                                ${delFase.map(m => {
+                                    const g = m.marcador.split("-").map(Number);
+                                    return `<tr>
+                                        <td style="text-align:right; ${g[0] > g[1] ? 'font-weight:bold; color:#58a6ff;' : ''}">${m.j1}</td>
+                                        <td style="text-align:center; font-weight:bold; letter-spacing:2px;">${m.marcador}</td>
+                                        <td style="text-align:left; ${g[1] > g[0] ? 'font-weight:bold; color:#f85149;' : ''}">${m.j2}</td>
+                                    </tr>`;
+                                }).join("")}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>`;
+        renderAvisoEmpates(div, tabla.empatesSinResolver);
+        cont.appendChild(div);
+    });
+
+    eliminatorio.forEach(m => {
+        const g = m.marcador.split("-").map(Number);
+        const ganador = g[0] > g[1] ? m.j1 : m.j2;
+        const div = document.createElement("div");
+        div.style = "text-align:center; margin-bottom: 1.5rem;";
+        div.innerHTML = `
+            <h3 style="margin-bottom: 1rem; color: #58a6ff;">${m.fase}</h3>
+            <div style="display:inline-block; background:#161b22; border:1px solid #30363d; border-radius:12px; padding:14px 22px;">
+                <div style="font-size:1.05rem; font-weight:700;">
+                    <span style="${g[0] > g[1] ? 'color:#58a6ff;' : ''}">${m.j1}</span>
+                    <span style="margin:0 10px; letter-spacing:2px;">${m.marcador}</span>
+                    <span style="${g[1] > g[0] ? 'color:#f85149;' : ''}">${m.j2}</span>
+                </div>
+                <div style="margin-top:8px; background:#d29922; color:#0d1117; border-radius:6px; padding:4px 10px; font-weight:700; font-size:0.85rem;">
+                    Clasifica: ${ganador}
+                </div>
+            </div>`;
+        cont.appendChild(div);
+    });
 }
 
 // Devuelve los torneos que existen en el archivo, en orden cronológico
