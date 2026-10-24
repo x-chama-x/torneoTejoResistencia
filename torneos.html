@@ -44,60 +44,36 @@
         .torneo-btn:hover { border-color: #58a6ff; color: #ffffff; }
         .torneo-btn.active { background: #58a6ff; border-color: #58a6ff; color: #0d1117; }
 
-        /* --- Partidos por jugar --- */
-        #pendientes-container { margin-bottom: 2rem; }
-        .pendiente-fila {
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 10px;
-            padding: 14px 16px;
-            margin-bottom: 10px;
-        }
-        .pendiente-cruce {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-            font-size: 1.02rem;
-        }
-        .pendiente-cruce .pj { font-weight: 700; }
-        .pendiente-cruce .pj1 { text-align: right; color: #58a6ff; }
-        .pendiente-cruce .pj2 { text-align: left; color: #f85149; }
-        .pendiente-cruce .pvs { color: #8b949e; font-size: 0.8rem; font-weight: 700; }
-
-        .pendiente-barra {
+        /* --- Partidos todavia no jugados --- */
+        /* La barra de probabilidad reusa las clases de css/playoffs.css
+           (.sf-split-bar, .split-segment, .sf-prob-badge, .sf-insight) */
+        .prob-bloque { margin: 10px 0 4px 0; }
+        .prob-badges {
             display: flex;
-            height: 24px;
-            border-radius: 6px;
-            overflow: hidden;
-            background: #21262d;
+            justify-content: space-between;
+            margin-top: 6px;
         }
-        .pendiente-barra .barra-1,
-        .pendiente-barra .barra-2 {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.78rem;
-            font-weight: 700;
-            color: #0d1117;
-            transition: width 0.3s ease;
-        }
-        .pendiente-barra .barra-1 { background: #58a6ff; }
-        .pendiente-barra .barra-2 { background: #f85149; }
+        .prob-bloque.compacta { margin: 0; min-width: 150px; }
+        .prob-bloque.compacta .sf-split-bar { height: 12px; }
+        .prob-bloque.compacta .prob-badges { margin-top: 4px; }
+        .prob-bloque.compacta .sf-prob-badge { font-size: 0.72rem; padding: 1px 6px; }
 
-        .pendiente-detalle {
-            margin-top: 8px;
+        .prob-sin-datos {
             font-size: 0.78rem;
-            color: #8b949e;
-            text-align: center;
-        }
-        .pendiente-sin-datos {
-            text-align: center;
-            font-size: 0.82rem;
             color: #8b949e;
             font-style: italic;
+            text-align: center;
+            padding: 6px 0;
         }
+
+        /* Las filas pendientes van mas apagadas que los resultados reales */
+        .fila-pendiente td { opacity: 0.92; }
+        .fila-pendiente td:first-child,
+        .fila-pendiente td:last-child { color: #8b949e; }
+
+        .match-card-pendiente { opacity: 0.95; }
+        .match-card-pendiente .player { color: #c9d1d9; }
+
     </style>
 </head>
 <body>
@@ -109,11 +85,6 @@
 
         <div class="torneo-selector" id="torneo-selector">
             <!-- Poblado por JS a partir de enfrentamientos_directos.txt -->
-        </div>
-
-        <!-- Partidos que faltan jugar, con probabilidades -->
-        <div id="pendientes-container" style="display: none;">
-            <!-- Poblado por JS -->
         </div>
 
         <div class="panel playoffs-section" style="margin-bottom: 2rem;">

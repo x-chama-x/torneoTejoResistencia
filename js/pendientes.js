@@ -1,21 +1,21 @@
 // =====================================================
-// PARTIDOS PENDIENTES CON PROBABILIDADES
+// PARTIDOS PENDIENTES, EN SU LUGAR
 // =====================================================
-// Muestra, dentro de la página de un torneo, los partidos que todavía no
-// se jugaron, con la probabilidad de victoria de cada uno (misma fórmula
-// que el Creador de Torneo, ver js/probabilidades.js).
+// Los partidos que todavía no se jugaron no van en una sección aparte:
+// se dibujan donde va a ir su resultado cuando se juegue.
 //
-// De dónde sale el fixture:
-//   - Si el torneo tiene su JSON de sorteo (torneos/<slug>.json), el
-//     fixture completo se arma con lib/torneo-formatos.js. Eso permite
-//     ver un torneo recién sorteado, antes de que se juegue nada.
-//   - Si no lo tiene (los torneos viejos, de antes de la app), igual se
-//     detecta el caso del partido por el tercer puesto que quedó sin
-//     jugar: si hay dos semis y final pero no Tercer Puesto, el cruce son
-//     los dos perdedores de las semis.
+//   - Fase de liga y de grupos -> una fila más en la tabla de Resultados,
+//     con la barra de probabilidad en la columna del marcador.
+//   - Semifinales, final y tercer puesto -> la tarjeta del bracket, con
+//     la barra en lugar del resultado (mismo estilo que la página de
+//     Playoffs).
+//   - Repechajes y eliminatorio (formato de 9) -> igual que la liga.
 //
-// A medida que se cargan resultados, cada pendiente desaparece de acá y
-// pasa a verse como resultado real en la tabla y el bracket de siempre.
+// Cuando el partido se juega, la fila o la tarjeta pasan a mostrar el
+// resultado real y el pendiente desaparece solo, porque todo se vuelve a
+// calcular contra enfrentamientos_directos.txt.
+//
+// La probabilidad sale de js/probabilidades.js.
 // =====================================================
 
 const RUTA_INDICE_TORNEOS = 'torneos/index.json';
@@ -43,14 +43,17 @@ async function cargarSorteo(ruta) {
     }
 }
 
-// Arma la lista de partidos que faltan jugar en un torneo.
+// =====================================================
+// Qué falta jugar
+// =====================================================
+
 function calcularPendientes(sorteo, partidosDelTorneo) {
     const jugado = (cruce) => partidosDelTorneo.find(m =>
         m.fase === cruce.fase &&
         ((m.j1 === cruce.j1 && m.j2 === cruce.j2) || (m.j1 === cruce.j2 && m.j2 === cruce.j1))
     );
 
-    // Sin sorteo guardado solo podemos deducir el tercer puesto faltante
+    // Sin sorteo guardado (torneos viejos) solo se puede deducir el tercer puesto
     if (!sorteo || !sorteo.grupos) {
         return pendientesTercerPuesto(partidosDelTorneo);
     }
@@ -61,9 +64,9 @@ function calcularPendientes(sorteo, partidosDelTorneo) {
     const tablas = {};
     Object.keys(grupos).forEach(l => { tablas[l] = tablaDe(faseDelGrupo(l)); });
 
-    const etapas = [];
+    const cruces = [];
     const regular = generarFixtureRegular(grupos);
-    etapas.push({ titulo: 'Fase regular', partidos: regular });
+    cruces.push(...regular);
 
     const faltaRegular = regular.some(p => !jugado(p));
     let ganadorEliminatorio = null;
@@ -71,17 +74,16 @@ function calcularPendientes(sorteo, partidosDelTorneo) {
 
     if (usaRepechajes && !faltaRegular) {
         const repechajes = calcularRepechajes(grupos, tablas);
-        if (repechajes.length) {
-            etapas.push({ titulo: 'Repechajes', partidos: repechajes });
-            if (repechajes.every(jugado)) {
-                const elim = calcularEliminatorio(tablaDe(FASE_REPECHAJE_2), tablaDe(FASE_REPECHAJE_3));
-                if (elim) {
-                    etapas.push({ titulo: 'Partido Eliminatorio', partidos: [elim] });
-                    const e = jugado(elim);
-                    if (e) {
-                        const [g1, g2] = e.marcador.split('-').map(Number);
-                        ganadorEliminatorio = g1 > g2 ? e.j1 : e.j2;
-                    }
+        cruces.push(...repechajes);
+
+        if (repechajes.length && repechajes.every(jugado)) {
+            const elim = calcularEliminatorio(tablaDe(FASE_REPECHAJE_2), tablaDe(FASE_REPECHAJE_3));
+            if (elim) {
+                cruces.push(elim);
+                const e = jugado(elim);
+                if (e) {
+                    const [g1, g2] = e.marcador.split('-').map(Number);
+                    ganadorEliminatorio = g1 > g2 ? e.j1 : e.j2;
                 }
             }
         }
@@ -91,21 +93,18 @@ function calcularPendientes(sorteo, partidosDelTorneo) {
     let semis = [];
     if (listoParaSemis) {
         semis = calcularSemifinales(grupos, tablas, ganadorEliminatorio) || [];
-        if (semis.length) etapas.push({ titulo: 'Semifinales', partidos: semis });
+        cruces.push(...semis);
     }
 
     const semisJugadas = semis.map(jugado).filter(Boolean);
     if (semis.length === 2 && semisJugadas.length === 2) {
-        const defs = calcularDefiniciones(semisJugadas);
-        if (defs.length) etapas.push({ titulo: 'Definiciones', partidos: defs });
+        cruces.push(...calcularDefiniciones(semisJugadas));
     }
 
-    return etapas
-        .map(e => ({ titulo: e.titulo, partidos: e.partidos.filter(p => !jugado(p)) }))
-        .filter(e => e.partidos.length > 0);
+    return cruces.filter(c => !jugado(c));
 }
 
-// Caso de los torneos viejos: les falta el partido por el tercer puesto.
+// Torneos viejos a los que les quedó pendiente el partido por el tercer puesto.
 function pendientesTercerPuesto(partidosDelTorneo) {
     const semis = partidosDelTorneo.filter(m => m.fase === 'Semifinal');
     const tieneTercero = partidosDelTorneo.some(m => m.fase === 'Tercer Puesto');
@@ -116,80 +115,161 @@ function pendientesTercerPuesto(partidosDelTorneo) {
         return g1 > g2 ? s.j2 : s.j1;
     });
 
-    return [{
-        titulo: 'Definiciones',
-        partidos: [{ j1: perdedores[0], j2: perdedores[1], fase: 'Tercer Puesto' }]
-    }];
+    return [{ j1: perdedores[0], j2: perdedores[1], fase: 'Tercer Puesto' }];
 }
 
-function renderPendientes(etapas) {
-    const cont = document.getElementById('pendientes-container');
-    if (!cont) return;
+// =====================================================
+// Dibujo
+// =====================================================
 
-    if (!etapas || etapas.length === 0) {
-        cont.innerHTML = '';
-        cont.style.display = 'none';
-        return;
-    }
-    cont.style.display = '';
-
-    const total = etapas.reduce((n, e) => n + e.partidos.length, 0);
-
-    cont.innerHTML = `
-        <h2>📅 Partidos por jugar <span style="color:#8b949e; font-weight:400; font-size:0.7em;">(${total})</span></h2>
-        <p style="color:#8b949e; font-size:0.88rem; margin: 0 0 1.2rem 0;">
-            La probabilidad sale del Ranking FIFA, el winrate de cada uno y el historial
-            entre ellos. A medida que se juegan, cada partido pasa a la tabla con su resultado real.
-        </p>
-        ${etapas.map(etapa => `
-            <div style="margin-bottom: 1.8rem;">
-                <h3 style="margin-bottom: 0.9rem; color: #58a6ff;">${escaparTexto(etapa.titulo)}</h3>
-                ${etapa.partidos.map(renderFilaPendiente).join('')}
-            </div>
-        `).join('')}
-    `;
+// Clase de color según la probabilidad, igual que en la página de Playoffs.
+function claseProb(p) {
+    if (p >= 0.65) return 'alta';
+    if (p >= 0.45) return 'media-alta';
+    if (p >= 0.25) return 'media';
+    return 'baja';
 }
 
-function renderFilaPendiente(p) {
-    const prob = probabilidadGana1(p.j1, p.j2);
-    const hist = historialEntre(p.j1, p.j2);
+function porcentaje(p) {
+    return (p * 100).toFixed(1) + '%';
+}
 
-    // Sin datos de alguno de los dos (jugador nuevo que nunca jugó)
+// La barra partida con los dos porcentajes, que es el bloque que se reusa
+// tanto en las tarjetas del bracket como en las filas de la tabla.
+function barraProbabilidad(j1, j2, compacta = false) {
+    const prob = probabilidadGana1(j1, j2);
     if (prob === null) {
-        return `
-            <div class="pendiente-fila">
-                <div class="pendiente-cruce">
-                    <span class="pj pj1">${escaparTexto(p.j1)}</span>
-                    <span class="pvs">vs</span>
-                    <span class="pj pj2">${escaparTexto(p.j2)}</span>
-                </div>
-                <div class="pendiente-sin-datos">Sin datos suficientes para estimar</div>
+        return `<div class="prob-sin-datos">Sin datos para estimar</div>`;
+    }
+
+    const c1 = claseProb(prob);
+    const c2 = claseProb(1 - prob);
+
+    return `
+        <div class="prob-bloque${compacta ? ' compacta' : ''}">
+            <div class="sf-split-bar">
+                <div class="split-segment ${c1}" style="width:${prob * 100}%"></div>
+                <div class="split-segment ${c2}" style="width:${(1 - prob) * 100}%"></div>
+            </div>
+            <div class="prob-badges">
+                <span class="sf-prob-badge ${c1}">${porcentaje(prob)}</span>
+                <span class="sf-prob-badge ${c2}">${porcentaje(1 - prob)}</span>
+            </div>
+        </div>`;
+}
+
+// Tarjeta del bracket para un cruce que todavía no se jugó.
+// Mantiene la clase match-card para que las líneas del bracket (que miden
+// esas tarjetas) sigan dibujándose bien.
+function tarjetaProbabilidad(cruce, titulo) {
+    return `
+        <div class="match-card match-card-pendiente">
+            <div class="match-number">${escaparTexto(titulo)}</div>
+            <div class="match-players">
+                <div class="player blue">${escaparTexto(cruce.j1)}</div>
+                <div class="vs">VS</div>
+                <div class="player red">${escaparTexto(cruce.j2)}</div>
+            </div>
+            ${barraProbabilidad(cruce.j1, cruce.j2)}
+            <div class="sf-insight">Probabilidad de ganar</div>
+        </div>`;
+}
+
+// Fila de tabla de Resultados para un cruce pendiente.
+function filaProbabilidad(cruce) {
+    return `
+        <tr class="fila-pendiente">
+            <td style="text-align: right;">${escaparTexto(cruce.j1)}</td>
+            <td style="text-align: center; padding: 8px 10px;">${barraProbabilidad(cruce.j1, cruce.j2, true)}</td>
+            <td style="text-align: left;">${escaparTexto(cruce.j2)}</td>
+        </tr>`;
+}
+
+// Mete cada pendiente donde corresponde. Se llama después de que
+// cargarTorneo() terminó de dibujar el torneo.
+function inyectarPendientes(pendientes) {
+    if (!pendientes || pendientes.length === 0) return;
+
+    const porFase = {};
+    pendientes.forEach(p => {
+        if (!porFase[p.fase]) porFase[p.fase] = [];
+        porFase[p.fase].push(p);
+    });
+
+    // --- Bracket: semis, final y tercer puesto ---
+    const semis = porFase['Semifinal'] || [];
+    if (semis.length) {
+        // Se llenan los huecos que dejó el bracket, en orden
+        ['sf1-wrap', 'sf2-wrap'].forEach(id => {
+            const wrap = document.getElementById(id);
+            if (wrap && !wrap.querySelector('.match-card') && semis.length) {
+                const cruce = semis.shift();
+                const titulo = id === 'sf1-wrap' ? 'Semifinal 1' : 'Semifinal 2';
+                wrap.innerHTML = tarjetaProbabilidad(cruce, titulo);
+            }
+        });
+    }
+
+    const final = (porFase['Final'] || [])[0];
+    const finalWrap = document.getElementById('final-wrap');
+    if (final && finalWrap && !finalWrap.querySelector('.match-card')) {
+        finalWrap.innerHTML = tarjetaProbabilidad(final, 'Gran Final');
+    }
+
+    const tercero = (porFase['Tercer Puesto'] || [])[0];
+    const tpc = document.getElementById('tercer-puesto-container');
+    if (tercero && tpc && !tpc.querySelector('.match-card')) {
+        tpc.innerHTML = `
+            <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">🥉 Tercer Puesto</h3>
+            <div style="display: flex; justify-content: center;">
+                ${tarjetaProbabilidad(tercero, 'Tercer y Cuarto Puesto')}
             </div>`;
     }
 
-    const p1 = Math.round(prob * 100);
-    const p2 = 100 - p1;
-    const favorito = p1 >= p2 ? p.j1 : p.j2;
+    // Las líneas del bracket se miden sobre las tarjetas: hay que redibujarlas
+    if (typeof drawBracketLines === 'function') {
+        requestAnimationFrame(() => drawBracketLines());
+    }
 
-    const detalleHist = hist
-        ? `${hist.victorias1}-${hist.victorias2} en ${hist.total} partido${hist.total === 1 ? '' : 's'} entre ellos`
-        : 'nunca se enfrentaron';
+    // --- Tablas de resultados: liga, grupos y repechajes ---
+    Object.keys(porFase).forEach(fase => {
+        if (['Semifinal', 'Final', 'Tercer Puesto'].includes(fase)) return;
+        agregarFilasPendientes(fase, porFase[fase]);
+    });
+}
 
-    return `
-        <div class="pendiente-fila">
-            <div class="pendiente-cruce">
-                <span class="pj pj1">${escaparTexto(p.j1)}</span>
-                <span class="pvs">vs</span>
-                <span class="pj pj2">${escaparTexto(p.j2)}</span>
-            </div>
-            <div class="pendiente-barra">
-                <div class="barra-1" style="width:${p1}%;">${p1 >= 18 ? p1 + '%' : ''}</div>
-                <div class="barra-2" style="width:${p2}%;">${p2 >= 18 ? p2 + '%' : ''}</div>
-            </div>
-            <div class="pendiente-detalle">
-                Favorito: <strong>${escaparTexto(favorito)}</strong> · ${detalleHist}
-            </div>
-        </div>`;
+// Busca la tabla de Resultados de esa fase y le agrega las filas pendientes.
+function agregarFilasPendientes(fase, cruces) {
+    const tabla = buscarTablaDeResultados(fase);
+    if (!tabla) return;
+
+    const tbody = tabla.querySelector('tbody');
+    if (!tbody) return;
+    tbody.insertAdjacentHTML('beforeend', cruces.map(filaProbabilidad).join(''));
+}
+
+// La tabla de la fase de liga vive en #resultados-fase. Las de grupos y
+// repechajes están dentro del bloque que arranca con el título de esa fase.
+function buscarTablaDeResultados(fase) {
+    if (fase === 'Fase de Liga') {
+        return document.querySelector('#resultados-fase table');
+    }
+
+    const contenedores = ['grupos-container', 'repechajes-container'];
+    for (const id of contenedores) {
+        const cont = document.getElementById(id);
+        if (!cont) continue;
+
+        for (const bloque of cont.children) {
+            const titulo = bloque.querySelector('h3');
+            if (titulo && titulo.textContent.trim() === fase) {
+                // En esos bloques hay dos tablas: posiciones y resultados
+                const tablas = bloque.querySelectorAll('table');
+                if (tablas.length >= 2) return tablas[1];
+            }
+        }
+    }
+    return null;
 }
 
 function escaparTexto(str) {

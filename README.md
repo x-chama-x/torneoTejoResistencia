@@ -261,7 +261,17 @@ El formato tambien se deduce del archivo: si alguna fase dice `Fase de Liga` se 
 
 ### Partidos por jugar
 
-La pagina muestra arriba los partidos que **todavia no se jugaron**, con la probabilidad de victoria de cada uno (misma formula que el Creador de Torneo: Ranking FIFA 40% + winrate 60%, ajustado por el historial entre esos dos y pasado por una sigmoide). A medida que se cargan resultados, cada partido desaparece de ahi y pasa a verse con su resultado real en la tabla y el bracket.
+Los partidos que **todavia no se jugaron** no van en una seccion aparte: se dibujan en el mismo lugar donde va a ir su resultado cuando se jueguen, con una barra de probabilidad en vez del marcador.
+
+| Instancia | Donde aparece |
+|---|---|
+| Fase de liga y de grupos | Una fila mas en la tabla de Resultados |
+| Semifinales, final y tercer puesto | La tarjeta del bracket, igual que en la pagina de Playoffs |
+| Repechajes y eliminatorio | Como la liga, en su tabla de Resultados |
+
+Las tablas de posiciones se dibujan con **todos los jugadores del sorteo en cero**, asi el torneo se ve completo desde el minuto uno y se va llenando solo. El aviso de empate multiple no aparece mientras nadie haya jugado (si no, al arranque saltaria siempre, con todos en cero).
+
+La probabilidad usa la misma formula que el Creador de Torneo: Ranking FIFA 40% + winrate 60%, ajustado por el historial entre esos dos y pasado por una sigmoide.
 
 El fixture sale del sorteo guardado en `torneos/<slug>.json`, asi que un torneo **recien sorteado ya se ve completo** aunque no tenga ni un partido jugado. Como el sitio es estatico y no puede listar esa carpeta, `api/torneo-estado.js` mantiene `torneos/index.json` al crear y borrar torneos.
 
