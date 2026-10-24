@@ -88,10 +88,14 @@ function calcularRankingDesdeTexto(texto) {
         let basePts;
         if (faseLower.includes('amistoso') || torneoLower.includes('amistoso')) {
             basePts = 2.0;
-        } else if (['semifinal', 'tercer puesto', 'final'].some(f => faseLower.includes(f))) {
+        } else if (['semifinal', 'tercer puesto', 'final', 'eliminatorio'].some(f => faseLower.includes(f))) {
+            // El Partido Eliminatorio del formato de 9 jugadores define un lugar
+            // en playoffs a un solo partido, así que vale como partido decisivo.
             basePts = 30.0;
         } else {
-            basePts = 20.0; // Fase de Liga / Fase de Grupos oficial
+            // Fase de Liga, Fase de Grupos y los Repechajes (mini-ligas del
+            // formato de 9 jugadores), que son partidos de fase regular.
+            basePts = 20.0;
         }
 
         const ptsGanador = ranking[ganador];

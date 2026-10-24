@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torneos - Air Hockey</title>
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/torneo.css">
+    <link rel="stylesheet" href="css/playoffs.css">
+    <style>
+        /* Layout de la fase de liga: Estadísticas queda bajo Posiciones en PC
+           y bajo Resultados en móvil (igual que en las páginas viejas) */
+        @media (min-width: 901px) {
+            #col-posiciones { grid-column: 1; grid-row: 1; }
+            #col-resultados { grid-column: 2; grid-row: 1 / span 2; }
+            #col-stats { grid-column: 1; grid-row: 2; }
+        }
+        @media (max-width: 900px) {
+            .home-container { display: flex; flex-direction: column; }
+            #col-posiciones { order: 1; }
+            #col-resultados { order: 2; }
+            #col-stats { order: 3; }
+        }
+
+        .torneo-selector {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        .torneo-btn {
+            padding: 8px 22px;
+            border-radius: 20px;
+            border: 1px solid #30363d;
+            background: #21262d;
+            color: #c9d1d9;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s, color 0.2s;
+        }
+        .torneo-btn:hover { border-color: #58a6ff; color: #ffffff; }
+        .torneo-btn.active { background: #58a6ff; border-color: #58a6ff; color: #0d1117; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <img src="img/favicon.png" alt="logo" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 5px;">
+            <span id="titulo-torneo">Torneos</span>
+        </h1>
+
+        <div class="torneo-selector" id="torneo-selector">
+            <!-- Poblado por JS a partir de enfrentamientos_directos.txt -->
+        </div>
+
+        <div class="panel playoffs-section" style="margin-bottom: 2rem;">
+            <h2>👑 Playoffs</h2>
+            <div class="playoff-bracket" id="playoff-bracket">
+                <!-- Poblado por JS -->
+            </div>
+            <div id="tercer-puesto-container" style="margin-top: 1rem; text-align: center;">
+                <!-- Poblado por JS -->
+            </div>
+        </div>
+
+        <!-- Fase de grupos (solo para torneos de formato grupos) -->
+        <div id="bloque-grupos" style="display: none;">
+            <h2>🏆 Fase de Grupos</h2>
+            <br>
+            <div id="grupos-container">
+                <!-- Poblado por JS -->
+            </div>
+        </div>
+
+        <!-- Fase de liga (solo para torneos de formato liga) -->
+        <div id="bloque-liga" style="display: none;">
+            <h2>🏆 Fase de Liga</h2>
+            <br>
+            <div class="home-container">
+                <div id="col-posiciones">
+                    <h3 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Posiciones</h3>
+                    <div class="table-responsive">
+                        <table class="ranking-table" id="tabla-posiciones">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Jugador</th>
+                                    <th>PJ</th>
+                                    <th>G</th>
+                                    <th>P</th>
+                                    <th>GF</th>
+                                    <th>GC</th>
+                                    <th>DIF</th>
+                                    <th>PTS(GF)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-body">
+                                <!-- Poblado por JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="col-resultados">
+                    <h3 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Resultados</h3>
+                    <div id="resultados-fase">
+                        <!-- Poblado por JS -->
+                    </div>
+                </div>
+
+                <div id="col-stats">
+                    <!-- El contenedor de stats se mueve acá o al bloque de grupos,
+                         según el formato del torneo elegido (ver torneos.js) -->
+                    <div id="stats-container" style="margin-top: 2rem;">
+                        <!-- Poblado por JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/menu.js"></script>
+    <script src="js/historial_torneos.js"></script>
+    <script src="js/torneos.js"></script>
+</body>
+</html>
