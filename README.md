@@ -166,6 +166,7 @@ torneoTejoResistencia/
 │   ├── github.js                 # Helpers de GitHub y formato del .txt (compartidos por /api)
 │   └── torneo-formatos.js        # Formatos, fixture, repechajes y siembra de playoffs
 ├── torneos/                      # Sorteos de torneos en curso (JSON, creados por la app)
+│   └── index.json                # Indice de torneos sorteados, para que el sitio los vea
 ├── app/                          # App de carga (PWA, se instala en el celular)
 │   ├── index.html                # Interfaz de carga
 │   ├── app.js                    # Logica de la app
@@ -257,6 +258,16 @@ Una sola pagina muestra el historial de **cualquier** torneo. La lista sale de `
 Esto quiere decir que **un torneo nuevo aparece solo**, apenas se carga su primer partido. No hay que crear una pagina ni agregar nada al menu, como pasaba antes con `torneo1/2/3.html`.
 
 El formato tambien se deduce del archivo: si alguna fase dice `Fase de Liga` se dibuja la tabla de liga, y si dicen `Fase de Grupos (X)` se dibujan las tablas por grupo. Los archivos `torneo1.html`, `torneo2.html` y `torneo3.html` quedaron como redirecciones para no romper links viejos.
+
+### Partidos por jugar
+
+La pagina muestra arriba los partidos que **todavia no se jugaron**, con la probabilidad de victoria de cada uno (misma formula que el Creador de Torneo: Ranking FIFA 40% + winrate 60%, ajustado por el historial entre esos dos y pasado por una sigmoide). A medida que se cargan resultados, cada partido desaparece de ahi y pasa a verse con su resultado real en la tabla y el bracket.
+
+El fixture sale del sorteo guardado en `torneos/<slug>.json`, asi que un torneo **recien sorteado ya se ve completo** aunque no tenga ni un partido jugado. Como el sitio es estatico y no puede listar esa carpeta, `api/torneo-estado.js` mantiene `torneos/index.json` al crear y borrar torneos.
+
+Para los torneos viejos, que no tienen JSON de sorteo, igual se detecta el partido por el **tercer puesto** que haya quedado sin jugar: si hay dos semis y final pero no Tercer Puesto, el cruce son los dos perdedores de semis.
+
+La formula no incluye el ajuste por bicampeonato de `js/campeon.js`, que el Creador aplica despues de calibrarlo; por eso puede haber diferencias chicas cuando juega el campeon defensor.
 
 ### Desempate en la tabla
 

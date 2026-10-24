@@ -29,7 +29,50 @@ import {
 } from '../lib/github.js';
 
 const CARPETA = 'torneos';
+const INDICE = 'torneos/index.json';
 const GITHUB_API = 'https://api.github.com';
+
+// El sitio es estático: desde el navegador no se puede listar la carpeta
+// torneos/, así que se mantiene un índice en torneos/index.json con los
+// torneos sorteados. Eso es lo que le permite a torneos.html mostrar un
+// torneo recién sorteado, cuando todavía no tiene ni un partido jugado
+// (y por lo tanto no aparece en enfrentamientos_directos.txt).
+//
+// Se actualiza acá, del lado del servidor, para que la app no tenga que
+// saber que existe. Si la escritura del índice falla, el torneo igual
+// queda creado: el índice es una comodidad para el sitio, no la verdad.
+async function actualizarIndice(config, cambio) {
+    try {
+        const { contenido, sha } = await obtenerArchivoActual(config, INDICE);
+
+        let lista = [];
+        if (contenido) {
+            try {
+                const parsed = JSON.parse(contenido);
+                if (Array.isArray(parsed)) lista = parsed;
+            } catch {
+                lista = []; // índice corrupto: se rehace
+            }
+        }
+
+        lista = lista.filter(t => t && t.ruta !== cambio.ruta);
+        if (cambio.accion === 'agregar') {
+            lista.push({ nombre: cambio.nombre, ruta: cambio.ruta, formato: cambio.formato });
+        }
+
+        await commitearArchivo(
+            config,
+            JSON.stringify(lista, null, 2) + '\n',
+            sha,
+            cambio.accion === 'agregar'
+                ? `Indexar torneo: ${cambio.nombre}`
+                : `Sacar del índice: ${cambio.ruta}`,
+            INDICE
+        );
+    } catch (err) {
+        console.error('No se pudo actualizar el índice de torneos:', err);
+    }
+}
 
 // Solo dejamos escribir dentro de torneos/ y con nombre de archivo sano,
 // para que un ruta: "../../algo" no pueda pisar otro archivo del repo.
@@ -83,7 +126,7 @@ async function listarTorneosGuardados({ token, owner, repo, branch }) {
 
     const data = await res.json();
     return (Array.isArray(data) ? data : [])
-        .filter(f => f.type === 'file' && f.name.endsWith('.json'))
+        .filter(f => f.type === 'file' && f.name.endsWith('.json') && f.name !== 'index.json')
         .map(f => ({ ruta: `${CARPETA}/${f.name}` }));
 }
 
@@ -133,6 +176,12 @@ export default async function handler(req, res) {
                 : `Crear torneo: ${estado.nombre} (${estado.formato} jugadores)`;
 
             await commitearArchivo(config, contenidoNuevo, sha, mensaje, ruta);
+            await actualizarIndice(config, {
+                accion: 'agregar',
+                ruta,
+                nombre: estado.nombre,
+                formato: estado.formato
+            });
             return res.status(200).json({ success: true, ruta, creado: !existe });
         }
 
@@ -146,6 +195,7 @@ export default async function handler(req, res) {
             }
 
             await borrarArchivo(config, ruta, sha);
+            await actualizarIndice(config, { accion: 'sacar', ruta });
             return res.status(200).json({ success: true, ruta });
         }
 
