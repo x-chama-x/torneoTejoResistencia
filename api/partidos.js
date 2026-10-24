@@ -22,6 +22,7 @@ import {
     obtenerArchivoActual,
     editarArchivoConReintentos,
     listarPartidos,
+    parsearLinea,
     construirLinea,
     validarPartido,
     verificarLinea,
@@ -56,7 +57,13 @@ async function manejarGet(req, res, config) {
 }
 
 async function manejarDelete(req, res, config) {
-    const { indice, lineaEsperada } = req.body || {};
+    const { indice, lineaEsperada, torneo } = req.body || {};
+
+    // Borrado masivo: todos los partidos de un torneo, en un solo commit.
+    // Sirve para deshacer un torneo de prueba sin tener que ir de a uno.
+    if (torneo !== undefined) {
+        return manejarDeleteTorneo(res, config, torneo);
+    }
 
     if (lineaEsperada === undefined) {
         throw errorHttp(400, 'Falta "lineaEsperada"');
@@ -80,6 +87,48 @@ async function manejarDelete(req, res, config) {
     );
 
     return res.status(200).json({ success: true, borrada: meta.borrada });
+}
+
+// Borra de una todos los partidos de un torneo.
+async function manejarDeleteTorneo(res, config, nombreTorneo) {
+    const nombre = limpiarCampo(nombreTorneo);
+    if (!nombre) {
+        throw errorHttp(400, 'Falta el nombre del torneo');
+    }
+    // Los amistosos son la Tejo Nations League entera: nunca se borran en masa.
+    if (nombre.toLowerCase() === 'amistoso') {
+        throw errorHttp(400, 'No se pueden borrar los amistosos en masa');
+    }
+
+    const { meta } = await editarArchivoConReintentos(
+        config,
+        (contenido) => {
+            const lineas = contenido.split('\n');
+            const quedan = [];
+            let borrados = 0;
+
+            lineas.forEach(linea => {
+                const datos = parsearLinea(linea);
+                if (datos && datos.torneo === nombre) {
+                    borrados++;
+                    return; // se descarta
+                }
+                quedan.push(linea);
+            });
+
+            if (borrados === 0) {
+                throw errorHttp(404, `No hay partidos del torneo "${nombre}"`);
+            }
+
+            return {
+                contenidoNuevo: normalizarFinal(quedan.join('\n')),
+                meta: { borrados, nombre }
+            };
+        },
+        (meta) => `Borrar torneo "${meta.nombre}": ${meta.borrados} partidos`
+    );
+
+    return res.status(200).json({ success: true, borrados: meta.borrados });
 }
 
 async function manejarPut(req, res, config) {

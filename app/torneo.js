@@ -386,6 +386,10 @@ function renderTorneoEnCurso() {
                 <button class="btn btn-secondary" id="btn-ver-tablas">📊 Tablas</button>
                 <button class="btn btn-secondary" id="btn-salir-torneo">Cerrar</button>
             </div>
+            <button class="btn btn-secondary" id="btn-borrar-torneo"
+                    style="margin-top: 10px; border-color: #5c2220; color: var(--red);">
+                🗑️ Borrar torneo
+            </button>
         </div>
         <div id="tablas-torneo" style="display:none;"></div>
         <div id="etapas-torneo"></div>
@@ -405,6 +409,58 @@ function renderTorneoEnCurso() {
         torneo.jugados = [];
         renderInicioTorneo();
     });
+    document.getElementById('btn-borrar-torneo').addEventListener('click', borrarTorneoCompleto);
+}
+
+// Borra el torneo entero: el sorteo y todos sus partidos del .txt.
+// Pensado para deshacer un torneo de prueba o uno que salió mal.
+// El ranking FIFA se recalcula de cero en cada carga de página, así que
+// al borrar los partidos vuelve exactamente a como estaba.
+async function borrarTorneoCompleto() {
+    if (!torneo.estado || torneo.cargando) return;
+
+    const nombre = torneo.estado.nombre;
+    const cantidad = torneo.jugados.length;
+
+    const aviso = cantidad > 0
+        ? `Se van a borrar el sorteo y los ${cantidad} partido${cantidad === 1 ? '' : 's'} ya cargados.`
+        : 'Se va a borrar el sorteo (todavía no hay partidos cargados).';
+
+    if (!confirm(`¿Borrar "${nombre}"?\n\n${aviso}\n\nEsto no se puede deshacer.`)) return;
+
+    torneo.cargando = true;
+
+    try {
+        // Primero los partidos (un solo commit), después el sorteo
+        if (cantidad > 0) {
+            const res = await fetch(API_PARTIDOS, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ torneo: nombre })
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+        }
+
+        const res2 = await fetch(API_TORNEO_ESTADO, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ruta: torneo.ruta })
+        });
+        const d2 = await res2.json().catch(() => ({}));
+        if (!res2.ok) throw new Error(d2.error || `Error ${res2.status}`);
+
+        mostrarToast(`🗑️ "${nombre}" borrado`, 'ok');
+        torneo.estado = null;
+        torneo.ruta = null;
+        torneo.jugados = [];
+        estado.jugadores = await cargarJugadores();
+        renderInicioTorneo();
+    } catch (err) {
+        mostrarToast(`No se pudo borrar: ${err.message}`, 'error');
+    } finally {
+        torneo.cargando = false;
+    }
 }
 
 function renderEtapas(s) {

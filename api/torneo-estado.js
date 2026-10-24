@@ -3,9 +3,10 @@
 // =====================================================
 // Guarda y lee el JSON de un torneo en curso, en torneos/<slug>.json.
 //
-//   GET  /api/torneo-estado            -> lista los torneos guardados
-//   GET  /api/torneo-estado?ruta=...   -> devuelve ese torneo
-//   PUT  /api/torneo-estado            -> crea o actualiza { ruta, estado }
+//   GET    /api/torneo-estado            -> lista los torneos guardados
+//   GET    /api/torneo-estado?ruta=...   -> devuelve ese torneo
+//   PUT    /api/torneo-estado            -> crea o actualiza { ruta, estado }
+//   DELETE /api/torneo-estado            -> borra { ruta } (el sorteo, no los partidos)
 //
 // Qué guarda y qué NO guarda:
 // el JSON tiene solo el SORTEO (nombre, formato, fecha y quién quedó en
@@ -23,6 +24,7 @@ import {
     getConfig,
     obtenerArchivoActual,
     commitearArchivo,
+    borrarArchivo,
     errorHttp
 } from '../lib/github.js';
 
@@ -134,7 +136,20 @@ export default async function handler(req, res) {
             return res.status(200).json({ success: true, ruta, creado: !existe });
         }
 
-        res.setHeader('Allow', 'GET, PUT');
+        if (req.method === 'DELETE') {
+            const { ruta } = req.body || {};
+            validarRuta(ruta);
+
+            const { sha, existe } = await obtenerArchivoActual(config, ruta);
+            if (!existe) {
+                return res.status(404).json({ error: 'Ese torneo no está guardado' });
+            }
+
+            await borrarArchivo(config, ruta, sha);
+            return res.status(200).json({ success: true, ruta });
+        }
+
+        res.setHeader('Allow', 'GET, PUT, DELETE');
         return res.status(405).json({ error: 'Método no permitido' });
     } catch (error) {
         const status = error.statusCode || 500;
