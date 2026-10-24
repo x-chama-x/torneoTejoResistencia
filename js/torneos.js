@@ -111,25 +111,37 @@ function mostrarTorneo(texto, nombreTorneo) {
     }
 
     limpiarRestos();
-    cargarTorneo(nombreTorneo);
 
-    // Partidos que faltan jugar, con su probabilidad
+    // El plantel del sorteo permite dibujar las tablas de posiciones en cero
+    // antes de que se juegue el primer partido (lo lee historial_torneos.js).
+    const sorteo = sorteosPorTorneo[nombreTorneo];
+    window.torneoPlantel = sorteo ? sorteo.grupos : null;
+
     const delTorneo = partidosDeTorneo(texto, nombreTorneo);
-    renderPendientes(calcularPendientes(sorteosPorTorneo[nombreTorneo], delTorneo));
-    ocultarSeccionesVacias(delTorneo, esLiga);
+
+    // Los pendientes se inyectan recien cuando cargarTorneo termino de
+    // dibujar el bracket y las tablas, porque van adentro de esos mismos.
+    Promise.resolve(cargarTorneo(nombreTorneo)).then(() => {
+        inyectarPendientes(calcularPendientes(sorteo, delTorneo));
+        ocultarSeccionesVacias(delTorneo, esLiga, sorteo);
+    });
 }
 
 // Un torneo recien sorteado, o uno que todavia no llego a playoffs, no tiene
 // nada que mostrar en esas secciones: sin esto quedarian un bracket y una
 // tabla vacios, que parecen un error.
-function ocultarSeccionesVacias(partidos, esLiga) {
+function ocultarSeccionesVacias(partidos, esLiga, sorteo) {
+    // El bracket se muestra si ya hay partidos de playoffs o si quedo alguna
+    // tarjeta con la probabilidad de un cruce pendiente.
     const hayPlayoffs = partidos.some(m =>
-        ['Semifinal', 'Final', 'Tercer Puesto'].includes(m.fase));
-    const hayFaseRegular = partidos.some(m => m.fase.startsWith('Fase'));
+        ['Semifinal', 'Final', 'Tercer Puesto'].includes(m.fase)) ||
+        !!document.querySelector('#playoff-bracket .match-card, #tercer-puesto-container .match-card');
 
     const panelPlayoffs = document.querySelector('.playoffs-section');
     if (panelPlayoffs) panelPlayoffs.style.display = hayPlayoffs ? '' : 'none';
 
+    // La fase regular se muestra siempre que haya sorteo (aunque sea en cero)
+    const hayFaseRegular = partidos.some(m => m.fase.startsWith('Fase')) || !!sorteo;
     if (!hayFaseRegular) {
         const bloque = document.getElementById(esLiga ? 'bloque-liga' : 'bloque-grupos');
         if (bloque) bloque.style.display = 'none';
@@ -173,7 +185,7 @@ function detectarEsLiga(texto, nombreTorneo) {
 // (por ejemplo, viniendo de un torneo de liga a uno de grupos) se quedarían
 // con la tabla vieja colgada.
 function limpiarRestos() {
-    ['resultados-fase', 'tabla-body', 'grupos-container', 'stats-container', 'playoff-bracket', 'tercer-puesto-container', 'repechajes-container', 'pendientes-container']
+    ['resultados-fase', 'tabla-body', 'grupos-container', 'stats-container', 'playoff-bracket', 'tercer-puesto-container', 'repechajes-container']
         .forEach(id => {
             const el = document.getElementById(id);
             if (el) el.innerHTML = '';

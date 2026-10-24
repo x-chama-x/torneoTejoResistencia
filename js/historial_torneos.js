@@ -1,5 +1,5 @@
 function cargarTorneo(nombreTorneo) {
-    fetch("enfrentamientos_directos.txt")
+    return fetch("enfrentamientos_directos.txt")
         .then(res => res.text())
         .then(data => {
             const matches = data.split("\n")
@@ -158,8 +158,16 @@ function claveFecha(fechaStr) {
     return p[2] * 10000 + p[1] * 100 + p[0];
 }
 
-function processStandings(matches) {
+// `plantel` (opcional) es la lista de jugadores que deberian aparecer en la
+// tabla aunque todavia no hayan jugado nada. Sirve para que un torneo recien
+// sorteado muestre a todos en cero, en vez de una tabla vacia.
+function processStandings(matches, plantel) {
     const stats = {};
+
+    (plantel || []).forEach(nombre => {
+        stats[nombre] = { nombre, p: 0, w: 0, l: 0, gf: 0, gc: 0, pts: 0 };
+    });
+
     matches.forEach(m => {
         if(!stats[m.j1]) stats[m.j1] = { nombre: m.j1, p:0, w:0, l:0, gf:0, gc:0, pts:0 };
         if(!stats[m.j2]) stats[m.j2] = { nombre: m.j2, p:0, w:0, l:0, gf:0, gc:0, pts:0 };
@@ -201,7 +209,12 @@ function processStandings(matches) {
                 [tabla[i], tabla[i + 1]] = [tabla[i + 1], tabla[i]];
             }
         } else if (empatados > 2) {
-            empatesSinResolver.push(tabla.slice(i, fin + 1).map(s => s.nombre));
+            // No se avisa por los que todavia no jugaron: al arranque de un
+            // torneo estan todos en cero y el cartel seria puro ruido.
+            const grupo = tabla.slice(i, fin + 1);
+            if (grupo.some(s => s.p > 0)) {
+                empatesSinResolver.push(grupo.map(s => s.nombre));
+            }
         }
         i = fin + 1;
     }
@@ -257,7 +270,11 @@ function renderAvisoEmpates(contenedor, empates) {
 }
 
 function renderGroupMatchesAndStandings(matches, nombreTorneo) {
-    const isLiga = matches.some(m => m.fase === "Fase de Liga");
+    // El plantel sale del sorteo guardado, cuando la pagina lo cargo
+    // (ver js/torneos.js). Permite dibujar las tablas antes de que se
+    // juegue el primer partido.
+    const plantel = window.torneoPlantel || null;
+    const isLiga = matches.some(m => m.fase === "Fase de Liga") || !!(plantel && plantel.all);
     // Si tenemos un contenedor global de resultados (formato Liga)
     const resultadosContainer = document.getElementById("resultados-fase");
     if (resultadosContainer && isLiga) {
@@ -297,7 +314,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
 
     if (isLiga) {
         // Liga
-        const stdgs = processStandings(matches);
+        const stdgs = processStandings(matches, plantel ? plantel.all : null);
         const tbody = document.getElementById("tabla-body");
         if (tbody) {
             tbody.innerHTML = "";
@@ -338,13 +355,16 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
         }
     } else {
         // Grupos
-        const gruposList = [...new Set(matches.map(m => m.fase))].sort(); // Fase de Grupos (A), (B)
+        const gruposList = plantel
+            ? Object.keys(plantel).sort().map(l => `Fase de Grupos (${l})`)
+            : [...new Set(matches.map(m => m.fase))].sort(); // Fase de Grupos (A), (B)
         const gCont = document.getElementById("grupos-container");
         if (gCont) {
             gCont.innerHTML = "";
             gruposList.forEach(gName => {
                 const gMatches = matches.filter(m => m.fase === gName);
-                const stdgs = processStandings(gMatches);
+                const letra = (gName.match(/\(([A-Z])\)/) || [])[1];
+                const stdgs = processStandings(gMatches, plantel && letra ? plantel[letra] : null);
 
                 const gDiv = document.createElement("div");
                 gDiv.style.marginBottom = "2rem";
