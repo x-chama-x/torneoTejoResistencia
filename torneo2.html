@@ -2,50 +2,15 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Torneo 2 - Air Hockey</title>
-    <link rel="icon" type="image/png" href="img/favicon.png">
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/torneo.css">
-    <link rel="stylesheet" href="css/playoffs.css">
+    <title>Segundo torneo de hockey de mesa - Air Hockey</title>
+    <!-- Esta pagina ahora vive en torneos.html, que arma la vista de cualquier
+         torneo leyendo enfrentamientos_directos.txt. Se mantiene el archivo
+         solo para que no se rompan los links viejos. -->
+    <link rel="canonical" href="torneos.html?t=Segundo%20torneo%20de%20hockey%20de%20mesa">
+    <meta http-equiv="refresh" content="0; url=torneos.html?t=Segundo%20torneo%20de%20hockey%20de%20mesa">
+    <script>window.location.replace('torneos.html?t=Segundo%20torneo%20de%20hockey%20de%20mesa');</script>
 </head>
-<body>
-    <div class="container">
-        <h1><img src="img/favicon.png" alt="logo" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 5px;"> Segundo torneo de hockey de mesa</h1>
-
-        <div class="panel playoffs-section" style="margin-bottom: 2rem;">
-            <h2>👑 Playoffs</h2>
-            <div class="playoff-bracket" id="playoff-bracket">
-                <!-- Poblado por JS -->
-            </div>
-            <div id="tercer-puesto-container" style="margin-top: 1rem; text-align: center;">
-                <!-- Poblado por JS -->
-            </div>
-        </div>
-
-        <div>
-            <h2>🏆 Fase de Grupos</h2>
-            <br>
-            <div id="grupos-container">
-                <!-- Tablas de grupos pobladas por JS -->
-            </div>
-
-            <div id="stats-container" style="margin-top: 2rem;">
-                <!-- Poblado por JS -->
-            </div>
-        </div>
-    </div>
-    <!-- Scripts -->
-    <script src="js/menu.js"></script>
-    <script>
-        window.torneoActual = { config: { formato: "grupos", avanzar: 4 } };
-        window.partidosJugados = true;
-    </script>
-    <script src="js/historial_torneos.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            cargarTorneo("Segundo torneo de hockey de mesa");
-        });
-    </script>
+<body style="background:#0d1117; color:#c9d1d9; font-family:sans-serif; padding:2rem;">
+    <p>Redirigiendo a <a href="torneos.html?t=Segundo%20torneo%20de%20hockey%20de%20mesa" style="color:#58a6ff;">Segundo torneo de hockey de mesa</a>...</p>
 </body>
 </html>

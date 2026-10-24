@@ -8,9 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <a href="partido.html" title="Simulador de Partido 1vs1">Partido 1vs1</a>
         <a href="torneo.html" title="Creador de Torneo">Creador de Torneo</a>
         <a href="playoffs.html" title="Playoffs">Playoffs</a>
-        <a href="torneo1.html" title="Primer Torneo">Primer Torneo</a>
-        <a href="torneo2.html" title="Segundo Torneo">Segundo Torneo</a>
-        <a href="torneo3.html" title="Tercer Torneo">Tercer Torneo</a>
+        <a href="torneos.html" title="Torneos">🏆 Torneos</a>
         <a href="copadecampeones.html" title="Copa de Campeones">👑 Copa de Campeones</a>
         <a href="nationsleague.html" title="Tejo Nations League">🌍 Tejo Nations League</a>
         <a href="airhockeygame.html" title="Air Hockey">🎮 Air Hockey</a>

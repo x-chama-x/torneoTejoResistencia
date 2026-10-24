@@ -21,6 +21,41 @@ function cargarTorneo(nombreTorneo) {
         });
 }
 
+// Devuelve los torneos que existen en el archivo, en orden cronológico
+// (por la fecha de su primer partido). Los amistosos quedan afuera: esos
+// son de la Tejo Nations League y tienen su propia página.
+//
+// Es lo que permite que las páginas de torneo se armen solas: no hay ninguna
+// lista de torneos hardcodeada en ningún lado, sale todo del .txt.
+function listarTorneos(texto) {
+    const porTorneo = {};
+
+    texto.split("\n")
+        .map(l => l.trim())
+        .filter(l => l && !l.startsWith("#"))
+        .forEach(l => {
+            const p = l.split(",");
+            if (p.length < 7) return;
+
+            const nombre = p[4].trim();
+            if (!nombre || nombre.toLowerCase() === "amistoso") return;
+
+            const fecha = claveFecha(p[5].trim());
+            if (!porTorneo[nombre] || fecha < porTorneo[nombre].desde) {
+                porTorneo[nombre] = { nombre, desde: fecha };
+            }
+        });
+
+    return Object.values(porTorneo).sort((a, b) => a.desde - b.desde);
+}
+
+// "13/10/2026" -> 20261013, para poder comparar fechas como números.
+function claveFecha(fechaStr) {
+    const p = String(fechaStr).split("/").map(n => parseInt(n, 10));
+    if (p.length !== 3 || p.some(isNaN)) return 0;
+    return p[2] * 10000 + p[1] * 100 + p[0];
+}
+
 function processStandings(matches) {
     const stats = {};
     matches.forEach(m => {
@@ -41,9 +76,82 @@ function processStandings(matches) {
             stats[m.j2].w++; stats[m.j1].l++;
         }
     });
-    return Object.values(stats)
+    const tabla = Object.values(stats)
         .map(s => ({ ...s, dif: s.gf - s.gc }))
         .sort((a, b) => b.pts - a.pts || b.dif - a.dif || b.gf - a.gf);
+
+    // Desempate por enfrentamiento directo.
+    //
+    // Solo se aplica cuando son EXACTAMENTE dos los empatados. Con tres o más
+    // el mano a mano puede ser circular (A le gana a B, B a C y C a A), así que
+    // no existe un orden válido: en ese caso se deja el orden como está y se
+    // avisa en pantalla para resolverlo a mano.
+    const empatesSinResolver = [];
+    let i = 0;
+    while (i < tabla.length) {
+        let fin = i;
+        while (fin + 1 < tabla.length && mismaPosicion(tabla[fin], tabla[fin + 1])) fin++;
+
+        const empatados = fin - i + 1;
+        if (empatados === 2) {
+            // Si el de abajo ganó el mano a mano, se intercambian.
+            if (ganoElManoAMano(tabla[i + 1], tabla[i], matches)) {
+                [tabla[i], tabla[i + 1]] = [tabla[i + 1], tabla[i]];
+            }
+        } else if (empatados > 2) {
+            empatesSinResolver.push(tabla.slice(i, fin + 1).map(s => s.nombre));
+        }
+        i = fin + 1;
+    }
+
+    // Se cuelga del array para que el render pueda mostrar el aviso sin cambiar
+    // la firma de la función (la usan varios lugares).
+    tabla.empatesSinResolver = empatesSinResolver;
+    return tabla;
+}
+
+// Dos jugadores ocupan la misma posición si empatan en los tres criterios.
+function mismaPosicion(a, b) {
+    return a.pts === b.pts && a.dif === b.dif && a.gf === b.gf;
+}
+
+// ¿"jugador" le ganó el mano a mano a "rival"? Se suman los goles de los
+// partidos entre ellos dentro de esta fase (en liga es uno solo, así que
+// equivale a quién ganó ese partido).
+function ganoElManoAMano(jugador, rival, matches) {
+    let golesJugador = 0;
+    let golesRival = 0;
+
+    matches.forEach(m => {
+        const esElCruce =
+            (m.j1 === jugador.nombre && m.j2 === rival.nombre) ||
+            (m.j1 === rival.nombre && m.j2 === jugador.nombre);
+        if (!esElCruce) return;
+
+        const g = m.marcador.split("-").map(Number);
+        if (m.j1 === jugador.nombre) {
+            golesJugador += g[0];
+            golesRival += g[1];
+        } else {
+            golesJugador += g[1];
+            golesRival += g[0];
+        }
+    });
+
+    return golesJugador > golesRival;
+}
+
+// Cartel de aviso cuando hay empates de 3 o más que no se pueden desempatar solos.
+function renderAvisoEmpates(contenedor, empates) {
+    if (!contenedor || !empates || empates.length === 0) return;
+
+    const aviso = document.createElement("div");
+    aviso.className = "aviso-empate-multiple";
+    aviso.style = "margin-top: 10px; font-size: 0.85rem; color: #d29922; background: rgba(210, 153, 34, 0.1); border: 1px solid rgba(210, 153, 34, 0.35); border-radius: 8px; padding: 10px 12px;";
+    aviso.innerHTML = empates.map(grupo =>
+        `⚠️ <strong>${grupo.join(", ")}</strong> quedaron empatados en puntos, diferencia y goles a favor. El enfrentamiento directo solo desempata entre dos, así que este orden hay que definirlo a mano.`
+    ).join("<br>");
+    contenedor.appendChild(aviso);
 }
 
 function renderGroupMatchesAndStandings(matches, nombreTorneo) {
@@ -120,6 +228,11 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                 leyenda.innerHTML = `<span style="display:inline-block; width:12px; height:12px; background: rgba(46, 160, 67, 0.5); border-radius: 2px; margin-right: 5px; vertical-align: middle;"></span> <span style="vertical-align: middle;">[1-4] Clasifica a playoffs</span>`;
                 tableResp.parentElement.insertBefore(leyenda, tableResp.nextSibling);
             }
+
+            // Aviso de empates de 3 o más (el mano a mano no alcanza)
+            const contAviso = tbody.closest(".table-responsive")?.parentElement;
+            contAviso?.querySelectorAll(".aviso-empate-multiple").forEach(el => el.remove());
+            renderAvisoEmpates(contAviso, stdgs.empatesSinResolver);
         }
     } else {
         // Grupos
@@ -206,6 +319,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                         </div>
                     </div>
                 `;
+                renderAvisoEmpates(gDiv, stdgs.empatesSinResolver);
                 gCont.appendChild(gDiv);
             });
         }

@@ -32,9 +32,7 @@ La aplicacion utiliza un sistema de probabilidades basado en una **funcion sigmo
 | `montecarlo.html` | **Simulador Monte Carlo** - Analisis estadistico con miles de simulaciones |
 | `partido.html` | **Simulador 1vs1** - Enfrentamientos directos con historial |
 | `playoffs.html` | **Playoffs** - Configuracion de brackets para semifinales y final |
-| `torneo1.html` | **Primer Torneo** - Historial del primer torneo oficial (Liga) |
-| `torneo2.html` | **Segundo Torneo** - Historial del segundo torneo oficial (Grupos) |
-| `torneo3.html` | **Tercer Torneo** - Historial del tercer torneo oficial (Liga 6 jugadores) |
+| `torneos.html` | **Torneos** - Historial de todos los torneos, con selector. Se arma solo leyendo `enfrentamientos_directos.txt` |
 
 ---
 
@@ -152,8 +150,10 @@ torneoTejoResistencia/
 ├── montecarlo.html               # Simulador Monte Carlo
 ├── partido.html                  # Simulador de partido 1vs1
 ├── playoffs.html                 # Configurador de playoffs
-├── torneo1.html                  # Historial del primer torneo
-├── torneo2.html                  # Historial del segundo torneo
+├── torneos.html                  # Historial de todos los torneos (selector, se arma solo)
+├── torneo1.html                  # Redireccion a torneos.html (link viejo)
+├── torneo2.html                  # Redireccion a torneos.html (link viejo)
+├── torneo3.html                  # Redireccion a torneos.html (link viejo)
 ├── enfrentamientos_directos.txt  # Historial de partidos entre jugadores (fuente del ranking FIFA)
 ├── formatos.md                   # Documentacion de formatos
 ├── README.md                     # Este archivo
@@ -243,6 +243,22 @@ La logica compartida de GitHub y del formato del archivo vive en `lib/github.js`
 Sin `GITHUB_TOKEN` configurado, la app responde error 500 al intentar cargar un partido.
 
 > **Nota**: el endpoint no tiene autenticacion, igual que el `cargar.html` viejo. Cualquiera que conozca la URL puede cargar partidos.
+
+---
+
+## Historial de Torneos (`torneos.html`)
+
+Una sola pagina muestra el historial de **cualquier** torneo. La lista sale de `enfrentamientos_directos.txt`: cada valor distinto de la columna `torneo` (salvo "Amistoso") aparece como un boton en el selector, ordenado por la fecha de su primer partido.
+
+Esto quiere decir que **un torneo nuevo aparece solo**, apenas se carga su primer partido. No hay que crear una pagina ni agregar nada al menu, como pasaba antes con `torneo1/2/3.html`.
+
+El formato tambien se deduce del archivo: si alguna fase dice `Fase de Liga` se dibuja la tabla de liga, y si dicen `Fase de Grupos (X)` se dibujan las tablas por grupo. Los archivos `torneo1.html`, `torneo2.html` y `torneo3.html` quedaron como redirecciones para no romper links viejos.
+
+### Desempate en la tabla
+
+El orden es: puntos (goles a favor), diferencia de gol, goles a favor. Si dos jugadores quedan empatados en los tres, desempata el **enfrentamiento directo** entre ellos.
+
+Con tres o mas empatados no se aplica, porque el mano a mano puede ser circular (A le gana a B, B a C y C a A) y no existiria un orden valido. En ese caso la tabla muestra un aviso para definir ese tramo a mano.
 
 ---
 

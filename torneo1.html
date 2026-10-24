@@ -2,96 +2,15 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Torneo 1 - Air Hockey</title>
-    <link rel="icon" type="image/png" href="img/favicon.png">
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/torneo.css">
-    <link rel="stylesheet" href="css/playoffs.css">
-    <style>
-        /* Layout específico para que Estadísticas quede bajo Posiciones en PC y bajo Resultados en Móvil */
-        @media (min-width: 901px) {
-            #col-posiciones { grid-column: 1; grid-row: 1; }
-            #col-resultados { grid-column: 2; grid-row: 1 / span 2; }
-            #col-stats { grid-column: 1; grid-row: 2; }
-        }
-        @media (max-width: 900px) {
-            .home-container { display: flex; flex-direction: column; }
-            #col-posiciones { order: 1; }
-            #col-resultados { order: 2; }
-            #col-stats { order: 3; }
-        }
-    </style>
+    <title>Primer torneo de hockey de mesa - Air Hockey</title>
+    <!-- Esta pagina ahora vive en torneos.html, que arma la vista de cualquier
+         torneo leyendo enfrentamientos_directos.txt. Se mantiene el archivo
+         solo para que no se rompan los links viejos. -->
+    <link rel="canonical" href="torneos.html?t=Primer%20torneo%20de%20hockey%20de%20mesa">
+    <meta http-equiv="refresh" content="0; url=torneos.html?t=Primer%20torneo%20de%20hockey%20de%20mesa">
+    <script>window.location.replace('torneos.html?t=Primer%20torneo%20de%20hockey%20de%20mesa');</script>
 </head>
-<body>
-    <div class="container">
-        <h1><img src="img/favicon.png" alt="logo" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 5px;"> Primer torneo de hockey de mesa</h1>
-
-        <div class="panel playoffs-section" style="margin-bottom: 2rem;">
-            <h2>👑 Playoffs</h2>
-            <div class="playoff-bracket" id="playoff-bracket">
-                <!-- Poblado por JS -->
-            </div>
-            <div id="tercer-puesto-container" style="margin-top: 1rem; text-align: center;">
-                <!-- Poblado por JS -->
-            </div>
-        </div>
-
-        <div>
-            <h2>🏆 Fase de Liga</h2>
-            <br>
-            <div class="home-container">
-                <div id="col-posiciones">
-                    <h3 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Posiciones</h3>
-                    <div class="table-responsive">
-                        <table class="ranking-table" id="tabla-posiciones">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Jugador</th>
-                                <th>PJ</th>
-                                <th>G</th>
-                                <th>P</th>
-                                <th>GF</th>
-                                <th>GC</th>
-                                <th>DIF</th>
-                                <th>PTS(GF)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-body">
-                            <!-- Poblado por JS -->
-                        </tbody>
-                    </table>
-                    </div>
-                </div>
-
-                <div id="col-resultados">
-                    <h3 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Resultados</h3>
-                    <div id="resultados-fase">
-                        <!-- Poblado por JS -->
-                    </div>
-                </div>
-
-                <div id="col-stats">
-                    <div id="stats-container" style="margin-top: 2rem;">
-                        <!-- Poblado por JS -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Scripts -->
-    <script src="js/menu.js"></script>
-    <script>
-        // Variables globales para simular el comportamiento de playoff.js aunque usemos nuestro render
-        window.torneoActual = { config: { formato: "liga", avanzar: 4 } };
-        window.partidosJugados = true;
-    </script>
-    <script src="js/historial_torneos.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            cargarTorneo("Primer torneo de hockey de mesa");
-        });
-    </script>
+<body style="background:#0d1117; color:#c9d1d9; font-family:sans-serif; padding:2rem;">
+    <p>Redirigiendo a <a href="torneos.html?t=Primer%20torneo%20de%20hockey%20de%20mesa" style="color:#58a6ff;">Primer torneo de hockey de mesa</a>...</p>
 </body>
 </html>
