@@ -37,14 +37,15 @@ const TORNEO = 'Amistoso';
 const FASE = 'Amistoso';
 
 const estado = {
-    modo: 'directo',        // 'directo' | 'tanda' | 'historial'
+    modo: 'directo',        // 'directo' | 'tanda' | 'historial' | 'torneo'
     jugadores: [],          // lista completa de nombres disponibles
+    historial: [],          // todos los partidos del .txt (lo usa el modo Torneo)
     ganador: null,
     perdedor: null,
     golesPerdedor: null,
     tanda: [],              // [{ id, ganador, perdedor, golesPerdedor, fecha, estado }]
     subiendo: false,
-    historial: [],          // partidos traídos del servidor
+    historialVista: [],     // partidos traídos del servidor para el modo Historial
     filtroHistorial: 'amistosos', // 'amistosos' | 'todos'
     cargandoHistorial: false,
     editando: null          // { indice, lineaEsperada, torneo, fase, resumen }
@@ -87,6 +88,10 @@ function registrarServiceWorker() {
 // Saca la lista de jugadores del propio archivo de partidos, así no
 // hay que mantenerla a mano: si aparece un jugador nuevo en el txt,
 // aparece solo acá.
+// Lee el .txt una sola vez y saca de ahí dos cosas: la lista de jugadores
+// (así no hay que mantenerla a mano) y el historial completo de partidos,
+// que el modo Torneo usa para sugerir el nombre del torneo siguiente y para
+// detectar partidos que quedaron pendientes.
 async function cargarJugadores() {
     const extra = leerStorage(STORAGE_JUGADORES, []);
     try {
@@ -95,21 +100,31 @@ async function cargarJugadores() {
         const texto = await res.text();
 
         const set = new Set();
-        texto.split('\n')
+        estado.historial = texto.split('\n')
             .map(l => l.trim())
             .filter(l => l && !l.startsWith('#'))
-            .forEach(l => {
-                const p = l.split(',');
-                if (p.length >= 2) {
-                    if (p[0].trim()) set.add(p[0].trim());
-                    if (p[1].trim()) set.add(p[1].trim());
-                }
+            .map(l => l.split(','))
+            .filter(p => p.length >= 7)
+            .map(p => {
+                const jugador1 = p[0].trim();
+                const jugador2 = p[1].trim();
+                if (jugador1) set.add(jugador1);
+                if (jugador2) set.add(jugador2);
+                return {
+                    jugador1, jugador2,
+                    resultado: p[2].trim(),
+                    marcador: p[3].trim(),
+                    torneo: p[4].trim(),
+                    fecha: p[5].trim(),
+                    fase: p[6].trim()
+                };
             });
 
         extra.forEach(n => set.add(n));
         return [...set].sort((a, b) => a.localeCompare(b, 'es'));
     } catch (err) {
         console.warn('No se pudo cargar la lista de jugadores:', err);
+        estado.historial = [];
         return extra.sort((a, b) => a.localeCompare(b, 'es'));
     }
 }
@@ -128,7 +143,10 @@ function renderChips() {
         btn.addEventListener('click', () => seleccionarJugador(btn.dataset.jugador));
     });
 
-    document.getElementById('chip-nuevo').addEventListener('click', agregarJugadorNuevo);
+    document.getElementById('chip-nuevo').addEventListener('click', () => {
+        const nombre = agregarJugadorNuevo();
+        if (nombre) seleccionarJugador(nombre);
+    });
 }
 
 // Primer toque = ganador, segundo = perdedor. Volver a tocar deselecciona.
@@ -149,17 +167,20 @@ function seleccionarJugador(nombre) {
     actualizarUI();
 }
 
+// Agrega un jugador a la lista y devuelve su nombre (o null si no se agregó).
+// No lo selecciona: de eso se encarga quien la llama, porque el modo Torneo
+// y el formulario de amistosos hacen cosas distintas con él.
 function agregarJugadorNuevo() {
     const nombre = (prompt('Nombre del jugador nuevo:') || '').trim();
-    if (!nombre) return;
+    if (!nombre) return null;
 
     if (nombre.includes(',')) {
         mostrarToast('El nombre no puede tener comas', 'error');
-        return;
+        return null;
     }
     if (estado.jugadores.some(j => j.toLowerCase() === nombre.toLowerCase())) {
         mostrarToast('Ese jugador ya está en la lista', 'error');
-        return;
+        return null;
     }
 
     const extra = leerStorage(STORAGE_JUGADORES, []);
@@ -167,7 +188,7 @@ function agregarJugadorNuevo() {
     guardarStorage(STORAGE_JUGADORES, extra);
 
     estado.jugadores = [...estado.jugadores, nombre].sort((a, b) => a.localeCompare(b, 'es'));
-    seleccionarJugador(nombre);
+    return nombre;
 }
 
 // =====================================================
@@ -236,6 +257,7 @@ function actualizarUI() {
     document.getElementById('btn-cargar').disabled = !listo;
     document.getElementById('btn-agregar').disabled = !listo;
     document.getElementById('btn-guardar-edicion').disabled = !listo;
+    document.getElementById('btn-guardar-fixture').disabled = !listo;
 
     const pendientes = estado.tanda.filter(p => p.estado !== 'ok').length;
     document.getElementById('btn-subir-tanda').disabled = pendientes === 0 || estado.subiendo;
@@ -252,14 +274,21 @@ function cambiarModo(modo) {
     document.getElementById('modo-directo').classList.toggle('active', modo === 'directo');
     document.getElementById('modo-tanda').classList.toggle('active', modo === 'tanda');
     document.getElementById('modo-historial').classList.toggle('active', modo === 'historial');
+    document.getElementById('modo-torneo').classList.toggle('active', modo === 'torneo');
 
-    document.getElementById('formulario').style.display = modo === 'historial' ? 'none' : '';
+    document.getElementById('formulario').style.display = (modo === 'historial' || modo === 'torneo') ? 'none' : '';
     document.getElementById('accion-directo').style.display = modo === 'directo' ? '' : 'none';
     document.getElementById('accion-tanda').style.display = modo === 'tanda' ? '' : 'none';
     document.getElementById('seccion-historial').style.display = modo === 'historial' ? '' : 'none';
+    document.getElementById('seccion-torneo').style.display = modo === 'torneo' ? '' : 'none';
+    document.getElementById('accion-fixture').style.display = 'none';
+    document.getElementById('fixture-banner').style.display = 'none';
 
-    if (modo === 'historial' && estado.historial.length === 0) {
+    if (modo === 'historial' && estado.historialVista.length === 0) {
         cargarHistorial();
+    }
+    if (modo === 'torneo') {
+        entrarModoTorneo();
     }
     actualizarUI();
 }
@@ -394,7 +423,7 @@ async function cargarHistorial() {
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
 
-        estado.historial = data.partidos || [];
+        estado.historialVista = data.partidos || [];
         renderHistorial();
     } catch (err) {
         cont.innerHTML = `<div class="vacio-msg">No se pudo cargar: ${escaparHtml(err.message)}</div>`;
@@ -406,12 +435,12 @@ async function cargarHistorial() {
 function renderHistorial() {
     const cont = document.getElementById('lista-historial');
 
-    if (estado.historial.length === 0) {
+    if (estado.historialVista.length === 0) {
         cont.innerHTML = '<div class="vacio-msg">No hay partidos cargados</div>';
         return;
     }
 
-    cont.innerHTML = estado.historial.map(p => {
+    cont.innerHTML = estado.historialVista.map(p => {
         // En el archivo el ganador puede estar en cualquiera de las dos columnas
         const [g1, g2] = p.marcador.split('-').map(Number);
         const ganador = g1 > g2 ? p.jugador1 : p.jugador2;
@@ -448,7 +477,7 @@ function renderHistorial() {
 }
 
 async function borrarPartido(indice) {
-    const p = estado.historial.find(x => x.indice === indice);
+    const p = estado.historialVista.find(x => x.indice === indice);
     if (!p) return;
 
     const [g1, g2] = p.marcador.split('-').map(Number);
@@ -484,7 +513,7 @@ async function borrarPartido(indice) {
 // Mantiene el torneo y la fase originales: así se pueden corregir también
 // partidos de torneos sin convertirlos sin querer en amistosos.
 function empezarEdicion(indice) {
-    const p = estado.historial.find(x => x.indice === indice);
+    const p = estado.historialVista.find(x => x.indice === indice);
     if (!p) return;
 
     const [g1, g2] = p.marcador.split('-').map(Number);
@@ -590,7 +619,7 @@ function cambiarFiltroHistorial(filtro) {
 // Envío al backend
 // =====================================================
 
-async function enviarPartido({ ganador, perdedor, golesPerdedor, fecha }) {
+async function enviarPartido({ ganador, perdedor, golesPerdedor, fecha }, torneoNombre = TORNEO, faseNombre = FASE) {
     const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -599,9 +628,9 @@ async function enviarPartido({ ganador, perdedor, golesPerdedor, fecha }) {
             jugador2: perdedor,
             resultado: 'G',            // jugador1 siempre es el ganador
             marcador: `7-${golesPerdedor}`,
-            torneo: TORNEO,
+            torneo: torneoNombre,
             fecha,
-            fase: FASE
+            fase: faseNombre
         })
     });
 
@@ -644,6 +673,9 @@ function bindEventos() {
     document.getElementById('modo-directo').addEventListener('click', () => cambiarModo('directo'));
     document.getElementById('modo-tanda').addEventListener('click', () => cambiarModo('tanda'));
     document.getElementById('modo-historial').addEventListener('click', () => cambiarModo('historial'));
+    document.getElementById('modo-torneo').addEventListener('click', () => cambiarModo('torneo'));
+    document.getElementById('btn-guardar-fixture').addEventListener('click', guardarResultadoFixture);
+    document.getElementById('btn-cancelar-fixture').addEventListener('click', cerrarCargaDeFixture);
     document.getElementById('btn-cargar').addEventListener('click', cargarDirecto);
     document.getElementById('btn-agregar').addEventListener('click', agregarATanda);
     document.getElementById('btn-subir-tanda').addEventListener('click', subirTanda);
@@ -668,6 +700,14 @@ function hoyISO() {
 // El txt usa D/M/AAAA, el input date devuelve AAAA-MM-DD.
 function fechaFormateada() {
     const valor = document.getElementById('fecha').value || hoyISO();
+    const [anio, mes, dia] = valor.split('-').map(n => parseInt(n, 10));
+    return `${dia}/${mes}/${anio}`;
+}
+
+// Igual que fechaFormateada pero leyendo cualquier input de fecha.
+function fechaDesdeInput(id) {
+    const el = document.getElementById(id);
+    const valor = (el && el.value) || hoyISO();
     const [anio, mes, dia] = valor.split('-').map(n => parseInt(n, 10));
     return `${dia}/${mes}/${anio}`;
 }
