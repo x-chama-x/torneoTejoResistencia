@@ -231,7 +231,7 @@ Al editar se conservan el `torneo` y la `fase` originales, asi tambien se pueden
 | `POST` | `/api/cargar-partido` | Agrega un partido al final del archivo |
 | `GET` | `/api/partidos?limit=25&torneo=Amistoso` | Lista los partidos mas recientes con su indice de linea |
 | `PUT` | `/api/partidos` | Reemplaza la linea indicada (`indice` + `lineaEsperada` + `partido`) |
-| `DELETE` | `/api/partidos` | Borra la linea indicada (`indice` + `lineaEsperada`) |
+| `DELETE` | `/api/partidos` | Borra la linea indicada (`indice` + `lineaEsperada`), o todos los partidos de un torneo (`torneo`) en un solo commit |
 
 La logica compartida de GitHub y del formato del archivo vive en `lib/github.js` (fuera de `/api`, porque cada archivo dentro de `/api` se vuelve una funcion serverless).
 
@@ -292,6 +292,12 @@ Gracias a eso no hay nada que sincronizar: si cambiaś de celular, la app baja e
 3. **Repechajes** (solo formato de 9): cuando termina la fase de grupos, los tres segundos juegan una mini-liga y los tres terceros otra. Los ganadores definen el ultimo lugar de playoffs en el **Partido Eliminatorio**.
 4. **Semifinales**: se siembran solas desde la tabla. Liga: 1v4 y 2v3. Dos grupos: A1vB2 y B1vA2. Tres grupos: el mejor ganador de grupo contra el que entro por repechaje, y los otros dos entre si.
 5. **Final y tercer puesto**: salen de las dos semis. **El tercer puesto va siempre**, para que no vuelva a pasar lo del Tercer torneo, donde se lo saltearon por olvido.
+
+### Borrar un torneo
+
+El boton "Borrar torneo" elimina el sorteo y todos sus partidos del `.txt` en un solo commit cada uno. Sirve para deshacer un torneo de prueba o uno que salio mal: el `.txt` queda **exactamente** como estaba antes, byte por byte, y como el Ranking FIFA se recalcula de cero en cada carga de pagina, tambien vuelve solo a su estado anterior.
+
+Los amistosos no se pueden borrar en masa (seria borrar la Tejo Nations League entera): el endpoint lo rechaza.
 
 ### Partidos pendientes de torneos viejos
 
