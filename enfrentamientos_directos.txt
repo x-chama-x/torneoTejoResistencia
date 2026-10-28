@@ -109,3 +109,4 @@ Chama,Facu,G,7-4,Amistoso,29/8/2026,Amistoso
 Chama,Rafa,G,7-5,Cuarto torneo de hockey de mesa,27/10/2026,Fase de Liga
 Santi,Facu,G,7-5,Cuarto torneo de hockey de mesa,27/10/2026,Fase de Liga
 Tomy,Lucas,G,7-2,Cuarto torneo de hockey de mesa,28/10/2026,Fase de Liga
+Rafa,Santi,G,7-5,Cuarto torneo de hockey de mesa,28/10/2026,Fase de Liga
