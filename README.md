@@ -273,7 +273,14 @@ Mientras las semifinales estan sorteadas pero sin jugar, la final **tampoco qued
 
 En cuanto se carga **una** semifinal, las dos tarjetas se actualizan: el ganador aparece con su nombre en la final (y el perdedor en el tercer puesto), el que quedo afuera se muestra tachado como "eliminado", y las probabilidades se recalculan entre los que siguen vivos. Una semi ya jugada deja de ser un azar: el que gano pasa con probabilidad 1 y el que perdio queda en 0, y las cuentas salen solas de ahi.
 
-En **celular** (menos de 600px) el bracket se apila: las dos semifinales una abajo de la otra y la final debajo, cada tarjeta con el ancho completo. Con las dos columnas al lado, en una pantalla de 390px cada tarjeta se quedaba con 149px y adentro no entraba nada: los nombres se cortaban, los badges de porcentaje se pisaban y las barras de probabilidad quedaban de 2px. Apilado, la barra pasa a medir 300px y la de cada candidato 183px. Las lineas conectoras del bracket se esconden, porque sin las dos columnas no tienen a que unir (`drawBracketLines` corta solo si la columna conectora no tiene ancho).
+En **celular** el bracket sigue siendo un bracket: las dos semifinales a la izquierda, la final a la derecha y las lineas uniendolas. Lo que no entraba era el contenido de las tarjetas, que venia dimensionado para `playoffs.html`, donde son del doble de ancho. Abajo de 600px (`css/styles.css`):
+
+- el panel de playoffs usa menos padding, asi cada columna gana 8px;
+- los dos nombres se reparten la fila en partes iguales y pueden cortar en dos lineas, asi "Ganador SF1" entra como "Ganador / SF1" en vez de salirse de la tarjeta;
+- los badges de porcentaje pierden el `min-width: 64px`, que entre los dos pedian mas ancho del que tenia la tarjeta entera;
+- los candidatos al titulo pasan a dos renglones (nombre y % arriba, barra abajo a todo el ancho), en `torneos.html`.
+
+La barra de cada candidato pasa de 16px a 145px, que es la diferencia entre verse y no verse. Aguanta hasta 320px, donde cada tarjeta queda en 126px y las cuatro lineas del bracket se siguen dibujando.
 
 Las tablas de posiciones se dibujan con **todos los jugadores del sorteo en cero**, asi el torneo se ve completo desde el minuto uno y se va llenando solo. El aviso de empate multiple no aparece mientras nadie haya jugado (si no, al arranque saltaria siempre, con todos en cero).
 

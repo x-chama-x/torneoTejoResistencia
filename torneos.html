@@ -141,7 +141,29 @@
             font-variant-numeric: tabular-nums;
         }
 
-    </style>
+        /* En celular la tarjeta de la final mide ~160px: con nombre, barra
+           y porcentaje en la misma linea, a la barra le quedaban 16px y no
+           se veia. Pasa a dos renglones: nombre y % arriba, barra abajo a
+           todo el ancho de la tarjeta. */
+        @media (max-width: 600px) {
+            .candidatos { margin-top: 10px; padding-top: 8px; }
+            .candidatos-titulo { font-size: 0.62rem; margin-bottom: 6px; }
+
+            .candidato {
+                grid-template-columns: 1fr auto;
+                gap: 3px 6px;
+                margin-bottom: 7px;
+                font-size: 0.72rem;
+            }
+            .candidato-nombre { grid-column: 1; grid-row: 1; }
+            .candidato-pct    { grid-column: 2; grid-row: 1; }
+            .candidato-barra  { grid-column: 1 / -1; grid-row: 2; height: 6px; }
+
+            /* Al eliminado no le dibujamos barra, asi que le alcanza una fila */
+            .candidato.eliminado { grid-template-columns: 1fr auto; margin-bottom: 5px; }
+        }
+
+</style>
 </head>
 <body>
     <div class="container">

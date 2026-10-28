@@ -488,9 +488,8 @@ function drawBracketLines() {
 
     const connRect = connEl.getBoundingClientRect();
 
-    // En celular el bracket se apila y la columna conectora se esconde
-    // (ver css/styles.css, @media max-width 600px). Sin ancho no hay
-    // lineas que dibujar.
+    // Si la columna conectora no tiene ancho (oculta por CSS), no hay
+    // lineas que dibujar y las cuentas de abajo darian cualquier cosa.
     if (connRect.width === 0) {
         svg.innerHTML = '';
         return;

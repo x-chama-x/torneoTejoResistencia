@@ -597,93 +597,103 @@ select:hover {
 }
 
 /* ================================================
-   CELULAR: el bracket se apila
+   CELULAR: el bracket, pero compacto
    ================================================
-   Arriba de 600px las dos columnas (semis | final) entran bien y el
-   bracket se ve como un bracket. Abajo de eso cada tarjeta se queda con
-   menos de 150px y todo lo que lleva adentro se desborda: los nombres se
-   cortan, los badges de porcentaje se pisan y las barras de probabilidad
-   quedan de 2px, que es lo mismo que no estar.
+   El bracket se queda como bracket tambien en el celular: las dos
+   semifinales a la izquierda, la final a la derecha y las lineas
+   uniendolas. Lo que cambia abajo de 600px es lo de adentro, que venia
+   dimensionado para la pagina de Playoffs (tarjetas del doble de ancho)
+   y por eso se desbordaba:
 
-   Asi que en celular se apila: semifinales una abajo de la otra y la
-   final debajo, cada tarjeta con el ancho completo del panel. Se pierde
-   el dibujo del bracket (las lineas conectoras se esconden) pero se gana
-   que todo entre y se lea. */
+     - el panel usa menos padding, asi las columnas ganan 16px;
+     - los nombres se reparten la fila en partes iguales y pueden cortar
+       en dos lineas, asi "Ganador SF1" entra como "Ganador / SF1" en vez
+       de salirse de la tarjeta;
+     - los badges de porcentaje pierden el min-width de 64px, que entre
+       los dos se comian mas ancho del que tenia la tarjeta;
+     - los candidatos al titulo pasan a dos renglones (nombre + % arriba,
+       barra abajo a lo ancho), que esta en torneos.html.
+
+   La cuenta a 390px: panel 370 - 24 de padding = 346; menos 22 de la
+   columna conectora, quedan 162 por columna. */
 @media (max-width: 600px) {
+    /* Mas ancho util para las dos columnas */
+    .panel.playoffs-section {
+        padding: 12px;
+    }
+
     .bracket-fixture {
-        flex-direction: column;
-        gap: 16px;
-        margin: 12px 0;
+        margin: 14px 0;
     }
 
-    /* Las lineas conectoras solo tienen sentido con las dos columnas */
     .bracket-connector-col {
-        display: none;
-    }
-
-    .bracket-col-semis,
-    .bracket-col-final {
-        width: 100%;
-        flex: none;
+        width: 22px;
     }
 
     .bracket-col-semis {
-        gap: 12px;
+        gap: 10px;
     }
 
-    .bracket-col-semis > div,
-    .bracket-col-final > div {
-        width: 100%;
+    .bracket-fixture .match-card {
+        padding: 8px 7px;
     }
 
-    /* Con el ancho completo ya no hace falta apretar tanto el contenido */
-    .bracket-fixture .match-card,
-    #tercer-puesto-container .match-card,
-    .extra-matches-container #tercer-puesto-container .match-card,
-    .extra-matches-container #pre-playoff-container .match-card {
-        padding: 14px;
-        width: 100%;
-        max-width: none;
-    }
-
-    .bracket-col-semis .round-title,
-    .bracket-col-final .round-title,
-    #tercer-puesto-container h3,
-    .extra-matches-container #pre-playoff-container h3 {
-        font-size: 13px !important;
-    }
-
-    .bracket-fixture .match-number,
-    #tercer-puesto-container .match-number,
-    .extra-matches-container #pre-playoff-container .match-number {
-        font-size: 11px;
+    /* Los dos nombres se reparten la fila y pueden partirse en dos
+       lineas: con 11px y sin wrap, "Ganador SF1" no entra en 162px */
+    .bracket-fixture .match-players,
+    #tercer-puesto-container .match-players {
+        gap: 2px;
     }
 
     .bracket-fixture .player,
-    #tercer-puesto-container .player,
-    .extra-matches-container #pre-playoff-container .player {
-        font-size: 15px;
+    #tercer-puesto-container .player {
+        flex: 1 1 0;
+        min-width: 0;
+        white-space: normal;
+        line-height: 1.15;
+        font-size: 11.5px;
+    }
+
+    .bracket-fixture .player.por-definir,
+    #tercer-puesto-container .player.por-definir {
+        font-size: 10px;
     }
 
     .bracket-fixture .vs,
-    #tercer-puesto-container .vs,
-    .extra-matches-container #pre-playoff-container .vs {
-        padding: 0 10px;
-        font-size: 13px;
+    #tercer-puesto-container .vs {
+        flex: 0 0 auto;
+        padding: 0 3px;
+        font-size: 10px;
     }
 
-    .bracket-fixture .score,
-    #tercer-puesto-container .score,
-    .extra-matches-container #pre-playoff-container .score {
-        font-size: 20px;
-    }
-
-    .bracket-fixture .winner-badge,
-    #tercer-puesto-container .winner-badge,
-    .extra-matches-container #pre-playoff-container .winner-badge {
+    /* El min-width de 64px por badge venia de la pagina de Playoffs */
+    .bracket-fixture .sf-prob-badge,
+    #tercer-puesto-container .sf-prob-badge {
         font-size: 11px;
-        padding: 4px 10px;
+        min-width: 0;
+        padding: 2px 5px;
     }
+
+    .bracket-fixture .sf-split-bar,
+    #tercer-puesto-container .sf-split-bar {
+        height: 10px;
+        margin: 5px 0;
+    }
+
+    .bracket-fixture .sf-insight,
+    #tercer-puesto-container .sf-insight {
+        font-size: 10px;
+        padding: 6px 0 2px;
+    }
+
+    .bracket-fixture .prob-sin-datos,
+    #tercer-puesto-container .prob-sin-datos {
+        font-size: 10px;
+    }
+
+    /* El tercer puesto se queda del ancho de una columna del bracket,
+       como estaba: lo que antes se desbordaba eran los nombres, y eso ya
+       lo arreglan el flex y el wrap de arriba */
 }
 
 @media (max-width: 768px) {
