@@ -106,3 +106,4 @@ Facu,Chama,G,7-3,Amistoso,15/05/2026,Amistoso
 Rafa,Hector,G,7-5,Amistoso,15/05/2026,Amistoso
 Tomy,Facu,G,7-6,Amistoso,29/8/2026,Amistoso
 Chama,Facu,G,7-4,Amistoso,29/8/2026,Amistoso
+Santi,Chama,G,7-5,Amistoso,28/10/2026,Amistoso
