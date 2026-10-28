@@ -204,7 +204,11 @@
         }
         .btn-success { background: var(--green); color: #0d1117; }
         .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        #accion-edicion { margin-bottom: 18px; }
+        /* Los bloques de acción cierran una sección: necesitan aire antes de
+           la siguiente tarjeta (si no, los botones quedan pegados a ella) */
+        #accion-edicion,
+        #accion-fixture,
+        #accion-directo { margin-bottom: 18px; }
 
         /* --- Modo --- */
         .modo-switch {
