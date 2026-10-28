@@ -192,17 +192,51 @@ function filaProbabilidad(cruce) {
         </tr>`;
 }
 
+// Mira cada semifinal sorteada y, si ya se jugó, saca ganador y perdedor.
+// Es lo que permite que la final deje de decir "Ganador SF1" en cuanto esa
+// semi se carga, y que el que perdió salga de la pelea por el título.
+function estadoDeLasSemis(semisSorteadas, partidosDelTorneo) {
+    const comoPar = s => Array.isArray(s) ? s : [s.j1, s.j2];
+
+    return semisSorteadas.map(par => {
+        const [a, b] = comoPar(par);
+        const jugado = (partidosDelTorneo || []).find(m =>
+            m.fase === 'Semifinal' &&
+            ((m.j1 === a && m.j2 === b) || (m.j1 === b && m.j2 === a))
+        );
+
+        if (!jugado) return { a, b, ganador: null, perdedor: null };
+
+        const [g1, g2] = jugado.marcador.split('-').map(Number);
+        return {
+            a, b,
+            ganador: g1 > g2 ? jugado.j1 : jugado.j2,
+            perdedor: g1 > g2 ? jugado.j2 : jugado.j1
+        };
+    });
+}
+
 // Tarjeta de la final cuando todavía no se sabe quiénes la juegan.
 // En vez de dejar el hueco vacío, muestra quiénes pueden llegar y con qué
-// chance cada uno de salir campeón (ver probabilidadesDeCampeon).
-function tarjetaFinalPorDefinirse(semis) {
-    const candidatos = probabilidadesDeCampeon(semis);
+// chance cada uno de salir campeón (ver probabilidadesDeCampeon). Si una de
+// las semis ya se jugó, su ganador aparece con nombre y propio y las
+// probabilidades se recalculan con eso.
+function tarjetaFinalPorDefinirse(semis, estados) {
+    const candidatos = probabilidadesDeCampeon(semis, estados.map(e => e.ganador));
 
     const lista = candidatos ? `
         <div class="candidatos">
             <div class="candidatos-titulo">Candidatos al título</div>
             ${candidatos.map(c => {
                 const pct = (c.campeon * 100);
+                if (c.eliminado) {
+                    return `
+                        <div class="candidato eliminado">
+                            <span class="candidato-nombre">${escaparTexto(c.nombre)}</span>
+                            <span class="candidato-barra"></span>
+                            <span class="candidato-pct">eliminado</span>
+                        </div>`;
+                }
                 return `
                     <div class="candidato">
                         <span class="candidato-nombre">${escaparTexto(c.nombre)}</span>
@@ -218,26 +252,33 @@ function tarjetaFinalPorDefinirse(semis) {
         <div class="match-card match-card-pendiente">
             <div class="match-number">Gran Final</div>
             <div class="match-players">
-                <div class="player por-definir">Ganador SF1</div>
+                ${nombreOEtiqueta(estados[0].ganador, 'Ganador SF1', 'blue')}
                 <div class="vs">VS</div>
-                <div class="player por-definir">Ganador SF2</div>
+                ${nombreOEtiqueta(estados[1].ganador, 'Ganador SF2', 'red')}
             </div>
             ${lista}
             <div class="sf-insight">Se define con las semifinales</div>
         </div>`;
 }
 
+// Si ya se sabe quién es, va el nombre; si no, la etiqueta en gris.
+function nombreOEtiqueta(nombre, etiqueta, color) {
+    return nombre
+        ? `<div class="player ${color}">${escaparTexto(nombre)}</div>`
+        : `<div class="player por-definir">${etiqueta}</div>`;
+}
+
 // Lo mismo para el tercer puesto: lo juegan los dos que pierdan las semis.
-function tarjetaTercerPuestoPorDefinirse() {
+function tarjetaTercerPuestoPorDefinirse(estados) {
     return `
         <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">🥉 Tercer Puesto</h3>
         <div style="display: flex; justify-content: center;">
             <div class="match-card match-card-pendiente">
                 <div class="match-number">Tercer y Cuarto Puesto</div>
                 <div class="match-players">
-                    <div class="player por-definir">Perdedor SF1</div>
+                    ${nombreOEtiqueta(estados[0].perdedor, 'Perdedor SF1', 'blue')}
                     <div class="vs">VS</div>
-                    <div class="player por-definir">Perdedor SF2</div>
+                    ${nombreOEtiqueta(estados[1].perdedor, 'Perdedor SF2', 'red')}
                 </div>
                 <div class="sf-insight">Se define con las semifinales</div>
             </div>
@@ -246,7 +287,7 @@ function tarjetaTercerPuestoPorDefinirse() {
 
 // Mete cada pendiente donde corresponde. Se llama después de que
 // cargarTorneo() terminó de dibujar el torneo.
-function inyectarPendientes(pendientes, semisDelTorneo) {
+function inyectarPendientes(pendientes, semisDelTorneo, partidosDelTorneo) {
     const porFase = {};
     (pendientes || []).forEach(p => {
         if (!porFase[p.fase]) porFase[p.fase] = [];
@@ -267,15 +308,19 @@ function inyectarPendientes(pendientes, semisDelTorneo) {
         });
     }
 
+    const estados = (semisDelTorneo && semisDelTorneo.length === 2)
+        ? estadoDeLasSemis(semisDelTorneo, partidosDelTorneo)
+        : null;
+
     const final = (porFase['Final'] || [])[0];
     const finalWrap = document.getElementById('final-wrap');
     if (finalWrap && !finalWrap.querySelector('.match-card')) {
         if (final) {
             // Ya se jugaron las dos semis: se sabe quiénes la juegan
             finalWrap.innerHTML = tarjetaProbabilidad(final, 'Gran Final');
-        } else if (semisDelTorneo && semisDelTorneo.length === 2) {
-            // Las semis están sorteadas pero no jugadas: candidatos al título
-            finalWrap.innerHTML = tarjetaFinalPorDefinirse(semisDelTorneo);
+        } else if (estados) {
+            // Las semis están sorteadas pero falta alguna: candidatos al título
+            finalWrap.innerHTML = tarjetaFinalPorDefinirse(semisDelTorneo, estados);
         }
     }
 
@@ -288,8 +333,8 @@ function inyectarPendientes(pendientes, semisDelTorneo) {
                 <div style="display: flex; justify-content: center;">
                     ${tarjetaProbabilidad(tercero, 'Tercer y Cuarto Puesto')}
                 </div>`;
-        } else if (semisDelTorneo && semisDelTorneo.length === 2) {
-            tpc.innerHTML = tarjetaTercerPuestoPorDefinirse();
+        } else if (estados) {
+            tpc.innerHTML = tarjetaTercerPuestoPorDefinirse(estados);
         }
     }
 
