@@ -122,7 +122,7 @@ function mostrarTorneo(texto, nombreTorneo) {
     // Los pendientes se inyectan recien cuando cargarTorneo termino de
     // dibujar el bracket y las tablas, porque van adentro de esos mismos.
     Promise.resolve(cargarTorneo(nombreTorneo)).then(() => {
-        inyectarPendientes(calcularPendientes(sorteo, delTorneo), sorteo && sorteo.semifinales);
+        inyectarPendientes(calcularPendientes(sorteo, delTorneo), sorteo && sorteo.semifinales, delTorneo);
         ocultarSeccionesVacias(delTorneo, esLiga, sorteo);
     });
 }

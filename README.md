@@ -269,6 +269,8 @@ Los partidos que **todavia no se jugaron** no van en una seccion aparte: se dibu
 | Semifinales, final y tercer puesto | La tarjeta del bracket, igual que en la pagina de Playoffs |
 
 Mientras las semifinales estan sorteadas pero sin jugar, la final **tampoco queda vacia**: muestra "Ganador SF1 vs Ganador SF2" y, debajo, la probabilidad de cada uno de los cuatro de salir campeon. No se simula, se calcula exacto: la chance de ganar su semi por la chance de ganarle a cada rival posible, pesada por lo probable que sea enfrentar a cada uno. Las cuatro suman 100%. El tercer puesto hace lo mismo con "Perdedor SF1 vs Perdedor SF2".
+
+En cuanto se carga **una** semifinal, las dos tarjetas se actualizan: el ganador aparece con su nombre en la final (y el perdedor en el tercer puesto), el que quedo afuera se muestra tachado como "eliminado", y las probabilidades se recalculan entre los que siguen vivos. Una semi ya jugada deja de ser un azar: el que gano pasa con probabilidad 1 y el que perdio queda en 0, y las cuentas salen solas de ahi.
 | Repechajes y eliminatorio | Como la liga, en su tabla de Resultados |
 
 Las tablas de posiciones se dibujan con **todos los jugadores del sorteo en cero**, asi el torneo se ve completo desde el minuto uno y se va llenando solo. El aviso de empate multiple no aparece mientras nadie haya jugado (si no, al arranque saltaria siempre, con todos en cero).

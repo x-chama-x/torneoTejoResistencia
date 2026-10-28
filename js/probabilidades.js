@@ -132,9 +132,13 @@ function historialEntre(nombre1, nombre2) {
 // Acepta los cruces como pares ([[a,b],[c,d]], que es como se guardan en el
 // JSON del torneo) o como objetos ([{j1,j2},{j1,j2}]).
 //
-// Devuelve [{ nombre, campeon, final }] ordenado de mayor a menor, donde
-// "final" es la probabilidad de llegar a la final.
-function probabilidadesDeCampeon(semis) {
+// `ganadores` (opcional) es [ganadorSF1, ganadorSF2], con null donde la semi
+// todavía no se jugó. Una semi ya jugada deja de ser un azar: el que ganó pasa
+// con probabilidad 1 y el que perdió queda en 0, y las cuentas de la final se
+// recalculan solas con eso.
+//
+// Devuelve [{ nombre, campeon, final, eliminado }] ordenado de mayor a menor.
+function probabilidadesDeCampeon(semis, ganadores) {
     if (!semis || semis.length !== 2) return null;
 
     const comoPar = s => Array.isArray(s) ? s : [s.j1, s.j2];
@@ -142,8 +146,11 @@ function probabilidadesDeCampeon(semis) {
     const [c, d] = comoPar(semis[1]);
     if (!a || !b || !c || !d) return null;
 
-    const pA = probabilidadGana1(a, b);
-    const pC = probabilidadGana1(c, d);
+    const g = ganadores || [null, null];
+
+    // Si la semi ya se jugó, no hay nada que estimar
+    const pA = g[0] ? (g[0] === a ? 1 : 0) : probabilidadGana1(a, b);
+    const pC = g[1] ? (g[1] === c ? 1 : 0) : probabilidadGana1(c, d);
     if (pA === null || pC === null) return null;
 
     const llegaFinal = { [a]: pA, [b]: 1 - pA, [c]: pC, [d]: 1 - pC };
@@ -163,6 +170,11 @@ function probabilidadesDeCampeon(semis) {
     });
 
     return [a, b, c, d]
-        .map(nombre => ({ nombre, campeon: campeon[nombre], final: llegaFinal[nombre] }))
+        .map(nombre => ({
+            nombre,
+            campeon: campeon[nombre],
+            final: llegaFinal[nombre],
+            eliminado: llegaFinal[nombre] === 0
+        }))
         .sort((x, y) => y.campeon - x.campeon);
 }
