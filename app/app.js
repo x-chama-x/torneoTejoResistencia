@@ -284,6 +284,8 @@ function cambiarModo(modo) {
     document.getElementById('accion-fixture').style.display = 'none';
     document.getElementById('fixture-banner').style.display = 'none';
 
+    actualizarSubtitulo();
+
     if (modo === 'historial' && estado.historialVista.length === 0) {
         cargarHistorial();
     }
@@ -291,6 +293,27 @@ function cambiarModo(modo) {
         entrarModoTorneo();
     }
     actualizarUI();
+}
+
+// El subtítulo acompaña al modo: en Torneo no tiene nada que ver con los
+// amistosos de la Nations League, y si hay un torneo abierto se muestra su
+// nombre.
+function actualizarSubtitulo(texto) {
+    const el = document.getElementById('subtitulo');
+    if (!el) return;
+
+    if (texto) {
+        el.textContent = texto;
+        return;
+    }
+
+    const porModo = {
+        directo: 'Amistosos · Tejo Nations League',
+        tanda: 'Amistosos · Tejo Nations League',
+        historial: 'Historial de partidos cargados',
+        torneo: 'Torneos oficiales'
+    };
+    el.textContent = porModo[estado.modo] || porModo.directo;
 }
 
 function limpiarFormulario() {

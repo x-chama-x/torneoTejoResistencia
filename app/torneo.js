@@ -88,6 +88,7 @@ async function refrescarJugados() {
 
 function renderInicioTorneo() {
     torneo.paso = 'inicio';
+    actualizarSubtitulo();
     const cont = document.getElementById('seccion-torneo');
 
     cont.innerHTML = `
@@ -112,6 +113,7 @@ function renderInicioTorneo() {
 
 function renderCrearTorneo() {
     torneo.paso = 'crear';
+    actualizarSubtitulo('Nuevo torneo');
     torneo.seleccionCrear = [];
     const cont = document.getElementById('seccion-torneo');
 
@@ -366,6 +368,7 @@ function ganadorDePartidoTxt(p) {
 
 function renderTorneoEnCurso() {
     torneo.paso = 'curso';
+    actualizarSubtitulo(torneo.estado.nombre);
     const cont = document.getElementById('seccion-torneo');
     const s = calcularSituacion();
     const { nombre, formato } = torneo.estado;
