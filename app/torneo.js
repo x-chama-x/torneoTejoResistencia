@@ -316,14 +316,24 @@ function calcularSituacion() {
         }
     }
 
-    // Semifinales: solo cuando ya está todo lo previo
+    // Semifinales: solo cuando ya está todo lo previo. No se siembran solas,
+    // se sortean desde la app y el resultado queda guardado en el JSON.
     const listoParaSemis = faltaRegular.length === 0 &&
         (!usaRepechajes || !!ganadorEliminatorio);
 
     let semis = [];
+    let faltaSortearSemis = false;
+    let clasificados = null;
+
     if (listoParaSemis) {
-        semis = calcularSemifinales(grupos, tablas, ganadorEliminatorio) || [];
-        if (semis.length) etapas.push({ titulo: 'Semifinales', partidos: semis });
+        semis = calcularSemifinales(grupos, tablas, ganadorEliminatorio, torneo.estado.semifinales) || [];
+
+        if (semis.length) {
+            etapas.push({ titulo: 'Semifinales', partidos: semis });
+        } else {
+            clasificados = calcularClasificados(grupos, tablas, ganadorEliminatorio);
+            faltaSortearSemis = !!clasificados;
+        }
     }
 
     // Final y tercer puesto: cuando las dos semis están jugadas
@@ -339,6 +349,8 @@ function calcularSituacion() {
     return {
         etapas,
         tablas,
+        faltaSortearSemis,
+        clasificados,
         totalFixture: todos.length,
         jugadosFixture: todos.filter(estaJugado).length,
         terminado: todos.length > 0 && todos.every(estaJugado) &&
@@ -469,7 +481,19 @@ async function borrarTorneoCompleto() {
 function renderEtapas(s) {
     const cont = document.getElementById('etapas-torneo');
 
-    cont.innerHTML = s.etapas.map((etapa, ei) => {
+    const bloqueSorteo = s.faltaSortearSemis ? `
+        <div class="card" style="border-color: var(--amber);">
+            <label style="color: var(--amber);">🎲 Sortear semifinales</label>
+            <p class="hint" style="margin: 0 0 12px 0;">
+                Terminó la fase regular. Estos son los cuatro clasificados:
+            </p>
+            <div class="chips" style="margin-bottom: 14px;">
+                ${s.clasificados.map(n => `<span class="chip sel-1">${escaparHtml(n)}</span>`).join('')}
+            </div>
+            <button class="btn btn-primary" id="btn-sortear-semis">🎲 Sortear cruces</button>
+        </div>` : '';
+
+    cont.innerHTML = bloqueSorteo + s.etapas.map((etapa, ei) => {
         const pendientes = etapa.partidos.filter(p => !estaJugado(p)).length;
         const filas = etapa.partidos.map((p, pi) => {
             const jugado = buscarJugado(p);
@@ -513,6 +537,40 @@ function renderEtapas(s) {
             abrirCargaDeFixture(s.etapas[ei].partidos[pi]);
         });
     });
+
+    const btnSemis = document.getElementById('btn-sortear-semis');
+    if (btnSemis) btnSemis.addEventListener('click', () => sortearYGuardarSemis(s.clasificados));
+}
+
+// Sortea los cruces de semifinales y los guarda en el JSON del torneo.
+// Hay que guardarlos porque son al azar: si no, la app y el sitio armarian
+// cada uno un bracket distinto a partir del mismo torneo.
+async function sortearYGuardarSemis(clasificados) {
+    if (torneo.cargando || !clasificados) return;
+
+    if (!confirm(`¿Sortear las semifinales?\n\n${clasificados.join(', ')}\n\nUna vez sorteadas quedan fijas.`)) return;
+
+    torneo.cargando = true;
+    const pares = sortearSemifinales(clasificados);
+
+    try {
+        const nuevo = { ...torneo.estado, semifinales: pares };
+        const res = await fetch(API_TORNEO_ESTADO, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ruta: torneo.ruta, estado: nuevo })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+
+        torneo.estado = nuevo;
+        mostrarToast(`🎲 ${pares[0].join(' vs ')} | ${pares[1].join(' vs ')}`, 'ok');
+        renderTorneoEnCurso();
+    } catch (err) {
+        mostrarToast(`No se pudo sortear: ${err.message}`, 'error');
+    } finally {
+        torneo.cargando = false;
+    }
 }
 
 function renderTablas(s) {

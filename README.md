@@ -267,6 +267,8 @@ Los partidos que **todavia no se jugaron** no van en una seccion aparte: se dibu
 |---|---|
 | Fase de liga y de grupos | Una fila mas en la tabla de Resultados |
 | Semifinales, final y tercer puesto | La tarjeta del bracket, igual que en la pagina de Playoffs |
+
+Mientras las semifinales estan sorteadas pero sin jugar, la final **tampoco queda vacia**: muestra "Ganador SF1 vs Ganador SF2" y, debajo, la probabilidad de cada uno de los cuatro de salir campeon. No se simula, se calcula exacto: la chance de ganar su semi por la chance de ganarle a cada rival posible, pesada por lo probable que sea enfrentar a cada uno. Las cuatro suman 100%. El tercer puesto hace lo mismo con "Perdedor SF1 vs Perdedor SF2".
 | Repechajes y eliminatorio | Como la liga, en su tabla de Resultados |
 
 Las tablas de posiciones se dibujan con **todos los jugadores del sorteo en cero**, asi el torneo se ve completo desde el minuto uno y se va llenando solo. El aviso de empate multiple no aparece mientras nadie haya jugado (si no, al arranque saltaria siempre, con todos en cero).
@@ -313,7 +315,9 @@ Gracias a eso no hay nada que sincronizar: si cambiaś de celular, la app baja e
 
    El orden del fixture esta armado para que **nadie juegue dos partidos seguidos**. Como se juega en una sola mesa, los partidos van uno atras del otro: si el fixture saliera en el orden natural, a alguno le tocaria jugar dos veces seguidas (en los tres torneos anteriores paso 3, 4 y 3 veces). Cuando hay varios grupos se intercalan entre si, que es lo que permite resolverlo siempre. El algoritmo es determinista, asi que la app y el sitio arman el mismo orden sin ponerse de acuerdo.
 3. **Repechajes** (solo formato de 9): cuando termina la fase de grupos, los tres segundos juegan una mini-liga y los tres terceros otra. Los ganadores definen el ultimo lugar de playoffs en el **Partido Eliminatorio**.
-4. **Semifinales**: se siembran solas desde la tabla. Liga: 1v4 y 2v3. Dos grupos: A1vB2 y B1vA2. Tres grupos: el mejor ganador de grupo contra el que entro por repechaje, y los otros dos entre si.
+4. **Semifinales**: **se sortean**, no se siembran. Cuando termina la fase regular, la app muestra los cuatro clasificados y un boton para sortear los cruces. Es lo que se hizo en los tres torneos anteriores (ninguno uso la siembra 1v4 / 2v3).
+
+   El sorteo queda **guardado en el JSON del torneo**, junto al de los grupos. Tiene que guardarse justamente porque es al azar: si se recalculara, la app y el sitio armarian cada uno un bracket distinto a partir del mismo torneo. Mientras no se sortee, el sitio muestra los clasificados con un aviso en el lugar del bracket.
 5. **Final y tercer puesto**: salen de las dos semis. **El tercer puesto va siempre**, para que no vuelva a pasar lo del Tercer torneo, donde se lo saltearon por olvido.
 
 ### Borrar un torneo
