@@ -310,6 +310,8 @@ Gracias a eso no hay nada que sincronizar: si cambiaś de celular, la app baja e
 
 1. **Crear**: formato, jugadores y sorteo de grupos. Se commitea el JSON del sorteo.
 2. **Fase regular**: todos contra todos (por grupo si el formato los tiene). Cada resultado se commitea al `.txt` apenas se carga.
+
+   El orden del fixture esta armado para que **nadie juegue dos partidos seguidos**. Como se juega en una sola mesa, los partidos van uno atras del otro: si el fixture saliera en el orden natural, a alguno le tocaria jugar dos veces seguidas (en los tres torneos anteriores paso 3, 4 y 3 veces). Cuando hay varios grupos se intercalan entre si, que es lo que permite resolverlo siempre. El algoritmo es determinista, asi que la app y el sitio arman el mismo orden sin ponerse de acuerdo.
 3. **Repechajes** (solo formato de 9): cuando termina la fase de grupos, los tres segundos juegan una mini-liga y los tres terceros otra. Los ganadores definen el ultimo lugar de playoffs en el **Partido Eliminatorio**.
 4. **Semifinales**: se siembran solas desde la tabla. Liga: 1v4 y 2v3. Dos grupos: A1vB2 y B1vA2. Tres grupos: el mejor ganador de grupo contra el que entro por repechaje, y los otros dos entre si.
 5. **Final y tercer puesto**: salen de las dos semis. **El tercer puesto va siempre**, para que no vuelva a pasar lo del Tercer torneo, donde se lo saltearon por olvido.
