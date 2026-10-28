@@ -117,3 +117,4 @@ Facu,Rafa,G,7-2,Cuarto torneo de hockey de mesa,28/10/2026,Fase de Liga
 Tomy,Chama,G,7-2,Cuarto torneo de hockey de mesa,28/10/2026,Fase de Liga
 Lucas,Rafa,G,7-4,Cuarto torneo de hockey de mesa,28/10/2026,Fase de Liga
 Chama,Santi,G,7-3,Cuarto torneo de hockey de mesa,28/10/2026,Fase de Liga
+Tomy,Facu,G,7-3,Cuarto torneo de hockey de mesa,28/10/2026,Fase de Liga
