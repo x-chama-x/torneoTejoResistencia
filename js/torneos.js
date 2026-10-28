@@ -122,7 +122,7 @@ function mostrarTorneo(texto, nombreTorneo) {
     // Los pendientes se inyectan recien cuando cargarTorneo termino de
     // dibujar el bracket y las tablas, porque van adentro de esos mismos.
     Promise.resolve(cargarTorneo(nombreTorneo)).then(() => {
-        inyectarPendientes(calcularPendientes(sorteo, delTorneo));
+        inyectarPendientes(calcularPendientes(sorteo, delTorneo), sorteo && sorteo.semifinales);
         ocultarSeccionesVacias(delTorneo, esLiga, sorteo);
     });
 }
@@ -135,7 +135,8 @@ function ocultarSeccionesVacias(partidos, esLiga, sorteo) {
     // tarjeta con la probabilidad de un cruce pendiente.
     const hayPlayoffs = partidos.some(m =>
         ['Semifinal', 'Final', 'Tercer Puesto'].includes(m.fase)) ||
-        !!document.querySelector('#playoff-bracket .match-card, #tercer-puesto-container .match-card');
+        !!document.querySelector('#playoff-bracket .match-card, #tercer-puesto-container .match-card') ||
+        !!document.querySelector('#playoff-bracket [style*="d29922"]');  // aviso de semis sin sortear
 
     const panelPlayoffs = document.querySelector('.playoffs-section');
     if (panelPlayoffs) panelPlayoffs.style.display = hayPlayoffs ? '' : 'none';

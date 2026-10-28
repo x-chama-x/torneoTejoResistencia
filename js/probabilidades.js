@@ -122,3 +122,47 @@ function historialEntre(nombre1, nombre2) {
         victorias2: cruce.victorias[nombre2] || 0
     };
 }
+
+// Probabilidad de que cada uno salga campeón, a partir de los dos cruces de
+// semifinales. No hace falta simular: con cuatro jugadores se calcula exacto.
+//
+//   P(A campeón) = P(A gana su semi) × [ P(C gana la otra) × P(A le gana a C)
+//                                      + P(D gana la otra) × P(A le gana a D) ]
+//
+// Acepta los cruces como pares ([[a,b],[c,d]], que es como se guardan en el
+// JSON del torneo) o como objetos ([{j1,j2},{j1,j2}]).
+//
+// Devuelve [{ nombre, campeon, final }] ordenado de mayor a menor, donde
+// "final" es la probabilidad de llegar a la final.
+function probabilidadesDeCampeon(semis) {
+    if (!semis || semis.length !== 2) return null;
+
+    const comoPar = s => Array.isArray(s) ? s : [s.j1, s.j2];
+    const [a, b] = comoPar(semis[0]);
+    const [c, d] = comoPar(semis[1]);
+    if (!a || !b || !c || !d) return null;
+
+    const pA = probabilidadGana1(a, b);
+    const pC = probabilidadGana1(c, d);
+    if (pA === null || pC === null) return null;
+
+    const llegaFinal = { [a]: pA, [b]: 1 - pA, [c]: pC, [d]: 1 - pC };
+
+    // Para cada uno, se promedia contra los dos rivales posibles del otro cruce,
+    // pesando por la chance de que a cada uno le toque enfrentarlo.
+    const campeon = {};
+    [[a, b, c, d], [c, d, a, b]].forEach(([x, y, r1, r2]) => {
+        [x, y].forEach(jug => {
+            const pRival1 = llegaFinal[r1];
+            const pRival2 = llegaFinal[r2];
+            campeon[jug] = llegaFinal[jug] * (
+                pRival1 * probabilidadGana1(jug, r1) +
+                pRival2 * probabilidadGana1(jug, r2)
+            );
+        });
+    });
+
+    return [a, b, c, d]
+        .map(nombre => ({ nombre, campeon: campeon[nombre], final: llegaFinal[nombre] }))
+        .sort((x, y) => y.campeon - x.campeon);
+}

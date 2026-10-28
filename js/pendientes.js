@@ -89,11 +89,18 @@ function calcularPendientes(sorteo, partidosDelTorneo) {
         }
     }
 
+    // Las semis salen del sorteo guardado en el JSON (no se siembran solas).
+    // Mientras no esten sorteadas, no hay cruces que mostrar.
     const listoParaSemis = !faltaRegular && (!usaRepechajes || !!ganadorEliminatorio);
     let semis = [];
     if (listoParaSemis) {
-        semis = calcularSemifinales(grupos, tablas, ganadorEliminatorio) || [];
+        semis = calcularSemifinales(grupos, tablas, ganadorEliminatorio, sorteo.semifinales) || [];
         cruces.push(...semis);
+
+        if (!semis.length) {
+            const clasificados = calcularClasificados(grupos, tablas, ganadorEliminatorio);
+            if (clasificados) avisarSemisSinSortear(clasificados);
+        }
     }
 
     const semisJugadas = semis.map(jugado).filter(Boolean);
@@ -185,13 +192,63 @@ function filaProbabilidad(cruce) {
         </tr>`;
 }
 
+// Tarjeta de la final cuando todavía no se sabe quiénes la juegan.
+// En vez de dejar el hueco vacío, muestra quiénes pueden llegar y con qué
+// chance cada uno de salir campeón (ver probabilidadesDeCampeon).
+function tarjetaFinalPorDefinirse(semis) {
+    const candidatos = probabilidadesDeCampeon(semis);
+
+    const lista = candidatos ? `
+        <div class="candidatos">
+            <div class="candidatos-titulo">Candidatos al título</div>
+            ${candidatos.map(c => {
+                const pct = (c.campeon * 100);
+                return `
+                    <div class="candidato">
+                        <span class="candidato-nombre">${escaparTexto(c.nombre)}</span>
+                        <span class="candidato-barra">
+                            <span class="candidato-relleno ${claseProb(c.campeon)}" style="width:${Math.max(pct, 1.5)}%"></span>
+                        </span>
+                        <span class="candidato-pct">${pct.toFixed(1)}%</span>
+                    </div>`;
+            }).join('')}
+        </div>` : '';
+
+    return `
+        <div class="match-card match-card-pendiente">
+            <div class="match-number">Gran Final</div>
+            <div class="match-players">
+                <div class="player por-definir">Ganador SF1</div>
+                <div class="vs">VS</div>
+                <div class="player por-definir">Ganador SF2</div>
+            </div>
+            ${lista}
+            <div class="sf-insight">Se define con las semifinales</div>
+        </div>`;
+}
+
+// Lo mismo para el tercer puesto: lo juegan los dos que pierdan las semis.
+function tarjetaTercerPuestoPorDefinirse() {
+    return `
+        <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">🥉 Tercer Puesto</h3>
+        <div style="display: flex; justify-content: center;">
+            <div class="match-card match-card-pendiente">
+                <div class="match-number">Tercer y Cuarto Puesto</div>
+                <div class="match-players">
+                    <div class="player por-definir">Perdedor SF1</div>
+                    <div class="vs">VS</div>
+                    <div class="player por-definir">Perdedor SF2</div>
+                </div>
+                <div class="sf-insight">Se define con las semifinales</div>
+            </div>
+        </div>`;
+}
+
 // Mete cada pendiente donde corresponde. Se llama después de que
 // cargarTorneo() terminó de dibujar el torneo.
-function inyectarPendientes(pendientes) {
-    if (!pendientes || pendientes.length === 0) return;
-
+function inyectarPendientes(pendientes, semisDelTorneo) {
     const porFase = {};
-    pendientes.forEach(p => {
+    (pendientes || []).forEach(p => {
         if (!porFase[p.fase]) porFase[p.fase] = [];
         porFase[p.fase].push(p);
     });
@@ -212,18 +269,28 @@ function inyectarPendientes(pendientes) {
 
     const final = (porFase['Final'] || [])[0];
     const finalWrap = document.getElementById('final-wrap');
-    if (final && finalWrap && !finalWrap.querySelector('.match-card')) {
-        finalWrap.innerHTML = tarjetaProbabilidad(final, 'Gran Final');
+    if (finalWrap && !finalWrap.querySelector('.match-card')) {
+        if (final) {
+            // Ya se jugaron las dos semis: se sabe quiénes la juegan
+            finalWrap.innerHTML = tarjetaProbabilidad(final, 'Gran Final');
+        } else if (semisDelTorneo && semisDelTorneo.length === 2) {
+            // Las semis están sorteadas pero no jugadas: candidatos al título
+            finalWrap.innerHTML = tarjetaFinalPorDefinirse(semisDelTorneo);
+        }
     }
 
     const tercero = (porFase['Tercer Puesto'] || [])[0];
     const tpc = document.getElementById('tercer-puesto-container');
-    if (tercero && tpc && !tpc.querySelector('.match-card')) {
-        tpc.innerHTML = `
-            <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">🥉 Tercer Puesto</h3>
-            <div style="display: flex; justify-content: center;">
-                ${tarjetaProbabilidad(tercero, 'Tercer y Cuarto Puesto')}
-            </div>`;
+    if (tpc && !tpc.querySelector('.match-card')) {
+        if (tercero) {
+            tpc.innerHTML = `
+                <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">🥉 Tercer Puesto</h3>
+                <div style="display: flex; justify-content: center;">
+                    ${tarjetaProbabilidad(tercero, 'Tercer y Cuarto Puesto')}
+                </div>`;
+        } else if (semisDelTorneo && semisDelTorneo.length === 2) {
+            tpc.innerHTML = tarjetaTercerPuestoPorDefinirse();
+        }
     }
 
     // Las líneas del bracket se miden sobre las tarjetas: hay que redibujarlas
@@ -270,6 +337,30 @@ function buscarTablaDeResultados(fase) {
         }
     }
     return null;
+}
+
+// Cuando la fase regular terminó pero las semis todavía no se sortearon,
+// se muestran los clasificados en el lugar del bracket.
+function avisarSemisSinSortear(clasificados) {
+    const bracket = document.getElementById('playoff-bracket');
+    if (!bracket) return;
+
+    bracket.innerHTML = `
+        <div style="text-align:center; padding: 1.5rem 1rem;">
+            <p style="color:#d29922; font-weight:700; margin-bottom: 0.8rem;">
+                🎲 Semifinales sin sortear
+            </p>
+            <p style="color:#8b949e; font-size:0.9rem; margin-bottom: 1rem;">
+                Terminó la fase regular. Estos son los cuatro clasificados:
+            </p>
+            <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap;">
+                ${clasificados.map(n => `
+                    <span style="padding:8px 16px; border-radius:999px; background:#21262d;
+                                 border:1px solid #30363d; font-weight:700; color:#58a6ff;">
+                        ${escaparTexto(n)}
+                    </span>`).join('')}
+            </div>
+        </div>`;
 }
 
 function escaparTexto(str) {
