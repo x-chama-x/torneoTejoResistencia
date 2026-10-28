@@ -118,3 +118,4 @@ Facu,Chama,G,7-6,Cuarto torneo de hockey de mesa,27/10/2026,Fase de Grupos (A)
 Lucas,Hector,G,7-2,Cuarto torneo de hockey de mesa,27/10/2026,Fase de Grupos (A)
 Marco,Kovic,G,7-4,Cuarto torneo de hockey de mesa,27/10/2026,Fase de Grupos (B)
 Rafa,Santi,G,7-2,Cuarto torneo de hockey de mesa,27/10/2026,Fase de Grupos (B)
+Rafa,Facu,G,7-2,Cuarto torneo de hockey de mesa,27/10/2026,Semifinal
