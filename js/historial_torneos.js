@@ -487,6 +487,15 @@ function drawBracketLines() {
     if (!sf1Card || !sf2Card || !finalCard) return;
 
     const connRect = connEl.getBoundingClientRect();
+
+    // En celular el bracket se apila y la columna conectora se esconde
+    // (ver css/styles.css, @media max-width 600px). Sin ancho no hay
+    // lineas que dibujar.
+    if (connRect.width === 0) {
+        svg.innerHTML = '';
+        return;
+    }
+
     const sf1CardRect = sf1Card.getBoundingClientRect();
     const sf2CardRect = sf2Card.getBoundingClientRect();
     const finalCardRect = finalCard.getBoundingClientRect();

@@ -596,6 +596,96 @@ select:hover {
     }
 }
 
+/* ================================================
+   CELULAR: el bracket se apila
+   ================================================
+   Arriba de 600px las dos columnas (semis | final) entran bien y el
+   bracket se ve como un bracket. Abajo de eso cada tarjeta se queda con
+   menos de 150px y todo lo que lleva adentro se desborda: los nombres se
+   cortan, los badges de porcentaje se pisan y las barras de probabilidad
+   quedan de 2px, que es lo mismo que no estar.
+
+   Asi que en celular se apila: semifinales una abajo de la otra y la
+   final debajo, cada tarjeta con el ancho completo del panel. Se pierde
+   el dibujo del bracket (las lineas conectoras se esconden) pero se gana
+   que todo entre y se lea. */
+@media (max-width: 600px) {
+    .bracket-fixture {
+        flex-direction: column;
+        gap: 16px;
+        margin: 12px 0;
+    }
+
+    /* Las lineas conectoras solo tienen sentido con las dos columnas */
+    .bracket-connector-col {
+        display: none;
+    }
+
+    .bracket-col-semis,
+    .bracket-col-final {
+        width: 100%;
+        flex: none;
+    }
+
+    .bracket-col-semis {
+        gap: 12px;
+    }
+
+    .bracket-col-semis > div,
+    .bracket-col-final > div {
+        width: 100%;
+    }
+
+    /* Con el ancho completo ya no hace falta apretar tanto el contenido */
+    .bracket-fixture .match-card,
+    #tercer-puesto-container .match-card,
+    .extra-matches-container #tercer-puesto-container .match-card,
+    .extra-matches-container #pre-playoff-container .match-card {
+        padding: 14px;
+        width: 100%;
+        max-width: none;
+    }
+
+    .bracket-col-semis .round-title,
+    .bracket-col-final .round-title,
+    #tercer-puesto-container h3,
+    .extra-matches-container #pre-playoff-container h3 {
+        font-size: 13px !important;
+    }
+
+    .bracket-fixture .match-number,
+    #tercer-puesto-container .match-number,
+    .extra-matches-container #pre-playoff-container .match-number {
+        font-size: 11px;
+    }
+
+    .bracket-fixture .player,
+    #tercer-puesto-container .player,
+    .extra-matches-container #pre-playoff-container .player {
+        font-size: 15px;
+    }
+
+    .bracket-fixture .vs,
+    #tercer-puesto-container .vs,
+    .extra-matches-container #pre-playoff-container .vs {
+        padding: 0 10px;
+        font-size: 13px;
+    }
+
+    .bracket-fixture .score,
+    #tercer-puesto-container .score,
+    .extra-matches-container #pre-playoff-container .score {
+        font-size: 20px;
+    }
+
+    .bracket-fixture .winner-badge,
+    #tercer-puesto-container .winner-badge,
+    .extra-matches-container #pre-playoff-container .winner-badge {
+        font-size: 11px;
+        padding: 4px 10px;
+    }
+}
+
 @media (max-width: 768px) {
     .matches-grid {
         grid-template-columns: 1fr;
