@@ -109,3 +109,4 @@ Chama,Facu,G,7-4,Amistoso,29/8/2026,Amistoso
 Facu,Lucas,G,7-5,Cuarto torneo de hockey de mesa,27/10/2026,Fase de Grupos (A)
 Chama,Hector,G,7-3,Cuarto torneo de hockey de mesa,27/10/2026,Fase de Grupos (A)
 Rafa,Kovic,G,7-3,Cuarto torneo de hockey de mesa,27/10/2026,Fase de Grupos (B)
+Santi,Marco,G,7-6,Cuarto torneo de hockey de mesa,27/10/2026,Fase de Grupos (B)
