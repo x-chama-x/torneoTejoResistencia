@@ -267,11 +267,13 @@ Los partidos que **todavia no se jugaron** no van en una seccion aparte: se dibu
 |---|---|
 | Fase de liga y de grupos | Una fila mas en la tabla de Resultados |
 | Semifinales, final y tercer puesto | La tarjeta del bracket, igual que en la pagina de Playoffs |
+| Repechajes y eliminatorio | Como la liga, en su tabla de Resultados |
 
 Mientras las semifinales estan sorteadas pero sin jugar, la final **tampoco queda vacia**: muestra "Ganador SF1 vs Ganador SF2" y, debajo, la probabilidad de cada uno de los cuatro de salir campeon. No se simula, se calcula exacto: la chance de ganar su semi por la chance de ganarle a cada rival posible, pesada por lo probable que sea enfrentar a cada uno. Las cuatro suman 100%. El tercer puesto hace lo mismo con "Perdedor SF1 vs Perdedor SF2".
 
 En cuanto se carga **una** semifinal, las dos tarjetas se actualizan: el ganador aparece con su nombre en la final (y el perdedor en el tercer puesto), el que quedo afuera se muestra tachado como "eliminado", y las probabilidades se recalculan entre los que siguen vivos. Una semi ya jugada deja de ser un azar: el que gano pasa con probabilidad 1 y el que perdio queda en 0, y las cuentas salen solas de ahi.
-| Repechajes y eliminatorio | Como la liga, en su tabla de Resultados |
+
+En **celular** (menos de 600px) el bracket se apila: las dos semifinales una abajo de la otra y la final debajo, cada tarjeta con el ancho completo. Con las dos columnas al lado, en una pantalla de 390px cada tarjeta se quedaba con 149px y adentro no entraba nada: los nombres se cortaban, los badges de porcentaje se pisaban y las barras de probabilidad quedaban de 2px. Apilado, la barra pasa a medir 300px y la de cada candidato 183px. Las lineas conectoras del bracket se esconden, porque sin las dos columnas no tienen a que unir (`drawBracketLines` corta solo si la columna conectora no tiene ancho).
 
 Las tablas de posiciones se dibujan con **todos los jugadores del sorteo en cero**, asi el torneo se ve completo desde el minuto uno y se va llenando solo. El aviso de empate multiple no aparece mientras nadie haya jugado (si no, al arranque saltaria siempre, con todos en cero).
 

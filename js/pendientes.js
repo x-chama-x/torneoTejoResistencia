@@ -241,7 +241,7 @@ function tarjetaFinalPorDefinirse(semis, estados) {
                     <div class="candidato">
                         <span class="candidato-nombre">${escaparTexto(c.nombre)}</span>
                         <span class="candidato-barra">
-                            <span class="candidato-relleno ${claseProb(c.campeon)}" style="width:${Math.max(pct, 1.5)}%"></span>
+                            <span class="candidato-relleno ${claseProb(c.campeon)}" style="width:${Math.max(pct, 2)}%"></span>
                         </span>
                         <span class="candidato-pct">${pct.toFixed(1)}%</span>
                     </div>`;
