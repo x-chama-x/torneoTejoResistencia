@@ -35,9 +35,15 @@ function parsearAmistosos(texto) {
             const res = p[2].trim();
             const marcador = p[3].trim();
             const fecha = p[5].trim();
-            const partesFecha = fecha.split('/').map(n => parseInt(n, 10));
-            const anio = partesFecha.length === 3 && !isNaN(partesFecha[2]) ? partesFecha[2] : null;
-            return { j1, j2, res, marcador, fecha, anio };
+            const [dia, mes, anioStr] = fecha.split('/').map(n => parseInt(n, 10));
+            const anio = !isNaN(anioStr) ? anioStr : null;
+            // Clave numérica AAAAMMDD para agrupar y ordenar por fecha. Hace
+            // falta porque en el .txt conviven "15/05/2026" y "2/4/2026": como
+            // texto son dos formatos distintos, como número son el mismo día.
+            const clave = anio !== null && !isNaN(dia) && !isNaN(mes)
+                ? anio * 10000 + mes * 100 + dia
+                : null;
+            return { j1, j2, res, marcador, fecha, anio, clave };
         })
         .filter(p => p.anio !== null);
 }

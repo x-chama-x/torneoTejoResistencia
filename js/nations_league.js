@@ -133,6 +133,42 @@ function renderEstadisticas(posiciones) {
     }).join('');
 }
 
+const MESES_NL = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+function formatFechaNL(f) {
+    const p = f.split('/');
+    if (p.length === 3) {
+        const d = parseInt(p[0], 10);
+        const m = parseInt(p[1], 10) - 1;
+        if (m >= 0 && m < 12) return `${d} ${MESES_NL[m]} ${p[2]}`;
+    }
+    return f;
+}
+
+// Cada día que se juntaron a jugar es una jornada. No hay un calendario
+// armado de antemano: la liga son amistosos sueltos, así que la jornada se
+// deduce de la fecha. Se numeran en orden cronológico dentro de la edición,
+// o sea que la Jornada 1 es la primera vez que se juntaron ese año.
+//
+// Se agrupa por la clave numérica AAAAMMDD y no por el texto de la fecha
+// porque en el .txt conviven "15/05/2026" y "2/4/2026".
+function agruparEnJornadas(partidos) {
+    const porClave = new Map();
+
+    partidos.forEach(m => {
+        const clave = m.clave != null ? m.clave : m.fecha;
+        if (!porClave.has(clave)) porClave.set(clave, { clave, fecha: m.fecha, partidos: [] });
+        porClave.get(clave).partidos.push(m);
+    });
+
+    return [...porClave.values()]
+        .sort((a, b) => a.clave - b.clave)
+        .map((j, i) => ({ ...j, numero: i + 1 }));
+}
+
+// Se muestra una jornada por vez, con flechas para moverse, igual que los
+// resultados por fecha del index. Apiladas se amontonaban: una sola jornada
+// puede tener 7 partidos y la columna se hacía larguísima.
 function renderResultados(partidos) {
     const cont = document.getElementById('resultados-nl');
     if (!cont) return;
@@ -142,49 +178,70 @@ function renderResultados(partidos) {
         return;
     }
 
-    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-    const formatFecha = (f) => {
-        const p = f.split('/');
-        if (p.length === 3) {
-            const d = parseInt(p[0], 10);
-            const m = parseInt(p[1], 10) - 1;
-            if (m >= 0 && m < 12) return `${d} ${meses[m]} ${p[2]}`;
-        }
-        return f;
-    };
+    // Numeradas en orden cronológico pero recorridas de la más reciente a la
+    // más vieja, así se entra viendo lo último que se jugó. Adentro de cada
+    // jornada los partidos sí van en el orden en que se jugaron.
+    const jornadas = agruparEnJornadas(partidos).reverse();
+    let actual = 0;
 
-    // El .txt está en orden cronológico ascendente: mostramos el más reciente primero.
-    const ordenados = [...partidos].reverse();
+    function tablaDeJornada(j) {
+        return `
+            <div class="table-responsive">
+                <table class="ranking-table large-table-font">
+                    <thead>
+                        <tr>
+                            <th style="text-align: right;">Azul</th>
+                            <th style="text-align: center;">Resultado</th>
+                            <th style="text-align: left;">Rojo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${j.partidos.map(m => {
+                            const g = m.marcador.split('-').map(Number);
+                            const w1 = g[0] > g[1];
+                            const w2 = g[1] > g[0];
+                            return `
+                                <tr>
+                                    <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #58a6ff;' : ''}">${m.j1}</td>
+                                    <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${m.marcador}</td>
+                                    <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #f85149;' : ''}">${m.j2}</td>
+                                </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+    }
 
-    cont.innerHTML = `
-        <div class="table-responsive">
-            <table class="ranking-table large-table-font">
-                <thead>
-                    <tr>
-                        <th style="text-align: right;">Azul</th>
-                        <th style="text-align: center;">Resultado</th>
-                        <th style="text-align: left;">Rojo</th>
-                        <th style="text-align: center; color: #8b949e; font-weight: normal;">Fecha</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${ordenados.map(m => {
-                        const g = m.marcador.split('-').map(Number);
-                        const w1 = g[0] > g[1];
-                        const w2 = g[1] > g[0];
-                        return `
-                            <tr>
-                                <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #58a6ff;' : ''}">${m.j1}</td>
-                                <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${m.marcador}</td>
-                                <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #f85149;' : ''}">${m.j2}</td>
-                                <td style="text-align: center; font-size: 0.78em; color: #8b949e;">${formatFecha(m.fecha)}</td>
-                            </tr>
-                        `;
-                    }).join('')}
-                </tbody>
-            </table>
-        </div>
-    `;
+    function pintar() {
+        const j = jornadas[actual];
+        const n = j.partidos.length;
+        // actual = 0 es la más reciente: la flecha izquierda va para atrás en
+        // el tiempo, o sea hacia adelante en el array.
+        const hayVieja = actual < jornadas.length - 1;
+        const hayNueva = actual > 0;
+
+        cont.innerHTML = `
+            <div class="jornada-nav">
+                <button class="jornada-flecha" id="jornada-prev" ${hayVieja ? '' : 'disabled'}
+                        aria-label="Jornada anterior">&#8592;</button>
+                <div class="jornada-titulo">
+                    <span class="jornada-nombre">Jornada ${j.numero}</span>
+                    <span class="jornada-dato">${formatFechaNL(j.fecha)}</span>
+                </div>
+                <button class="jornada-flecha" id="jornada-next" ${hayNueva ? '' : 'disabled'}
+                        aria-label="Jornada siguiente">&#8594;</button>
+            </div>
+            <div class="jornada-pie">${jornadas.length - actual} de ${jornadas.length} · ${n} partido${n === 1 ? '' : 's'}</div>
+            ${tablaDeJornada(j)}
+        `;
+
+        const prev = document.getElementById('jornada-prev');
+        const next = document.getElementById('jornada-next');
+        if (prev) prev.addEventListener('click', () => { if (actual < jornadas.length - 1) { actual++; pintar(); } });
+        if (next) next.addEventListener('click', () => { if (actual > 0) { actual--; pintar(); } });
+    }
+
+    pintar();
 }
 
 function renderEdicion(partidosDelAnio) {

@@ -318,6 +318,24 @@ Dos detalles del reproductor que importan por el cupo de Blob (el plan Hobby inc
 
 ---
 
+## Tejo Nations League (`nationsleague.html`)
+
+Liga anual armada con los partidos cargados como `Amistoso` en `enfrentamientos_directos.txt`. Cada año calendario es una edicion distinta, que se elige con el selector de año.
+
+### Jornadas
+
+Los resultados se agrupan por fecha: **cada dia que se juntaron a jugar es una jornada**. No hay un calendario armado de antemano (la liga son amistosos sueltos, que se juegan cuando pinta), asi que la jornada se deduce de la fecha del partido. Se numeran en orden cronologico dentro de la edicion, o sea que la Jornada 1 es la primera vez que se juntaron ese año.
+
+Se ve **una jornada por vez, con flechas**, igual que los resultados por fecha del index: apiladas se amontonaban, porque una sola jornada puede tener 7 partidos. Se entra en la mas reciente y la flecha izquierda va para atras en el tiempo. Adentro de cada jornada los partidos van en el orden en que se jugaron.
+
+Se agrupa por una **clave numerica AAAAMMDD** (`clave`, que arma `parsearAmistosos`) y no por el texto de la fecha, porque en el `.txt` conviven `15/05/2026` y `2/4/2026`: como texto son dos formatos distintos, como numero son el mismo dia.
+
+### Tabla de posiciones
+
+Ordena por **PG\*** (promedio ajustado), no por el promedio en bruto. El calculo esta en `js/nationsLeagueCalculator.js`, compartido con el Historial de ganadores de `index.html`.
+
+---
+
 ## Modo Torneo (en la app)
 
 Permite llevar un torneo entero desde el celular: sorteo, fixture, carga de resultados, tabla en vivo y playoffs. Soporta los cinco formatos (6, 7, 8, 9 y 10 jugadores).
