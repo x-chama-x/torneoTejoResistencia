@@ -201,17 +201,23 @@ function actualizarUIJornada() {
     }
 
     const cruces = cuantosCruces(n);
+    // Con 3 o 4 no existe ningun orden en el que nadie repita: con 4, cada
+    // partido tiene un solo rival disjunto, asi que no se pueden encadenar
+    // los 6. Se avisa para que no parezca un error del fixture.
+    const avisoPocos = (n === 3 || n === 4)
+        ? ` Con ${n} es inevitable que a alguien le toque jugar seguido alguna vez.`
+        : '';
 
     if (jornada.editando) {
         // Lo que importa al editar no es el total sino cuántos se suman
         const antes = cuantosCruces(jornada.abierta.jugadores.length);
         const suman = cruces - antes;
-        hint.textContent = suman === 0
+        hint.textContent = (suman === 0
             ? `${n} jugadores: ${cruces} partidos en total.`
-            : `${n} jugadores: ${cruces} partidos en total (${suman > 0 ? '+' : ''}${suman}).`;
+            : `${n} jugadores: ${cruces} partidos en total (${suman > 0 ? '+' : ''}${suman}).`) + avisoPocos;
         btn.textContent = jornada.cargando ? 'Guardando...' : 'Guardar';
     } else {
-        hint.textContent = `${n} jugadores: ${cruces} partidos, todos contra todos.`;
+        hint.textContent = `${n} jugadores: ${cruces} partidos, todos contra todos.` + avisoPocos;
         btn.textContent = jornada.cargando ? 'Armando...' : `Armar ${cruces} cruces`;
     }
 }

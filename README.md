@@ -345,6 +345,8 @@ Para los dias que el grupo se junta a jugar amistosos. Se marca quienes vinieron
 
 El orden sale de `ordenarParaQueDescansen()`, la misma funcion que ordena el fixture de los torneos, asi nadie juega dos partidos seguidos.
 
+Con **3 o 4 jugadores no se puede evitar del todo**, y no es cuestion de buscar mejor: con 4 hay 6 partidos y cada uno tiene exactamente un rival disjunto (la pareja complementaria), asi que el grafo de compatibilidad son tres aristas sueltas y no hay forma de recorrer los 6 encadenados. Lo mejor posible son 2 repeticiones. La busqueda va por presupuesto (primero intenta con cero, despues permitiendo una, dos...) y devuelve el que menos repite; la app avisa en el hint cuando se eligen 3 o 4.
+
 ### Que se guarda
 
 `jornadas/index.json` guarda **solo la fecha y quienes vinieron**. Los cruces no se guardan, se deducen (son todos contra todos), y los resultados tampoco: van a `enfrentamientos_directos.txt` como amistosos, igual que siempre. O sea:
