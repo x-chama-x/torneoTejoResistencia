@@ -357,6 +357,12 @@ pendientes  = cruces - jugados
 
 Por eso se puede cerrar la app, quedarse sin bateria o seguir desde otro telefono sin perder nada: la app baja la jornada y el `.txt` y aparece donde estaba. Es la misma idea que el modo Torneo.
 
+### Si cae alguien tarde
+
+"Cambiar jugadores" edita el plantel de una jornada ya empezada. Como los cruces se deducen de la lista, sumar a alguien hace aparecer sus partidos como pendientes y no toca nada de lo ya jugado. La fecha no se puede cambiar, porque es lo que identifica a la jornada en el archivo.
+
+A quien **ya jugo** no se lo puede sacar (queda marcado con un ✓): sus partidos estan en el `.txt` con esa fecha y, si se lo quitara del plantel, la app dejaria de reconocerlos como parte de la jornada aunque sigan ahi. A los que todavia no jugaron si, por si alguien se fue antes.
+
 Todas las jornadas abiertas entran en un solo archivo porque son cuatro datos: no hace falta un archivo por jornada mas un indice, como si pasa con los torneos.
 
 ### En la pagina

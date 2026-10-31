@@ -30,6 +30,7 @@ const API_JORNADA = '/api/jornada';
 const jornada = {
     abierta: null,      // { fecha, jugadores }
     seleccion: [],      // jugadores tildados en la pantalla de creación
+    editando: false,    // true cuando se cambia el plantel de una jornada abierta
     cargando: false
 };
 
@@ -85,28 +86,36 @@ function renderInicioJornada() {
         </div>
     `;
 
-    document.getElementById('btn-nueva-jornada').addEventListener('click', renderCrearJornada);
+    // Con la función pelada, el MouseEvent entraría como `editando`
+    document.getElementById('btn-nueva-jornada').addEventListener('click', () => renderCrearJornada(false));
 }
 
 // =====================================================
-// Crear la jornada
+// Crear la jornada, o cambiar quiénes están
 // =====================================================
+// La misma pantalla sirve para las dos cosas. Editar hace falta más de
+// lo que parece: siempre cae alguien tarde, o alguien se va antes. Como
+// los cruces se deducen de la lista de jugadores, agregar a uno hace
+// aparecer sus partidos como pendientes sin tocar nada de lo ya jugado.
 
-function renderCrearJornada() {
-    actualizarSubtitulo('Nueva jornada');
-    jornada.seleccion = [];
+function renderCrearJornada(editando = false) {
+    actualizarSubtitulo(editando ? 'Editar jugadores' : 'Nueva jornada');
+    jornada.seleccion = editando ? jornada.abierta.jugadores.slice() : [];
+    jornada.editando = editando;
     const cont = document.getElementById('seccion-jornada');
 
     cont.innerHTML = `
         <div class="card">
-            <label>¿Quiénes vinieron? <span id="contador-jornada" style="color: var(--accent);"></span></label>
+            <label>¿Quiénes ${editando ? 'están' : 'vinieron'}? <span id="contador-jornada" style="color: var(--accent);"></span></label>
             <div class="chips" id="chips-jornada-jugadores"></div>
             <p class="hint" id="hint-jornada"></p>
         </div>
 
         <div class="card">
             <label>Fecha</label>
-            <input type="date" id="fecha-jornada">
+            ${editando
+                ? `<p class="hint" style="margin:0;">${escaparHtml(jornada.abierta.fecha)} · la fecha es la que identifica la jornada, no se cambia.</p>`
+                : '<input type="date" id="fecha-jornada">'}
         </div>
 
         <div class="btn-row">
@@ -115,28 +124,49 @@ function renderCrearJornada() {
         </div>
     `;
 
-    document.getElementById('fecha-jornada').value = hoyISO();
+    if (!editando) document.getElementById('fecha-jornada').value = hoyISO();
     renderChipsJornada();
 
-    document.getElementById('btn-cancelar-jornada').addEventListener('click', renderInicioJornada);
+    document.getElementById('btn-cancelar-jornada').addEventListener('click',
+        () => (editando ? renderJornadaEnCurso() : renderInicioJornada()));
     document.getElementById('btn-crear-jornada').addEventListener('click', crearJornada);
+}
+
+// Quiénes ya jugaron algo hoy: a esos no se los puede sacar de la
+// jornada, porque sus partidos ya están en el .txt y quedarían sueltos.
+function yaJugaronHoy() {
+    if (!jornada.editando || !jornada.abierta) return new Set();
+    const nombres = new Set();
+    jugadosDeLaJornada().forEach(p => { nombres.add(p.jugador1); nombres.add(p.jugador2); });
+    return nombres;
 }
 
 function renderChipsJornada() {
     const cont = document.getElementById('chips-jornada-jugadores');
     if (!cont) return;
 
+    const fijos = yaJugaronHoy();
+
     cont.innerHTML = estado.jugadores.map(nombre => {
         const sel = jornada.seleccion.includes(nombre);
-        return `<button class="chip${sel ? ' sel-1' : ''}" data-jj="${escaparHtml(nombre)}">${escaparHtml(nombre)}</button>`;
+        const fijo = fijos.has(nombre);
+        const titulo = fijo ? ' title="Ya jugó: no se puede sacar"' : '';
+        return `<button class="chip${sel ? ' sel-1' : ''}" data-jj="${escaparHtml(nombre)}"${titulo}>${escaparHtml(nombre)}${fijo ? ' ✓' : ''}</button>`;
     }).join('') + '<button class="chip nuevo" id="chip-nuevo-jornada">+ Otro</button>';
 
     cont.querySelectorAll('[data-jj]').forEach(btn => {
         btn.addEventListener('click', () => {
             const n = btn.dataset.jj;
             const i = jornada.seleccion.indexOf(n);
-            if (i >= 0) jornada.seleccion.splice(i, 1);
-            else jornada.seleccion.push(n);
+            if (i >= 0) {
+                if (fijos.has(n)) {
+                    mostrarToast(`${n} ya jugó en esta jornada`, 'error');
+                    return;
+                }
+                jornada.seleccion.splice(i, 1);
+            } else {
+                jornada.seleccion.push(n);
+            }
             renderChipsJornada();
         });
     });
@@ -166,9 +196,21 @@ function actualizarUIJornada() {
 
     if (n < 2) {
         hint.textContent = 'Elegí por lo menos dos.';
-        btn.textContent = 'Armar cruces';
+        btn.textContent = jornada.editando ? 'Guardar' : 'Armar cruces';
+        return;
+    }
+
+    const cruces = cuantosCruces(n);
+
+    if (jornada.editando) {
+        // Lo que importa al editar no es el total sino cuántos se suman
+        const antes = cuantosCruces(jornada.abierta.jugadores.length);
+        const suman = cruces - antes;
+        hint.textContent = suman === 0
+            ? `${n} jugadores: ${cruces} partidos en total.`
+            : `${n} jugadores: ${cruces} partidos en total (${suman > 0 ? '+' : ''}${suman}).`;
+        btn.textContent = jornada.cargando ? 'Guardando...' : 'Guardar';
     } else {
-        const cruces = cuantosCruces(n);
         hint.textContent = `${n} jugadores: ${cruces} partidos, todos contra todos.`;
         btn.textContent = jornada.cargando ? 'Armando...' : `Armar ${cruces} cruces`;
     }
@@ -177,7 +219,9 @@ function actualizarUIJornada() {
 async function crearJornada() {
     if (jornada.cargando || jornada.seleccion.length < 2) return;
 
-    const fecha = fechaDesdeInput('fecha-jornada');
+    // Al editar, la fecha es la de la jornada abierta: es lo que la
+    // identifica en el archivo, así que no se toca.
+    const fecha = jornada.editando ? jornada.abierta.fecha : fechaDesdeInput('fecha-jornada');
     jornada.cargando = true;
     actualizarUIJornada();
 
@@ -190,8 +234,10 @@ async function crearJornada() {
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
 
+        const eraEdicion = jornada.editando;
         jornada.abierta = { fecha, jugadores: jornada.seleccion.slice() };
-        mostrarToast(`🗓️ Jornada del ${fecha} armada`, 'ok');
+        jornada.editando = false;
+        mostrarToast(eraEdicion ? 'Plantel actualizado' : `🗓️ Jornada del ${fecha} armada`, 'ok');
         renderJornadaEnCurso();
     } catch (err) {
         mostrarToast(`No se pudo armar: ${err.message}`, 'error');
@@ -244,6 +290,7 @@ function buscarJugadoEnJornada(cruce, jugados) {
 
 function renderJornadaEnCurso() {
     if (!jornada.abierta) return renderInicioJornada();
+    jornada.editando = false;
 
     actualizarSubtitulo(`Jornada del ${jornada.abierta.fecha}`);
     const cont = document.getElementById('seccion-jornada');
@@ -302,10 +349,12 @@ function renderJornadaEnCurso() {
         </div>
 
         <div class="btn-row">
+            <button class="btn btn-secondary" id="btn-editar-jornada">Cambiar jugadores</button>
             <button class="btn btn-secondary" id="btn-cerrar-jornada">Cerrar jornada</button>
         </div>
         <p class="hint" style="text-align:center; margin-top: 6px;">
-            Cerrarla saca los partidos que falten de la página. Los que ya cargaste quedan.
+            ¿Cayó alguien más? "Cambiar jugadores" y se suman sus cruces.<br>
+            Cerrar la jornada saca los partidos que falten de la página; los cargados quedan.
         </p>
     `;
 
@@ -323,6 +372,7 @@ function renderJornadaEnCurso() {
         });
     });
 
+    document.getElementById('btn-editar-jornada').addEventListener('click', () => renderCrearJornada(true));
     document.getElementById('btn-cerrar-jornada').addEventListener('click', cerrarJornada);
 }
 
