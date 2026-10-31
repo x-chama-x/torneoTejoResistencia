@@ -141,6 +141,95 @@
             font-variant-numeric: tabular-nums;
         }
 
+        /* --- Tarjeta con video --- */
+        .match-card.con-video {
+            cursor: pointer;
+            border-color: #3d444d;
+        }
+        .match-card.con-video:hover {
+            border-color: #58a6ff;
+        }
+        .video-cinta {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #58a6ff;
+            letter-spacing: 0.02em;
+        }
+        .match-card.con-video:hover .video-cinta { color: #79c0ff; }
+
+        /* --- Modal del reproductor --- */
+        body.con-modal { overflow: hidden; }
+
+        .video-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(1, 4, 9, 0.88);
+            padding: 16px;
+            align-items: center;
+            justify-content: center;
+        }
+        .video-modal.abierto { display: flex; }
+
+        .video-caja {
+            width: 100%;
+            max-width: 900px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+        .video-encabezado {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-bottom: 1px solid #30363d;
+        }
+        .video-titulo {
+            flex: 1;
+            min-width: 0;
+            font-weight: 700;
+            color: #c9d1d9;
+            font-size: 0.92rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .video-cerrar {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            background: #21262d;
+            color: #c9d1d9;
+            font-size: 1.3rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .video-cerrar:hover { border-color: #f85149; color: #f85149; }
+
+        .video-player {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 9;   /* para que la caja no salte cuando carga */
+            max-height: 72vh;
+            background: #000;
+        }
+
+        /* En celular el modal va de lado a lado: 16 px de margen a cada
+           costado le comen mas de lo que parece a un video de 390px */
+        @media (max-width: 600px) {
+            .video-modal { padding: 0; }
+            .video-caja { max-width: none; border-left: none; border-right: none; border-radius: 0; }
+            .video-player { max-height: 70vh; }
+        }
+
         /* En celular la tarjeta de la final mide ~160px: con nombre, barra
            y porcentaje en la misma linea, a la barra le quedaban 16px y no
            se veia. Pasa a dos renglones: nombre y % arriba, barra abajo a
@@ -251,6 +340,8 @@
     <script src="js/menu.js"></script>
     <script src="js/rankingCalculator.js"></script>
     <script src="js/probabilidades.js"></script>
+    <script src="js/videos.js"></script>
+    <script src="js/reproductor.js"></script>
     <script src="lib/torneo-formatos.js"></script>
     <script src="js/historial_torneos.js"></script>
     <script src="js/pendientes.js"></script>

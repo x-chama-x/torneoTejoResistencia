@@ -457,8 +457,20 @@ function createMatchCard(m, matchTitle) {
     if (matchTitle === "Gran Final") winnerLabel = `👑 CAMPEÓN: ${winner}`;
     else if (matchTitle === "Tercer y Cuarto Puesto") winnerLabel = `🥉 ${winner}`;
 
+    // Si de ese partido hay video (js/videos.js), la tarjeta se vuelve
+    // clickeable y js/reproductor.js la abre en un modal.
+    const video = typeof videoDelPartido === "function" ? videoDelPartido(m) : null;
+    const titulo = `${matchTitle || m.fase} — ${m.j1} vs ${m.j2}`;
+    const clases = video ? "match-card con-video" : "match-card";
+    const datos = video
+        ? ` data-video="${video}" data-video-titulo="${titulo}" title="${titulo}" role="button" tabindex="0"`
+        : "";
+    const cinta = video
+        ? `<div class="video-cinta">▶ ${etiquetaDeVideo(m.fase)}</div>`
+        : "";
+
     return `
-        <div class="match-card">
+        <div class="${clases}"${datos}>
             <div class="match-number">${matchTitle || m.fase}</div>
             <div class="match-players">
                 <div class="player blue">${m.j1}</div>
@@ -467,6 +479,7 @@ function createMatchCard(m, matchTitle) {
             </div>
             <div class="score">${g[0]} - ${g[1]}</div>
             <div class="winner-badge">${winnerLabel}</div>
+            ${cinta}
         </div>
     `;
 }

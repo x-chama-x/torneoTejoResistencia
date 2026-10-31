@@ -298,6 +298,24 @@ El orden es: puntos (goles a favor), diferencia de gol, goles a favor. Si dos ju
 
 Con tres o mas empatados no se aplica, porque el mano a mano puede ser circular (A le gana a B, B a C y C a A) y no existiria un orden valido. En ese caso la tabla muestra un aviso para definir ese tramo a mano.
 
+### Video del partido
+
+Las tarjetas de los partidos que tienen video grabado se vuelven clickeables y lo abren en un modal (`js/reproductor.js`). El mapa de que partido tiene que video esta en `js/videos.js`, indexado por nombre de torneo y fase, asi que sirve para cualquier instancia, no solo las finales.
+
+Los videos **no van en el repo**: los originales de las finales pesan ~300 MB cada uno y GitHub rechaza cualquier archivo de mas de 100 MB (Vercel tampoco sirve estaticos de ese tamaño). Viven en un store **publico** de Vercel Blob y la pagina los pide por URL. `img/Videos/` esta en el `.gitignore` para que no se suban por accidente.
+
+Antes de subir uno hay que recomprimirlo. Los que salen del celular vienen en HEVC/H.265 a 12 Mbps, y HEVC no lo reproduce cualquier navegador:
+
+```bash
+ffmpeg -i original.mp4 -vf "scale=-2:720" -r 30 \
+       -c:v libx264 -preset veryfast -crf 27 -pix_fmt yuv420p \
+       -c:a aac -b:a 96k -movflags +faststart salida.mp4
+```
+
+Eso deja los 300 MB en ~35 MB sin tocar la duracion. El `-movflags +faststart` es el que permite que el video arranque sin bajarse entero.
+
+Dos detalles del reproductor que importan por el cupo de Blob (el plan Hobby incluye 1 GB de almacenamiento y 10 GB de transferencia por mes): el `<video>` se crea **sin** `src` y recien se le pone la URL al abrir el modal, asi entrar a la pagina no descarga nada; y al cerrar se vacia el `src`, porque si no el navegador sigue bajando en segundo plano con el modal ya cerrado.
+
 ---
 
 ## Modo Torneo (en la app)
