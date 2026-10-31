@@ -12,10 +12,14 @@
             #col-posiciones-nl { grid-column: 1; grid-row: 1; }
             #col-resultados-nl { grid-column: 2; grid-row: 1 / span 2; }
         }
+        /* En celular los Resultados van primero: es lo que se mira al toque
+           cuando terminás de jugar, y la tabla de Posiciones con sus 9
+           columnas es más de leer. En PC quedan como estaban, uno al lado
+           del otro. */
         @media (max-width: 900px) {
             .home-container { display: flex; flex-direction: column; }
-            #col-posiciones-nl { order: 1; }
-            #col-resultados-nl { order: 2; }
+            #col-resultados-nl { order: 1; }
+            #col-posiciones-nl { order: 2; }
         }
 
         .year-selector {
@@ -119,14 +123,36 @@
 
         /* Goleadores usa large-table-font, que es casi el doble de alto por
            fila que Estadisticas. Apilada se ve bien, pero al lado quedaba una
-           tabla de 430px contra una de 285px. Lado a lado se igualan. */
+           tabla de 430px contra una de 285px. Lado a lado se igualan, con la
+           misma letra que le damos a Estadisticas mas abajo. */
         @media (min-width: 1101px) {
-            .tablas-paralelas .ranking-table.large-table-font { font-size: 0.88rem; }
+            .tablas-paralelas .ranking-table.large-table-font { font-size: 1.1rem; }
             .tablas-paralelas .ranking-table.large-table-font th,
             .tablas-paralelas .ranking-table.large-table-font td {
-                font-size: 0.88rem;
-                padding: 6px 5px;
+                font-size: 1.1rem;
+                padding: 4px 2px;
             }
+        }
+
+        /* --- Letra de Posiciones y Estadisticas ---
+           Tienen 9 y 10 columnas, asi que heredaban la letra chica de
+           .ranking-table (0.88rem) y, en celular, los 9.5px del media query
+           de styles.css. Pero les sobra lugar: a 1101px, que es lo mas
+           angosto con las dos columnas, Posiciones ocupa 295px dentro de una
+           columna de 357. Se agranda la letra y se compensa achicando el
+           padding, asi la tabla sigue midiendo lo mismo.
+           Van por id porque el media query de styles.css pisa cualquier
+           regla de clase.
+           El clamp es porque el limite no es un breakpoint sino el ancho
+           real: a 1.1rem Estadisticas necesita 352px, que entran de sobra en
+           una pantalla de 430 pero no en una de 320. Asi la letra acompaña al
+           ancho en vez de pegar un salto. */
+        #tabla-posiciones-nl,
+        #tabla-stats-nl,
+        #tabla-posiciones-nl th, #tabla-posiciones-nl td,
+        #tabla-stats-nl th, #tabla-stats-nl td {
+            font-size: clamp(11.5px, 3.6vw, 1.1rem);
+            padding: 4px 2px;
         }
 
         /* Se apilan antes que el resto de la pagina (900px): entre 900 y 1100
