@@ -102,6 +102,42 @@
             .jornada-dato { font-size: 0.74rem; }
             .jornada-flecha { padding: 0.3rem 0.6rem; }
         }
+
+        /* Goleadores y Estadisticas, lado a lado. No van mitad y mitad:
+           Goleadores tiene 3 columnas y Estadisticas 10, asi que repartirlas
+           igual dejaba a una con la mitad de la pantalla vacia y a la otra
+           apretada. El minmax y el min-width:0 son para que la tabla ancha
+           scrollee adentro de su columna en vez de empujar la grilla. */
+        .tablas-paralelas {
+            display: grid;
+            grid-template-columns: minmax(230px, 1fr) 2.1fr;
+            gap: 2rem;
+            align-items: start;
+            margin-top: 2rem;
+        }
+        .tablas-paralelas > div { min-width: 0; }
+
+        /* Goleadores usa large-table-font, que es casi el doble de alto por
+           fila que Estadisticas. Apilada se ve bien, pero al lado quedaba una
+           tabla de 430px contra una de 285px. Lado a lado se igualan. */
+        @media (min-width: 1101px) {
+            .tablas-paralelas .ranking-table.large-table-font { font-size: 0.88rem; }
+            .tablas-paralelas .ranking-table.large-table-font th,
+            .tablas-paralelas .ranking-table.large-table-font td {
+                font-size: 0.88rem;
+                padding: 6px 5px;
+            }
+        }
+
+        /* Se apilan antes que el resto de la pagina (900px): entre 900 y 1100
+           el menu lateral todavia ocupa su lugar y a Estadisticas, con sus 10
+           columnas, le quedaban menos de 300px y scrolleaba de costado. */
+        @media (max-width: 1100px) {
+            .tablas-paralelas {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -148,7 +184,8 @@
             </div>
         </div>
 
-        <div style="margin-top: 2rem;">
+        <div class="tablas-paralelas">
+        <div>
             <h2>⚽ Goleadores</h2>
             <div class="table-responsive">
                 <table class="ranking-table large-table-font" id="tabla-goleadores-nl">
@@ -166,7 +203,7 @@
             </div>
         </div>
 
-        <div style="margin-top: 2rem;">
+        <div>
             <h2>📊 Estadísticas Generales</h2>
             <div class="table-responsive">
                 <table class="ranking-table" id="tabla-stats-nl">
@@ -189,6 +226,7 @@
                     </tbody>
                 </table>
             </div>
+        </div>
         </div>
     </div>
     <!-- Scripts -->
