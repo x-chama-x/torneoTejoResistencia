@@ -45,6 +45,63 @@
             border-color: #58a6ff;
             color: #0d1117;
         }
+
+        /* --- Jornadas ---
+           Cada día que se juntaron a jugar es una jornada, y se ve una por
+           vez con flechas, como los resultados por fecha del index
+           (ver js/nations_league.js). */
+        .jornada-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .jornada-flecha {
+            flex-shrink: 0;
+            background: none;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 0.3rem 0.75rem;
+            font-size: 1.1rem;
+            line-height: 1;
+            color: #58a6ff;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .jornada-flecha:hover:not(:disabled) { border-color: #58a6ff; }
+        .jornada-flecha:disabled { color: #3d444d; cursor: default; }
+
+        .jornada-titulo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            min-width: 0;
+        }
+        .jornada-nombre {
+            font-weight: 800;
+            color: #58a6ff;
+            font-size: 1rem;
+            white-space: nowrap;
+        }
+        .jornada-dato {
+            font-size: 0.8rem;
+            color: #c9d1d9;
+            white-space: nowrap;
+        }
+        .jornada-pie {
+            text-align: center;
+            color: #8b949e;
+            font-size: 0.8em;
+            margin-bottom: 0.75rem;
+        }
+
+        @media (max-width: 480px) {
+            .jornada-nombre { font-size: 0.9rem; }
+            .jornada-dato { font-size: 0.74rem; }
+            .jornada-flecha { padding: 0.3rem 0.6rem; }
+        }
     </style>
 </head>
 <body>
