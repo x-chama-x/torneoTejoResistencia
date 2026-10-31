@@ -129,41 +129,9 @@ function pendientesTercerPuesto(partidosDelTorneo) {
 // Dibujo
 // =====================================================
 
-// Clase de color según la probabilidad, igual que en la página de Playoffs.
-function claseProb(p) {
-    if (p >= 0.65) return 'alta';
-    if (p >= 0.45) return 'media-alta';
-    if (p >= 0.25) return 'media';
-    return 'baja';
-}
-
-function porcentaje(p) {
-    return (p * 100).toFixed(1) + '%';
-}
-
-// La barra partida con los dos porcentajes, que es el bloque que se reusa
-// tanto en las tarjetas del bracket como en las filas de la tabla.
-function barraProbabilidad(j1, j2, compacta = false) {
-    const prob = probabilidadGana1(j1, j2);
-    if (prob === null) {
-        return `<div class="prob-sin-datos">Sin datos para estimar</div>`;
-    }
-
-    const c1 = claseProb(prob);
-    const c2 = claseProb(1 - prob);
-
-    return `
-        <div class="prob-bloque${compacta ? ' compacta' : ''}">
-            <div class="sf-split-bar">
-                <div class="split-segment ${c1}" style="width:${prob * 100}%"></div>
-                <div class="split-segment ${c2}" style="width:${(1 - prob) * 100}%"></div>
-            </div>
-            <div class="prob-badges">
-                <span class="sf-prob-badge ${c1}">${porcentaje(prob)}</span>
-                <span class="sf-prob-badge ${c2}">${porcentaje(1 - prob)}</span>
-            </div>
-        </div>`;
-}
+// claseProb(), porcentaje() y barraProbabilidad() viven en
+// js/probabilidades.js: tambien las usa la Tejo Nations League para los
+// partidos que faltan de una jornada.
 
 // Tarjeta del bracket para un cruce que todavía no se jugó.
 // Mantiene la clase match-card para que las líneas del bracket (que miden

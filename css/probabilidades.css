@@ -1,0 +1,80 @@
+/* ================================================
+   BARRA DE PROBABILIDAD
+   ================================================
+   El bloque visual de "fulano tiene X% de ganarle a mengano": la barra
+   partida en dos y los dos porcentajes abajo.
+
+   Estaba dentro de css/playoffs.css, que es la hoja del simulador de
+   playoffs. Se separo cuando la Tejo Nations League tambien empezo a
+   mostrar los partidos que faltan de una jornada: esa pagina necesita la
+   barra pero no el resto de playoffs.css, y cargarla entera le pisaba el
+   .page-subtitle con otro tamaño.
+
+   Lo dibuja barraProbabilidad(), en js/probabilidades.js.
+   ================================================ */
+
+/* Los dos porcentajes, a los costados de la barra */
+.sf-prob-badge {
+    font-size: 1.15em;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    min-width: 64px;
+    text-align: center;
+}
+
+.sf-prob-badge.alta       { color: #3fb950; background: #2386361a; }
+.sf-prob-badge.media-alta { color: #d29922; background: #d299221a; }
+.sf-prob-badge.media      { color: #e3b341; background: #e3b3411a; }
+.sf-prob-badge.baja       { color: #f85149; background: #f851491a; }
+
+/* La barra, partida entre los dos jugadores */
+.sf-split-bar {
+    display: flex;
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 6px 0;
+    background: #30363d;
+}
+
+.split-segment {
+    height: 100%;
+    transition: width 0.6s ease;
+}
+
+.split-segment.alta       { background: linear-gradient(90deg, #238636, #2ea043); }
+.split-segment.media-alta { background: linear-gradient(90deg, #9e6a03, #d29922); }
+.split-segment.media      { background: linear-gradient(90deg, #a67f22, #e3b341); }
+.split-segment.baja       { background: linear-gradient(90deg, #da3633, #f85149); }
+
+/* El bloque entero (barra + los dos porcentajes) */
+.prob-bloque {
+    margin: 10px 0 4px 0;
+}
+
+.prob-badges {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+}
+
+/* Version compacta, para cuando el bloque va dentro de una celda de tabla */
+.prob-bloque.compacta { margin: 0; min-width: 150px; }
+.prob-bloque.compacta .sf-split-bar { height: 12px; }
+.prob-bloque.compacta .prob-badges { margin-top: 4px; }
+.prob-bloque.compacta .sf-prob-badge { font-size: 0.72rem; padding: 1px 6px; }
+
+.prob-sin-datos {
+    font-size: 0.78rem;
+    color: #8b949e;
+    font-style: italic;
+    text-align: center;
+    padding: 6px 0;
+}
+
+/* Las filas de partidos por jugar van mas apagadas que los resultados */
+.fila-pendiente td { opacity: 0.92; }
+.fila-pendiente td:first-child,
+.fila-pendiente td:last-child { color: #8b949e; }

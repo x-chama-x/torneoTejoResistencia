@@ -178,3 +178,46 @@ function probabilidadesDeCampeon(semis, ganadores) {
         }))
         .sort((x, y) => y.campeon - x.campeon);
 }
+
+// =====================================================
+// DIBUJO: la barra de probabilidad
+// =====================================================
+// El bloque "fulano X% - Y% mengano" que se usa en las tarjetas del
+// bracket, en las filas de Resultados de un torneo y en los partidos que
+// faltan de una jornada de la Nations League. Los estilos estan en
+// css/probabilidades.css.
+
+// Clase de color segun la probabilidad, igual que en la pagina de Playoffs.
+function claseProb(p) {
+    if (p >= 0.65) return 'alta';
+    if (p >= 0.45) return 'media-alta';
+    if (p >= 0.25) return 'media';
+    return 'baja';
+}
+
+function porcentaje(p) {
+    return (p * 100).toFixed(1) + '%';
+}
+
+// `compacta` es para cuando el bloque va dentro de una celda de tabla.
+function barraProbabilidad(j1, j2, compacta = false) {
+    const prob = probabilidadGana1(j1, j2);
+    if (prob === null) {
+        return `<div class="prob-sin-datos">Sin datos para estimar</div>`;
+    }
+
+    const c1 = claseProb(prob);
+    const c2 = claseProb(1 - prob);
+
+    return `
+        <div class="prob-bloque${compacta ? ' compacta' : ''}">
+            <div class="sf-split-bar">
+                <div class="split-segment ${c1}" style="width:${prob * 100}%"></div>
+                <div class="split-segment ${c2}" style="width:${(1 - prob) * 100}%"></div>
+            </div>
+            <div class="prob-badges">
+                <span class="sf-prob-badge ${c1}">${porcentaje(prob)}</span>
+                <span class="sf-prob-badge ${c2}">${porcentaje(1 - prob)}</span>
+            </div>
+        </div>`;
+}

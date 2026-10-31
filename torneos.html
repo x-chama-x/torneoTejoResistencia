@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/torneo.css">
     <link rel="stylesheet" href="css/playoffs.css">
+    <link rel="stylesheet" href="css/probabilidades.css">
     <style>
         /* Layout de la fase de liga: Estadísticas queda bajo Posiciones en PC
            y bajo Resultados en móvil (igual que en las páginas viejas) */
@@ -44,32 +45,8 @@
         .torneo-btn:hover { border-color: #58a6ff; color: #ffffff; }
         .torneo-btn.active { background: #58a6ff; border-color: #58a6ff; color: #0d1117; }
 
-        /* --- Partidos todavia no jugados --- */
-        /* La barra de probabilidad reusa las clases de css/playoffs.css
-           (.sf-split-bar, .split-segment, .sf-prob-badge, .sf-insight) */
-        .prob-bloque { margin: 10px 0 4px 0; }
-        .prob-badges {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 6px;
-        }
-        .prob-bloque.compacta { margin: 0; min-width: 150px; }
-        .prob-bloque.compacta .sf-split-bar { height: 12px; }
-        .prob-bloque.compacta .prob-badges { margin-top: 4px; }
-        .prob-bloque.compacta .sf-prob-badge { font-size: 0.72rem; padding: 1px 6px; }
-
-        .prob-sin-datos {
-            font-size: 0.78rem;
-            color: #8b949e;
-            font-style: italic;
-            text-align: center;
-            padding: 6px 0;
-        }
-
-        /* Las filas pendientes van mas apagadas que los resultados reales */
-        .fila-pendiente td { opacity: 0.92; }
-        .fila-pendiente td:first-child,
-        .fila-pendiente td:last-child { color: #8b949e; }
+        /* La barra de probabilidad y las filas pendientes estan en
+           css/probabilidades.css, compartidas con la Nations League. */
 
         .match-card-pendiente { opacity: 0.95; }
         .match-card-pendiente .player { color: #c9d1d9; }

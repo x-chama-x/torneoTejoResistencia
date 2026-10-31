@@ -37,7 +37,7 @@ const TORNEO = 'Amistoso';
 const FASE = 'Amistoso';
 
 const estado = {
-    modo: 'directo',        // 'directo' | 'tanda' | 'historial' | 'torneo'
+    modo: 'directo',        // 'directo' | 'tanda' | 'historial' | 'jornada' | 'torneo'
     jugadores: [],          // lista completa de nombres disponibles
     historial: [],          // todos los partidos del .txt (lo usa el modo Torneo)
     ganador: null,
@@ -274,12 +274,15 @@ function cambiarModo(modo) {
     document.getElementById('modo-directo').classList.toggle('active', modo === 'directo');
     document.getElementById('modo-tanda').classList.toggle('active', modo === 'tanda');
     document.getElementById('modo-historial').classList.toggle('active', modo === 'historial');
+    document.getElementById('modo-jornada').classList.toggle('active', modo === 'jornada');
     document.getElementById('modo-torneo').classList.toggle('active', modo === 'torneo');
 
-    document.getElementById('formulario').style.display = (modo === 'historial' || modo === 'torneo') ? 'none' : '';
+    const conSeccionPropia = modo === 'historial' || modo === 'jornada' || modo === 'torneo';
+    document.getElementById('formulario').style.display = conSeccionPropia ? 'none' : '';
     document.getElementById('accion-directo').style.display = modo === 'directo' ? '' : 'none';
     document.getElementById('accion-tanda').style.display = modo === 'tanda' ? '' : 'none';
     document.getElementById('seccion-historial').style.display = modo === 'historial' ? '' : 'none';
+    document.getElementById('seccion-jornada').style.display = modo === 'jornada' ? '' : 'none';
     document.getElementById('seccion-torneo').style.display = modo === 'torneo' ? '' : 'none';
     document.getElementById('accion-fixture').style.display = 'none';
     document.getElementById('fixture-banner').style.display = 'none';
@@ -288,6 +291,9 @@ function cambiarModo(modo) {
 
     if (modo === 'historial' && estado.historialVista.length === 0) {
         cargarHistorial();
+    }
+    if (modo === 'jornada') {
+        entrarModoJornada();
     }
     if (modo === 'torneo') {
         entrarModoTorneo();
@@ -311,6 +317,7 @@ function actualizarSubtitulo(texto) {
         directo: 'Amistosos · Tejo Nations League',
         tanda: 'Amistosos · Tejo Nations League',
         historial: 'Historial de partidos cargados',
+        jornada: 'Jornada · Tejo Nations League',
         torneo: 'Torneos oficiales'
     };
     el.textContent = porModo[estado.modo] || porModo.directo;
@@ -696,6 +703,7 @@ function bindEventos() {
     document.getElementById('modo-directo').addEventListener('click', () => cambiarModo('directo'));
     document.getElementById('modo-tanda').addEventListener('click', () => cambiarModo('tanda'));
     document.getElementById('modo-historial').addEventListener('click', () => cambiarModo('historial'));
+    document.getElementById('modo-jornada').addEventListener('click', () => cambiarModo('jornada'));
     document.getElementById('modo-torneo').addEventListener('click', () => cambiarModo('torneo'));
     document.getElementById('btn-guardar-fixture').addEventListener('click', guardarResultadoFixture);
     document.getElementById('btn-cancelar-fixture').addEventListener('click', cerrarCargaDeFixture);

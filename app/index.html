@@ -419,6 +419,7 @@
         <button class="modo-btn active" id="modo-directo">⚡ Uno</button>
         <button class="modo-btn" id="modo-tanda">📋 Tanda</button>
         <button class="modo-btn" id="modo-historial">🕑 Historial</button>
+        <button class="modo-btn" id="modo-jornada">🗓️ Jornada</button>
         <button class="modo-btn" id="modo-torneo">🏆 Torneo</button>
     </div>
 
@@ -430,7 +431,7 @@
 
     <!-- Banner cuando estás cargando un partido del fixture de un torneo -->
     <div class="editando-banner" id="fixture-banner" style="display: none; background: #12291a; border-color: var(--green);">
-        <strong style="color: var(--green);">🏆 Partido del torneo</strong>
+        <strong style="color: var(--green);" id="fixture-titulo">🏆 Partido del torneo</strong>
         <span class="orig" id="fixture-info"></span>
     </div>
 
@@ -521,6 +522,8 @@
     </div>
 
     <!-- Torneo -->
+    <div id="seccion-jornada" style="display: none;"></div>
+
     <div id="seccion-torneo" style="display: none;"></div>
 
     <p class="footer-nota">
@@ -536,5 +539,6 @@
     <script src="../lib/torneo-formatos.js"></script>
     <script src="app.js"></script>
     <script src="torneo.js"></script>
+    <script src="jornada.js"></script>
 </body>
 </html>

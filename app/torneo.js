@@ -629,7 +629,9 @@ function abrirCargaDeFixture(cruce) {
     estado.ganador = cruce.j1;
     estado.perdedor = cruce.j2;
     estado.golesPerdedor = null;
-    document.getElementById('fecha').value = hoyISO();
+    // Un cruce de jornada trae su fecha (la del día que se juntaron);
+    // los del fixture de un torneo se cargan con la de hoy.
+    document.getElementById('fecha').value = cruce.fecha ? fechaAISO(cruce.fecha) : hoyISO();
 
     document.getElementById('formulario').style.display = '';
     document.getElementById('accion-directo').style.display = 'none';
@@ -637,8 +639,13 @@ function abrirCargaDeFixture(cruce) {
     document.getElementById('accion-edicion').style.display = 'none';
     document.getElementById('accion-fixture').style.display = '';
     document.getElementById('fixture-banner').style.display = '';
-    document.getElementById('fixture-info').textContent =
-        `${cruce.fase}: ${cruce.j1} vs ${cruce.j2}`;
+
+    const esJornada = cruce.origen === 'jornada';
+    const titulo = document.getElementById('fixture-titulo');
+    if (titulo) titulo.textContent = esJornada ? '🗓️ Partido de la jornada' : '🏆 Partido del torneo';
+    document.getElementById('fixture-info').textContent = esJornada
+        ? `${cruce.j1} vs ${cruce.j2}`
+        : `${cruce.fase}: ${cruce.j1} vs ${cruce.j2}`;
 
     // En un cruce del fixture los jugadores están fijos: se tocan los chips
     // solo para dar vuelta quién fue el ganador.
@@ -699,10 +706,13 @@ async function guardarResultadoFixture() {
         mostrarToast(`✅ ${estado.ganador} 7-${estado.golesPerdedor} ${estado.perdedor}`, 'ok');
         cerrarCargaDeFixture();
 
-        // Refresca el historial completo (lo usan los partidos pendientes viejos)
+        // Refresca el historial completo (lo usan los partidos pendientes
+        // viejos y la jornada, que deduce lo jugado del .txt)
         estado.jugadores = await cargarJugadores();
 
-        if (cruce.torneoSuelto) {
+        if (cruce.origen === 'jornada') {
+            renderJornadaEnCurso();
+        } else if (cruce.torneoSuelto) {
             renderInicioTorneo();
         } else {
             await refrescarJugados();
