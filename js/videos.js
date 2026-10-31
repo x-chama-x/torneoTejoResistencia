@@ -23,15 +23,17 @@
 // cualquier partido, no solo las finales.
 // =====================================================
 
+const BLOB = 'https://4ns5q5w3gtzupx63.public.blob.vercel-storage.com';
+
 const VIDEOS_DE_PARTIDOS = {
     'Primer torneo de hockey de mesa': {
-        'Final': ''
+        'Final': `${BLOB}/torneo1-final.mp4`
     },
     'Segundo torneo de hockey de mesa': {
-        'Final': ''
+        'Final': `${BLOB}/torneo2-final.mp4`
     },
     'Tercer torneo de hockey de mesa': {
-        'Final': ''
+        'Final': `${BLOB}/torneo3-final.mp4`
     }
 };
 
