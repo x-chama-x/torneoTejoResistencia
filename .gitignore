@@ -1,0 +1,6 @@
+# Videos de las finales
+# Los originales pesan ~300 MB cada uno (852 MB los tres): GitHub rechaza
+# cualquier archivo de mas de 100 MB, asi que no pueden ir en el repo.
+# Los comprimidos tampoco: viven en Vercel Blob y la pagina los pide por URL.
+img/Videos/
+img/videos/
