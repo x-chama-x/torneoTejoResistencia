@@ -214,7 +214,7 @@ PWA personal para cargar partidos amistosos de la Tejo Nations League desde el c
 - **URL**: https://torneo-tejo-resistencia.vercel.app/app/
 - **Instalacion**: abrir esa URL en el celular y elegir "Agregar a pantalla de inicio". Queda con icono propio y se abre en pantalla completa.
 - **Como carga**: como en el tejo siempre se juega a 7, el ganador siempre hace 7 goles. Entonces alcanza con tocar ganador, perdedor y los goles del perdedor (0-6).
-- **Cuatro modos**: "uno" (commitea al instante), "tanda" (vas armando la lista de la jornada y despues se suben todos), "historial" (editar o borrar partidos ya cargados) y "torneo" (ver abajo). La tanda queda guardada en el celular, asi que no se pierde si se cierra la app o se corta la señal.
+- **Cinco modos**: "uno" (commitea al instante), "tanda" (vas armando la lista de la jornada y despues se suben todos), "historial" (editar o borrar partidos ya cargados), "jornada" (ver abajo) y "torneo" (ver abajo). La tanda queda guardada en el celular, asi que no se pierde si se cierra la app o se corta la señal.
 - **Que hace**: cada partido se agrega como una linea nueva en `enfrentamientos_directos.txt` mediante un commit directo a `master` via la API de GitHub (un commit por partido). Vercel redeploya solo y el sitio queda actualizado.
 
 ### Editar y borrar
@@ -233,6 +233,9 @@ Al editar se conservan el `torneo` y la `fase` originales, asi tambien se pueden
 | `GET` | `/api/partidos?limit=25&torneo=Amistoso` | Lista los partidos mas recientes con su indice de linea |
 | `PUT` | `/api/partidos` | Reemplaza la linea indicada (`indice` + `lineaEsperada` + `partido`) |
 | `DELETE` | `/api/partidos` | Borra la linea indicada (`indice` + `lineaEsperada`), o todos los partidos de un torneo (`torneo`) en un solo commit |
+| `GET` | `/api/jornada` | Lista las jornadas abiertas de la Nations League |
+| `PUT` | `/api/jornada` | Abre o actualiza una jornada (`fecha` + `jugadores`) |
+| `DELETE` | `/api/jornada` | Cierra la jornada de esa `fecha` |
 
 La logica compartida de GitHub y del formato del archivo vive en `lib/github.js` (fuera de `/api`, porque cada archivo dentro de `/api` se vuelve una funcion serverless).
 
@@ -333,6 +336,34 @@ Se agrupa por una **clave numerica AAAAMMDD** (`clave`, que arma `parsearAmistos
 ### Tabla de posiciones
 
 Ordena por **PG\*** (promedio ajustado), no por el promedio en bruto. El calculo esta en `js/nationsLeagueCalculator.js`, compartido con el Historial de ganadores de `index.html`.
+
+---
+
+## Modo Jornada (en la app)
+
+Para los dias que el grupo se junta a jugar amistosos. Se marca quienes vinieron (**cualquier cantidad, desde 2**) y la app arma **todos los cruces posibles**, que despues se cargan uno por uno igual que el fixture de un torneo. Con 7 jugadores son 21 partidos; con 5, 10.
+
+El orden sale de `ordenarParaQueDescansen()`, la misma funcion que ordena el fixture de los torneos, asi nadie juega dos partidos seguidos.
+
+### Que se guarda
+
+`jornadas/index.json` guarda **solo la fecha y quienes vinieron**. Los cruces no se guardan, se deducen (son todos contra todos), y los resultados tampoco: van a `enfrentamientos_directos.txt` como amistosos, igual que siempre. O sea:
+
+```
+cruces      = todos contra todos entre los jugadores de la jornada
+jugados     = los amistosos del .txt con esa misma fecha
+pendientes  = cruces - jugados
+```
+
+Por eso se puede cerrar la app, quedarse sin bateria o seguir desde otro telefono sin perder nada: la app baja la jornada y el `.txt` y aparece donde estaba. Es la misma idea que el modo Torneo.
+
+Todas las jornadas abiertas entran en un solo archivo porque son cuatro datos: no hace falta un archivo por jornada mas un indice, como si pasa con los torneos.
+
+### En la pagina
+
+Mientras la jornada esta abierta, la Nations League la muestra como una jornada mas, marcada **EN CURSO**, con los partidos ya jugados arriba y los que faltan abajo, cada uno con su barra de probabilidad (la misma formula que el Creador de Torneo). Las tablas de posiciones y estadisticas **no** cuentan los pendientes: solo lo jugado.
+
+Cerrar la jornada desde la app la saca del archivo y con eso desaparecen los pendientes de la pagina. Los partidos cargados quedan, obviamente, porque viven en el `.txt`.
 
 ---
 

@@ -257,40 +257,8 @@
     width: fit-content;
 }
 
-.sf-prob-badge {
-    font-size: 1.15em;
-    font-weight: 800;
-    padding: 4px 10px;
-    border-radius: 8px;
-    white-space: nowrap;
-    min-width: 64px;
-    text-align: center;
-}
-
-.sf-prob-badge.alta       { color: #3fb950; background: #2386361a; }
-.sf-prob-badge.media-alta { color: #d29922; background: #d299221a; }
-.sf-prob-badge.media      { color: #e3b341; background: #e3b3411a; }
-.sf-prob-badge.baja       { color: #f85149; background: #f851491a; }
-
-/* Barra dividida de probabilidad */
-.sf-split-bar {
-    display: flex;
-    height: 12px;
-    border-radius: 6px;
-    overflow: hidden;
-    margin: 6px 0;
-    background: #30363d;
-}
-
-.split-segment {
-    height: 100%;
-    transition: width 0.6s ease;
-}
-
-.split-segment.alta       { background: linear-gradient(90deg, #238636, #2ea043); }
-.split-segment.media-alta { background: linear-gradient(90deg, #9e6a03, #d29922); }
-.split-segment.media      { background: linear-gradient(90deg, #a67f22, #e3b341); }
-.split-segment.baja       { background: linear-gradient(90deg, #da3633, #f85149); }
+/* La barra de probabilidad y sus porcentajes se mudaron a
+   css/probabilidades.css, que tambien usa la Tejo Nations League. */
 
 .sf-insight {
     text-align: center;

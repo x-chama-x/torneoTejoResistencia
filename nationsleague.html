@@ -6,6 +6,7 @@
     <title>Tejo Nations League - Air Hockey</title>
     <link rel="icon" type="image/png" href="img/favicon.png">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/probabilidades.css">
     <style>
         /* Layout de dos columnas (posiciones + resultados), igual que en los torneos */
         @media (min-width: 901px) {
@@ -93,6 +94,19 @@
             font-size: 0.8rem;
             color: #c9d1d9;
             white-space: nowrap;
+        }
+        /* Una jornada abierta: todavia le faltan partidos por jugar */
+        .jornada-en-curso {
+            font-size: 0.62rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #d29922;
+            background: #d299221a;
+            border-radius: 999px;
+            padding: 2px 7px;
+            margin-left: 6px;
+            vertical-align: middle;
         }
         .jornada-pie {
             text-align: center;
@@ -257,6 +271,9 @@
     </div>
     <!-- Scripts -->
     <script src="js/menu.js"></script>
+    <script src="js/rankingCalculator.js"></script>
+    <script src="js/probabilidades.js"></script>
+    <script src="lib/torneo-formatos.js"></script>
     <script src="js/nationsLeagueCalculator.js"></script>
     <script src="js/nations_league.js"></script>
 </body>
