@@ -390,7 +390,9 @@ En la pagina aparecen todas las abiertas, cada una como su propia jornada, con u
 | todavia no llego | **PROGRAMADA** (azul) |
 | ya paso y sigue abierta | **SIN TERMINAR** (gris) |
 
-Una armada para el viernes no dice "en curso" el jueves, y una que quedo abierta de un dia que ya paso se nota a simple vista: ese es el recordatorio de que falta cerrarla. La linea de arriba resume lo mismo en palabras ("13 partidos amistosos jugados en esta edicion · 2 jornadas programadas", "· 1 jornada en curso y 1 programada").
+Una armada para el viernes no dice "en curso" el jueves, y una que quedo abierta de un dia que ya paso se nota a simple vista: ese es el recordatorio de que falta cerrarla.
+
+La pagina **entra en la jornada mas proxima a jugarse**, que es lo que interesa mirar antes de ir: con la del viernes y la del sabado armadas, el jueves abre en la del viernes y el viernes sigue abriendo en esa. Si no queda ninguna por jugar, abre en la ultima que se jugo, como siempre. La linea de arriba resume lo mismo en palabras ("13 partidos amistosos jugados en esta edicion · 2 jornadas programadas", "· 1 jornada en curso y 1 programada").
 
 ### En la pagina
 
