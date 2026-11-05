@@ -28,11 +28,16 @@
 const API_JORNADA = '/api/jornada';
 
 const jornada = {
-    abierta: null,      // { fecha, jugadores }
+    abierta: null,      // la que se está mirando ahora: { fecha, jugadores }
+    abiertas: [],       // todas las que tienen partidos por jugar
     seleccion: [],      // jugadores tildados en la pantalla de creación
     editando: false,    // true cuando se cambia el plantel de una jornada abierta
     cargando: false
 };
+
+// Puede haber varias jornadas abiertas a la vez: si el finde te juntás
+// sábado y domingo, dejás las dos armadas de antes y cada día abrís la
+// que toca. Se guardan todas en el mismo archivo, indexadas por fecha.
 
 // =====================================================
 // Entrada al modo
@@ -54,17 +59,38 @@ async function entrarModoJornada() {
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
 
-        const abiertas = data.jornadas || [];
-        if (abiertas.length > 0) {
-            // La última por fecha: el endpoint las devuelve ordenadas
-            jornada.abierta = abiertas[abiertas.length - 1];
-            renderJornadaEnCurso();
-        } else {
-            renderInicioJornada();
-        }
+        jornada.abiertas = data.jornadas || [];
+        abrirLaQueCorresponde();
     } catch (err) {
         cont.innerHTML = `<div class="vacio-msg">No se pudo cargar: ${escaparHtml(err.message)}</div>`;
     }
+}
+
+// Con una sola abierta se entra directo. Con varias, se entra a la de hoy
+// si hay una (que es el caso real: dejaste armadas las del sábado y el
+// domingo, y el domingo abrís la app); si no, a la lista para elegir.
+function abrirLaQueCorresponde() {
+    const abiertas = jornada.abiertas;
+
+    if (abiertas.length === 1) {
+        jornada.abierta = abiertas[0];
+        return renderJornadaEnCurso();
+    }
+
+    const hoy = claveDeFecha(fechaDeHoyTexto());
+    const deHoy = abiertas.find(j => claveDeFecha(j.fecha) === hoy);
+    if (deHoy) {
+        jornada.abierta = deHoy;
+        return renderJornadaEnCurso();
+    }
+
+    renderInicioJornada();
+}
+
+// La fecha de hoy en D/M/AAAA, el formato del .txt
+function fechaDeHoyTexto() {
+    const h = new Date();
+    return `${h.getDate()}/${h.getMonth() + 1}/${h.getFullYear()}`;
 }
 
 // =====================================================
@@ -73,18 +99,50 @@ async function entrarModoJornada() {
 
 function renderInicioJornada() {
     actualizarSubtitulo();
+    jornada.abierta = null;
     const cont = document.getElementById('seccion-jornada');
 
-    cont.innerHTML = `
+    const lista = jornada.abiertas.map((j, i) => {
+        const total = cuantosCruces((j.jugadores || []).length);
+        const listos = jugadosDeFecha(j.fecha).length;
+        return `
+            <div class="hist-item">
+                <span class="estado">🗓️</span>
+                <span class="hist-texto">
+                    ${escaparHtml(j.fecha)}
+                    <span class="hist-meta">${(j.jugadores || []).length} jugadores · ${listos} de ${total}</span>
+                </span>
+                <span class="hist-acciones">
+                    <button class="icon-btn" data-abrir-jornada="${i}" title="Abrir">▶</button>
+                </span>
+            </div>`;
+    }).join('');
+
+    const bloqueAbiertas = jornada.abiertas.length > 0 ? `
         <div class="card">
-            <label>Nueva jornada</label>
+            <label>Jornadas abiertas</label>
+            ${lista}
+        </div>` : '';
+
+    cont.innerHTML = `
+        ${bloqueAbiertas}
+        <div class="card">
+            <label>${jornada.abiertas.length > 0 ? 'Otra jornada' : 'Nueva jornada'}</label>
             <p class="hint" style="margin: 0 0 14px 0;">
-                Marcá quiénes vinieron y la app arma todos los cruces posibles.
+                Marcá quiénes van a jugar y la app arma todos los cruces posibles.
                 Después los vas cargando uno por uno, en el orden que quieras.
+                Podés dejar varias armadas de antes, una por día.
             </p>
             <button class="btn btn-primary" id="btn-nueva-jornada">🗓️ Armar jornada</button>
         </div>
     `;
+
+    cont.querySelectorAll('[data-abrir-jornada]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            jornada.abierta = jornada.abiertas[parseInt(btn.dataset.abrirJornada, 10)];
+            renderJornadaEnCurso();
+        });
+    });
 
     // Con la función pelada, el MouseEvent entraría como `editando`
     document.getElementById('btn-nueva-jornada').addEventListener('click', () => renderCrearJornada(false));
@@ -241,7 +299,10 @@ async function crearJornada() {
         if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
 
         const eraEdicion = jornada.editando;
-        jornada.abierta = { fecha, jugadores: jornada.seleccion.slice() };
+        const actualizada = { fecha, jugadores: jornada.seleccion.slice() };
+        jornada.abiertas = jornada.abiertas.filter(j => j.fecha !== fecha).concat([actualizada]);
+        jornada.abiertas.sort((a, b) => claveDeFecha(a.fecha) - claveDeFecha(b.fecha));
+        jornada.abierta = actualizada;
         jornada.editando = false;
         mostrarToast(eraEdicion ? 'Plantel actualizado' : `🗓️ Jornada del ${fecha} armada`, 'ok');
         renderJornadaEnCurso();
@@ -273,14 +334,17 @@ function crucesDeLaJornada() {
     return ordenarParaQueDescansen(todos);
 }
 
-// Los amistosos del .txt de esa misma fecha.
-function jugadosDeLaJornada() {
-    if (!jornada.abierta) return [];
-    const clave = claveDeFecha(jornada.abierta.fecha);
+// Los amistosos del .txt de esa fecha.
+function jugadosDeFecha(fecha) {
+    const clave = claveDeFecha(fecha);
     return estado.historial.filter(p =>
         p.torneo && p.torneo.toLowerCase() === TORNEO.toLowerCase() &&
         claveDeFecha(p.fecha) === clave
     );
+}
+
+function jugadosDeLaJornada() {
+    return jornada.abierta ? jugadosDeFecha(jornada.abierta.fecha) : [];
 }
 
 function buscarJugadoEnJornada(cruce, jugados) {
@@ -358,6 +422,11 @@ function renderJornadaEnCurso() {
             <button class="btn btn-secondary" id="btn-editar-jornada">Cambiar jugadores</button>
             <button class="btn btn-secondary" id="btn-cerrar-jornada">Cerrar jornada</button>
         </div>
+        <div class="btn-row" style="margin-top: 10px;">
+            <button class="btn btn-secondary" id="btn-volver-jornadas">
+                ${jornada.abiertas.length > 1 ? '← Otras jornadas' : '← Armar otra jornada'}
+            </button>
+        </div>
         <p class="hint" style="text-align:center; margin-top: 6px;">
             ¿Cayó alguien más? "Cambiar jugadores" y se suman sus cruces.<br>
             Cerrar la jornada saca los partidos que falten de la página; los cargados quedan.
@@ -379,6 +448,7 @@ function renderJornadaEnCurso() {
     });
 
     document.getElementById('btn-editar-jornada').addEventListener('click', () => renderCrearJornada(true));
+    document.getElementById('btn-volver-jornadas').addEventListener('click', renderInicioJornada);
     document.getElementById('btn-cerrar-jornada').addEventListener('click', cerrarJornada);
 }
 
@@ -403,6 +473,7 @@ async function cerrarJornada() {
         if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
 
         mostrarToast('Jornada cerrada', 'ok');
+        jornada.abiertas = jornada.abiertas.filter(j => j.fecha !== jornada.abierta.fecha);
         jornada.abierta = null;
         renderInicioJornada();
     } catch (err) {
