@@ -285,6 +285,22 @@ function pendientesDeLaJornada(jornada, yaJugados) {
     return todos.filter(c => !yaEsta(c));
 }
 
+// En cuál se entra: si hay alguna por jugar, la más próxima, que es lo que
+// interesa mirar antes de ir (con la del viernes y la del sábado armadas, el
+// jueves se entra en la del viernes). Si no queda ninguna pendiente, la
+// última que se jugó, que era el comportamiento de siempre.
+function jornadaInicial(jornadas) {
+    const hoy = claveDeHoy();
+    let elegida = -1;
+
+    jornadas.forEach((j, i) => {
+        if (!j.abierta || typeof j.clave !== 'number' || j.clave < hoy) return;
+        if (elegida === -1 || j.clave < jornadas[elegida].clave) elegida = i;
+    });
+
+    return elegida === -1 ? 0 : elegida;
+}
+
 // Se muestra una jornada por vez, con flechas para moverse, igual que los
 // resultados por fecha del index. Apiladas se amontonaban: una sola jornada
 // puede tener 7 partidos y la columna se hacía larguísima.
@@ -298,10 +314,10 @@ function renderResultados(partidos, abiertas = []) {
     }
 
     // Numeradas en orden cronológico pero recorridas de la más reciente a la
-    // más vieja, así se entra viendo lo último que se jugó. Adentro de cada
-    // jornada los partidos sí van en el orden en que se jugaron.
+    // más vieja. Adentro de cada jornada los partidos sí van en el orden en
+    // que se jugaron.
     const jornadas = agruparEnJornadas(partidos, abiertas).reverse();
-    let actual = 0;
+    let actual = jornadaInicial(jornadas);
 
     function tablaDeJornada(j) {
         const jugados = j.partidos.map(m => {
