@@ -95,19 +95,23 @@
             color: #c9d1d9;
             white-space: nowrap;
         }
-        /* Una jornada abierta: todavia le faltan partidos por jugar */
-        .jornada-en-curso {
+        /* Una jornada abierta: todavia le faltan partidos por jugar.
+           No siempre se esta jugando: puede ser de un dia que todavia no
+           llego (programada) o de uno que ya paso (quedo sin cerrar). */
+        .jornada-estado {
             font-size: 0.62rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            color: #d29922;
-            background: #d299221a;
             border-radius: 999px;
             padding: 2px 7px;
             margin-left: 6px;
             vertical-align: middle;
+            white-space: nowrap;
         }
+        .jornada-estado.en-curso     { color: #d29922; background: #d299221a; }
+        .jornada-estado.programada   { color: #58a6ff; background: #58a6ff1a; }
+        .jornada-estado.sin-terminar { color: #8b949e; background: #8b949e1a; }
         .jornada-pie {
             text-align: center;
             color: #8b949e;
@@ -278,3 +282,4 @@
     <script src="js/nations_league.js"></script>
 </body>
 </html>
+

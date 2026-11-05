@@ -81,6 +81,49 @@ function claveDeFechaNL(fecha) {
     return a * 10000 + m * 100 + d;
 }
 
+function claveDeHoy() {
+    const h = new Date();
+    return h.getFullYear() * 10000 + (h.getMonth() + 1) * 100 + h.getDate();
+}
+
+// Una jornada abierta no siempre se está jugando: si la armaste el jueves
+// para el viernes, todavía no empezó. Y si quedó abierta de un día que ya
+// pasó, es que te olvidaste de cerrarla.
+const ESTADOS_JORNADA = {
+    'en-curso':     { texto: 'en curso',     resumen: ['en curso', 'en curso'] },
+    'programada':   { texto: 'programada',   resumen: ['programada', 'programadas'] },
+    'sin-terminar': { texto: 'sin terminar', resumen: ['sin terminar', 'sin terminar'] }
+};
+
+function estadoDeJornada(clave) {
+    const hoy = claveDeHoy();
+    if (clave === hoy) return 'en-curso';
+    return clave > hoy ? 'programada' : 'sin-terminar';
+}
+
+// "2 jornadas programadas", "1 jornada en curso y 1 programada", etc.
+// El sustantivo va solo en el primer tramo, para no repetirlo.
+function resumenDeJornadas(abiertas) {
+    const cuenta = { 'en-curso': 0, 'programada': 0, 'sin-terminar': 0 };
+    abiertas.forEach(j => {
+        const clave = claveDeFechaNL(j.fecha);
+        if (clave != null) cuenta[estadoDeJornada(clave)]++;
+    });
+
+    const partes = Object.keys(ESTADOS_JORNADA)
+        .filter(k => cuenta[k] > 0)
+        .map((k, i) => {
+            const n = cuenta[k];
+            const [uno, varios] = ESTADOS_JORNADA[k].resumen;
+            const sustantivo = i > 0 ? '' : (n === 1 ? 'jornada ' : 'jornadas ');
+            return `${n} ${sustantivo}${n === 1 ? uno : varios}`;
+        });
+
+    if (partes.length === 0) return '';
+    if (partes.length === 1) return partes[0];
+    return partes.slice(0, -1).join(', ') + ' y ' + partes[partes.length - 1];
+}
+
 function renderSelectorAnios(anios, seleccionado, onChange) {
     const cont = document.getElementById('year-selector');
     if (!cont) return;
@@ -213,6 +256,7 @@ function agruparEnJornadas(partidos, abiertas = []) {
 
         const grupo = porClave.get(clave);
         grupo.abierta = true;
+        grupo.estado = estadoDeJornada(clave);
         grupo.pendientes = pendientesDeLaJornada(j, grupo.partidos);
     });
 
@@ -321,7 +365,9 @@ function renderResultados(partidos, abiertas = []) {
                 <button class="jornada-flecha" id="jornada-prev" ${hayVieja ? '' : 'disabled'}
                         aria-label="Jornada anterior">&#8592;</button>
                 <div class="jornada-titulo">
-                    <span class="jornada-nombre">Jornada ${j.numero}${j.abierta ? ' <span class="jornada-en-curso">en curso</span>' : ''}</span>
+                    <span class="jornada-nombre">Jornada ${j.numero}${j.abierta
+                        ? ` <span class="jornada-estado ${j.estado}">${ESTADOS_JORNADA[j.estado].texto}</span>`
+                        : ''}</span>
                     <span class="jornada-dato">${formatFechaNL(j.fecha)}</span>
                 </div>
                 <button class="jornada-flecha" id="jornada-next" ${hayNueva ? '' : 'disabled'}
@@ -359,6 +405,7 @@ function renderEdicion(partidosDelAnio, abiertasDelAnio = []) {
     if (elCount) {
         const n = partidosDelAnio.length;
         const base = `${n} partido${n === 1 ? '' : 's'} amistoso${n === 1 ? '' : 's'} jugado${n === 1 ? '' : 's'} en esta edición`;
-        elCount.textContent = abiertasDelAnio.length > 0 ? `${base} · hay una jornada en curso` : base;
+        const resumen = resumenDeJornadas(abiertasDelAnio);
+        elCount.textContent = resumen ? `${base} · ${resumen}` : base;
     }
 }
