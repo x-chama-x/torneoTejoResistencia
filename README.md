@@ -367,6 +367,21 @@ A quien **ya jugo** no se lo puede sacar (queda marcado con un ✓): sus partido
 
 Todas las jornadas abiertas entran en un solo archivo porque son cuatro datos: no hace falta un archivo por jornada mas un indice, como si pasa con los torneos.
 
+### Varias jornadas a la vez
+
+Se pueden dejar **varias armadas de antes**, una por dia: si el finde te juntas sabado y domingo, armas las dos el viernes y cada dia abris la que toca. Se guardan en el mismo archivo, indexadas por fecha, y cada una lleva su propio plantel y su propio avance.
+
+Al entrar al modo, la app decide sola:
+
+| Jornadas abiertas | Que muestra |
+|---|---|
+| ninguna | la pantalla para armar una |
+| una | esa, directo |
+| varias, y una es de hoy | la de hoy, directo |
+| varias, ninguna de hoy | la lista, para elegir |
+
+Desde una jornada abierta, el boton de abajo vuelve a la lista (y de ahi se puede armar otra). En la pagina aparecen todas las abiertas, cada una como su propia jornada marcada **EN CURSO**.
+
 ### En la pagina
 
 Mientras la jornada esta abierta, la Nations League la muestra como una jornada mas, marcada **EN CURSO**, con los partidos ya jugados arriba y los que faltan abajo, cada uno con su barra de probabilidad (la misma formula que el Creador de Torneo). Las tablas de posiciones y estadisticas **no** cuentan los pendientes: solo lo jugado.
@@ -472,3 +487,4 @@ Luego abrir `http://localhost:8000` en el navegador.
 ---
 
 *Desarrollado por x_chama_x*
+
