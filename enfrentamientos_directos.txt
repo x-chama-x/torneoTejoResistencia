@@ -113,3 +113,4 @@ Mateo,Santi,G,7-3,Amistoso,6/11/2026,Amistoso
 Tomy,Kovic,G,7-6,Amistoso,6/11/2026,Amistoso
 Santi,Chama,G,7-6,Amistoso,6/11/2026,Amistoso
 Kovic,Mateo,G,7-6,Amistoso,6/11/2026,Amistoso
+Tomy,Santi,G,7-1,Amistoso,6/11/2026,Amistoso
