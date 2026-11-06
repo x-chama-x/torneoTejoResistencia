@@ -108,3 +108,4 @@ Tomy,Facu,G,7-6,Amistoso,29/8/2026,Amistoso
 Chama,Facu,G,7-4,Amistoso,29/8/2026,Amistoso
 Chama,Mateo,G,7-4,Amistoso,6/11/2026,Amistoso
 Santi,Kovic,G,7-5,Amistoso,6/11/2026,Amistoso
+Chama,Tomy,G,7-5,Amistoso,6/11/2026,Amistoso
