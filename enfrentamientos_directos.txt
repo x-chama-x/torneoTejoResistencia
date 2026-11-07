@@ -117,3 +117,4 @@ Tomy,Santi,G,7-1,Amistoso,6/11/2026,Amistoso
 Kovic,Chama,G,7-6,Amistoso,6/11/2026,Amistoso
 Chama,Marco,G,7-4,Tercer torneo de hockey de mesa,7/11/2026,Tercer Puesto
 Facu,Lucas,G,7-5,Amistoso,7/11/2026,Amistoso
+Facu,Chama,G,7-6,Amistoso,7/11/2026,Amistoso
