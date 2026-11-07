@@ -119,3 +119,4 @@ Chama,Marco,G,7-4,Tercer torneo de hockey de mesa,7/11/2026,Tercer Puesto
 Facu,Lucas,G,7-5,Amistoso,7/11/2026,Amistoso
 Facu,Chama,G,7-6,Amistoso,7/11/2026,Amistoso
 Lucas,Marco,G,7-6,Amistoso,7/11/2026,Amistoso
+Chama,Lucas,G,7-2,Amistoso,7/11/2026,Amistoso
