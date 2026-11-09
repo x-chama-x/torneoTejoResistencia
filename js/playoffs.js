@@ -110,11 +110,11 @@ function shuffleArray(arr) {
 // ---- Probabilidad analítica de que j1 gane contra j2 ----
 // Usa la misma fórmula sigmoide que el resto de las páginas
 // La fórmula vive en js/probabilidades.js, que es el único lugar donde se
-// toca. Acá va con k=30, el mismo de los simuladores, y sin el ajuste por
-// campeón defensor: el bracket se arma a mano, sin saber de qué torneo es.
+// toca. Sin el ajuste por campeón defensor: el bracket se arma a mano, sin
+// saber de qué torneo es.
 function probGanar(j1, j2) {
     const clave = [j1.nombre, j2.nombre].sort().join('_vs_');
-    return probabilidadEntre(j1, j2, enfrentamientosDirectos[clave], { k: 30 });
+    return probabilidadEntre(j1, j2, enfrentamientosDirectos[clave]);
 }
 
 // ---- Cálculo analítico de todas las probabilidades del bracket ----

@@ -24,7 +24,7 @@
 // Es la misma idea de los partidos fantasma del PG* de la Nations League
 // (js/nationsLeagueCalculator.js): pocos datos tiran hacia el centro.
 //
-// Al final todo pasa por una sigmoide (k=30), que convierte la diferencia
+// Al final todo pasa por una sigmoide (PROB_K), que convierte la diferencia
 // de fuerzas en una probabilidad entre 0 y 1. La sigmoide es lo que hace
 // que diferencias chicas muevan poco la aguja y diferencias grandes
 // tampoco lleguen nunca al 100%: siempre queda margen para el batacazo.
@@ -51,10 +51,11 @@ const CRUCES_FANTASMA = 4;         // a cuantos cruces el ajuste llega a la mita
 // paginas mostraban numeros distintos para el mismo cruce. Ahora el
 // calculo vive aca y los demas lo llaman.
 //
-// Lo que SI cambia de pagina en pagina va por opciones, porque es a
-// proposito:
-//   k        la suavidad de la sigmoide. Las paginas de datos usan
-//            PROB_K; los simuladores todavia usan 30 (ver README).
+// La suavidad es PROB_K en todas: antes los simuladores usaban 30, que
+// era el valor original de todo el sitio y quedo ahi cuando las paginas de
+// datos pasaron a 60. No habia razon para mantener los dos (ver README).
+//
+// Lo unico que cambia de pagina en pagina va por opciones:
 //   campeon  el ajuste por campeon defensor de js/campeon.js, que solo
 //            aplican el Creador de Torneo y el Simulador.
 
@@ -80,10 +81,9 @@ function ajustePorCruce(victorias1, victorias2) {
 //
 //   j1, j2     { nombre, ranking, winRate }
 //   historial  { victorias: { nombre: n } } del cruce, o null
-//   opciones   { k, campeon }
+//   opciones   { campeon }
 function probabilidadEntre(j1, j2, historial, opciones) {
     const op = opciones || {};
-    const k = op.k || PROB_K;
 
     let fuerza1 = fuerzaBase(j1.ranking, j1.winRate);
     let fuerza2 = fuerzaBase(j2.ranking, j2.winRate);
@@ -104,7 +104,7 @@ function probabilidadEntre(j1, j2, historial, opciones) {
         fuerza2 = ajustarFuerzaPorCampeon(fuerza2, j2.nombre);
     }
 
-    return 1 / (1 + Math.exp(-(fuerza1 - fuerza2) / k));
+    return 1 / (1 + Math.exp(-(fuerza1 - fuerza2) / PROB_K));
 }
 
 // =====================================================

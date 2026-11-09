@@ -160,15 +160,14 @@ function shuffleArray(arr) {
 
 // ---- Simulación de partido (idéntica a simulador.js) ----
 // La fórmula vive en js/probabilidades.js, que es el único lugar donde se
-// toca. Acá va con k=30 (el Creador simula miles de torneos y con una
-// sigmoide más dura los favoritos arrasan menos de la cuenta) y con el
-// ajuste por campeón defensor de js/campeon.js.
+// toca, con la suavidad de PROB_K. Lo único propio del Creador es el ajuste
+// por campeón defensor de js/campeon.js.
 function calcularProbabilidadGana1(jugador1, jugador2) {
     return probabilidadEntre(
         jugador1,
         jugador2,
         obtenerHistorialEnfrentamiento(jugador1.nombre, jugador2.nombre),
-        { k: 30, campeon: true }
+        { campeon: true }
     );
 }
 
