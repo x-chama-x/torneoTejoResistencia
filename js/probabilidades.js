@@ -9,9 +9,20 @@
 //
 // Después se ajusta por el historial de enfrentamientos directos entre
 // esos dos: si uno le gana seguido al otro, se corre la balanza. El peso
-// de ese ajuste es proporcional a cuántas veces se enfrentaron contra el
-// máximo del grupo, así un 1-0 entre dos que jugaron una sola vez pesa
-// mucho menos que un 6-1 entre dos que se enfrentaron siete veces.
+// de ese ajuste crece con cuántas veces se enfrentaron, así un 1-0 entre
+// dos que jugaron una sola vez pesa mucho menos que un 6-1 entre dos que
+// se enfrentaron siete veces.
+//
+// El peso satura: n / (n + CRUCES_FANTASMA). Antes era n / (el par que
+// más se enfrentó en todo el historial), y eso tenía un problema: los
+// mismos tres partidos entre dos valían cada vez menos a medida que OTRO
+// par seguía jugando. El 3-0 de Marco contra Facu aportaba 15 puntos con
+// el máximo en 8, y habría aportado 4 con el máximo en 30, sin que esos
+// tres partidos cambiaran en nada. Con la saturación el peso solo depende
+// de ese cruce, converge solo y nunca pasa el tope.
+//
+// Es la misma idea de los partidos fantasma del PG* de la Nations League
+// (js/nationsLeagueCalculator.js): pocos datos tiran hacia el centro.
 //
 // Al final todo pasa por una sigmoide (k=30), que convierte la diferencia
 // de fuerzas en una probabilidad entre 0 y 1. La sigmoide es lo que hace
@@ -29,12 +40,12 @@ const PROB_K = 60;                 // suavidad de la sigmoide
 const PESO_RANKING = 0.4;
 const PESO_WINRATE = 0.6;
 const PESO_HISTORIAL = 0.4;        // tope del ajuste por enfrentamiento directo
+const CRUCES_FANTASMA = 4;         // a cuantos cruces el ajuste llega a la mitad del tope
 
 const probData = {
     listo: false,
     jugadores: {},                 // nombre -> { ranking, winRate }
-    cruces: {},                    // "A_vs_B" -> { victorias: {A: n, B: n}, total }
-    maxCruces: 1
+    cruces: {}                     // "A_vs_B" -> { victorias: {A: n, B: n}, total }
 };
 
 // Carga todo lo que necesita la fórmula a partir del texto del .txt.
@@ -83,7 +94,6 @@ function prepararProbabilidades(texto) {
     });
 
     probData.cruces = cruces;
-    probData.maxCruces = Math.max(1, ...Object.values(cruces).map(c => c.total));
     probData.listo = true;
 }
 
@@ -103,7 +113,7 @@ function probabilidadGana1(nombre1, nombre2) {
     if (cruce && cruce.total > 0) {
         const wr1 = (cruce.victorias[nombre1] || 0) / cruce.total;
         const wr2 = (cruce.victorias[nombre2] || 0) / cruce.total;
-        const peso = PESO_HISTORIAL * (cruce.total / probData.maxCruces);
+        const peso = PESO_HISTORIAL * (cruce.total / (cruce.total + CRUCES_FANTASMA));
 
         fuerza1 += (wr1 - 0.5) * 100 * peso;
         fuerza2 += (wr2 - 0.5) * 100 * peso;

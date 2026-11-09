@@ -121,7 +121,11 @@ function probGanar(j1, j2) {
         if (total > 0) {
             const winRate1 = (historial.victorias[j1.nombre] || 0) / total;
             const winRate2 = (historial.victorias[j2.nombre] || 0) / total;
-            const peso = 0.4 * (total / maxEnfrentamientosGlobal);
+            // El peso satura con la cantidad de cruces (n / (n+4)) en vez de
+            // ir contra el maximo global: asi los mismos partidos entre dos no
+            // valen menos porque OTRO par siga jugando. Igual que en
+            // js/probabilidades.js.
+            const peso = 0.4 * (total / (total + 4));
             f1 += (winRate1 - 0.5) * 100 * peso;
             f2 += (winRate2 - 0.5) * 100 * peso;
         }
