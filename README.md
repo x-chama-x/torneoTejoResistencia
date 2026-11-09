@@ -289,6 +289,16 @@ Las tablas de posiciones se dibujan con **todos los jugadores del sorteo en cero
 
 La probabilidad usa la misma formula que el Creador de Torneo: Ranking FIFA 40% + winrate 60%, ajustado por el historial entre esos dos y pasado por una sigmoide.
 
+### Como se pesa el mano a mano
+
+El ajuste por enfrentamiento directo tiene un tope del 40%, y llega a ese tope de a poco segun cuantas veces se enfrentaron: `0.4 * n / (n + 4)`. Con 2 cruces pesa 0,13; con 8, 0,27; y nunca pasa de 0,4. Es la misma idea de los partidos fantasma del PG\* de la Nations League: con pocos datos, tira al centro.
+
+Antes el peso era `n / (el par que mas se enfrento en todo el historial)`, y eso tenia un problema: los mismos partidos entre dos valian cada vez menos a medida que **otro** par seguia jugando. El 3-0 de Marco contra Facu aportaba 15 puntos con el maximo en 8 y habria aportado 4 con el maximo en 30, sin que esos tres partidos cambiaran en nada.
+
+Medido sobre 67 partidos del historial, prediciendo cada uno solo con lo jugado antes, los dos pesos dan casi lo mismo (Brier 0,2338 contra 0,2307; 43 y 42 aciertos). El cambio no es por precision sino porque el peso ahora depende solo de ese cruce y no se degrada solo con el tiempo.
+
+La formula esta repetida en cinco archivos (`js/probabilidades.js`, `torneo.js`, `simulador.js`, `partido.js`, `playoffs.js`), asi que cualquier cambio hay que hacerlo en los cinco o las paginas empiezan a mostrar numeros distintos para el mismo cruce.
+
 El fixture sale del sorteo guardado en `torneos/<slug>.json`, asi que un torneo **recien sorteado ya se ve completo** aunque no tenga ni un partido jugado. Como el sitio es estatico y no puede listar esa carpeta, `api/torneo-estado.js` mantiene `torneos/index.json` al crear y borrar torneos.
 
 Para los torneos viejos, que no tienen JSON de sorteo, igual se detecta el partido por el **tercer puesto** que haya quedado sin jugar: si hay dos semis y final pero no Tercer Puesto, el cruce son los dos perdedores de semis.

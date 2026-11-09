@@ -372,8 +372,11 @@ function calcularProbabilidad(jugador1, jugador2) {
             const winRateDirecto1 = historial.victorias[jugador1.nombre] / totalEnfrentamientos;
             const winRateDirecto2 = historial.victorias[jugador2.nombre] / totalEnfrentamientos;
 
-            // El historial directo tiene un peso del 40% adicional, proporcional al máximo global
-            const pesoHistorial = 0.4 * (totalEnfrentamientos / maxEnfrentamientosGlobal);
+            // El peso del historial directo satura con la cantidad de cruces
+            // (n / (n+4)) en vez de ir contra el maximo global: asi los mismos
+            // partidos entre dos no valen menos porque OTRO par siga jugando.
+            // Mismo criterio que js/probabilidades.js.
+            const pesoHistorial = 0.4 * (totalEnfrentamientos / (totalEnfrentamientos + 4));
 
             fuerza1 += (winRateDirecto1 - 0.5) * 100 * pesoHistorial;
             fuerza2 += (winRateDirecto2 - 0.5) * 100 * pesoHistorial;
