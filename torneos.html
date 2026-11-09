@@ -229,6 +229,28 @@
             .candidato.eliminado { grid-template-columns: 1fr auto; margin-bottom: 5px; }
         }
 
+        /* --- Letra de Estadisticas del Torneo en celular ---
+           Tiene 10 columnas y heredaba la letra chica de .ranking-table, y
+           abajo de 480px los 9.5px del media query de styles.css. Es la
+           tabla mas ancha del sitio: con el padding original de 6px 5px
+           pedia 326px, o sea a 320px ya se salia. Bajando el padding a
+           4px 2px se ahorran 60px (10 columnas x 6px), y con eso alcanza
+           para agrandar la letra Y que entre.
+           Va por id porque el media query de 480px pisa cualquier regla de
+           clase. El clamp es porque el limite no es un breakpoint sino el
+           ancho real: asi la letra acompaña al ancho en vez de pegar un
+           salto. Mismo criterio que #tabla-stats-nl en nationsleague.html,
+           con el piso un poco mas bajo porque "Prom TG/PJ" es el titulo de
+           columna mas largo que hay. */
+        @media (max-width: 900px) {
+            #stats-container .ranking-table,
+            #stats-container .ranking-table th,
+            #stats-container .ranking-table td {
+                font-size: clamp(10.5px, 3.3vw, 1.05rem);
+                padding: 4px 2px;
+            }
+        }
+
 </style>
 </head>
 <body>
