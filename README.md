@@ -27,12 +27,12 @@ La aplicacion utiliza un sistema de probabilidades basado en una **funcion sigmo
 | Pagina | Descripcion |
 |--------|-------------|
 | `index.html` | **Inicio** - Rankings, estadisticas generales e historial de campeones |
-| `torneo.html` | **Creador de Torneo** - Sorteo de grupos con probabilidades en tiempo real |
-| `simulador.html` | **Simulador de Torneo** - Simula torneos completos con resultados detallados |
-| `montecarlo.html` | **Simulador Monte Carlo** - Analisis estadistico con miles de simulaciones |
+| `simulador.html` | **Simulador de Torneo** - Simula torneos completos con resultados detallados, y Monte Carlo con miles de simulaciones |
 | `partido.html` | **Simulador 1vs1** - Enfrentamientos directos con historial |
-| `playoffs.html` | **Playoffs** - Configuracion de brackets para semifinales y final |
 | `torneos.html` | **Torneos** - Historial de todos los torneos, con selector. Se arma solo leyendo `enfrentamientos_directos.txt` |
+| `app/index.html` | **Tejo - Cargar Partidos** - Crear torneos, sortear grupos y semis, y cargar los partidos uno por uno; tambien el modo jornada de la Nations League |
+
+> **Borradas**: `torneo.html` (Creador de Torneo) y `playoffs.html`, en noviembre de 2026. El Creador sorteaba grupos y guardaba el torneo, que es exactamente lo que hace hoy la app (`app/torneo.js`, con `sortearYGuardar` y `sortearYGuardarSemis`) y encima cargando los partidos. Playoffs armaba un bracket de 4 jugadores cualesquiera para ver probabilidades; el bracket con probabilidades quedo en `torneos.html`, pero solo para torneos reales. Se fueron tambien `js/torneo.js` y `js/playoffs.js`.
 
 ---
 
@@ -44,19 +44,13 @@ La aplicacion utiliza un sistema de probabilidades basado en una **funcion sigmo
 - **Estadisticas Generales**: PJ, G, P, WR, GF, GC, DIF, PG de todos los partidos
 - **Historial de Campeones**: Lista de ganadores de cada torneo
 
-### Creador de Torneo (`torneo.html`)
-- Sorteo de grupos aleatorio
-- Calculo de probabilidades de clasificacion en tiempo real
-- Visualizacion de los grupos generados
-- Soporte para formatos de 7, 8, 9 y 10 jugadores
-
 ### Simulador de Torneo (`simulador.html`)
 - Simula un torneo completo con resultados partido a partido
 - Muestra fase de grupos, playoffs, semifinales, tercer puesto y final
 - **Armado manual de grupos**: Permite elegir que jugadores van a cada grupo
 - Sorteo aleatorio o configuracion manual
 
-### Simulador Monte Carlo (`montecarlo.html`)
+### Simulador Monte Carlo (dentro de `simulador.html`)
 - Ejecuta entre 1,000 y 10,000 simulaciones de torneos
 - Calcula probabilidades de cada jugador de:
   - Ser campeon, subcampeon, tercero o cuarto
@@ -69,12 +63,6 @@ La aplicacion utiliza un sistema de probabilidades basado en una **funcion sigmo
 - **Barra de probabilidad**: Muestra el porcentaje de victoria automaticamente
 - **Historial de enfrentamientos**: Victorias totales, goles y ultimos 5 partidos
 - Datos calculados desde `enfrentamientos_directos.txt`
-
-### Playoffs (`playoffs.html`)
-- Seleccion de 4 jugadores clasificados
-- Configuracion del bracket (sorteo aleatorio o manual)
-- Visualizacion de cruces con probabilidades de cada partido
-- Calculo de probabilidades del campeon
 
 ---
 
@@ -145,11 +133,8 @@ probabilidad = 1 / (1 + e^(-diferencia / 30))
 ```
 torneoTejoResistencia/
 ├── index.html                    # Pagina de inicio (rankings, stats, campeones)
-├── torneo.html                   # Creador de torneo (sorteo de grupos)
 ├── simulador.html                # Simulador de torneo individual
-├── montecarlo.html               # Simulador Monte Carlo
 ├── partido.html                  # Simulador de partido 1vs1
-├── playoffs.html                 # Configurador de playoffs
 ├── torneos.html                  # Historial de todos los torneos (selector, se arma solo)
 ├── torneo1.html                  # Redireccion a torneos.html (link viejo)
 ├── torneo2.html                  # Redireccion a torneos.html (link viejo)
@@ -175,7 +160,6 @@ torneoTejoResistencia/
 │   └── sw.js                     # Service worker (cache del shell)
 ├── css/
 │   ├── styles.css                # Estilos principales
-│   ├── montecarlo.css            # Estilos Monte Carlo
 │   ├── partido.css               # Estilos Partido 1vs1
 │   ├── torneo.css                # Estilos Creador de Torneo
 │   └── playoffs.css              # Estilos Playoffs
@@ -184,7 +168,6 @@ torneoTejoResistencia/
 │   ├── menu.js                   # Menu de navegacion
 │   ├── playerSelection.js        # Componente de seleccion de jugadores
 │   ├── simulador.js              # Logica de simulacion de torneos
-│   ├── montecarlo.js             # Logica de simulaciones multiples
 │   ├── partido.js                # Logica de partido 1vs1
 │   ├── torneo.js                 # Logica del creador de torneo
 │   ├── playoffs.js               # Logica de playoffs
@@ -276,7 +259,7 @@ Mientras las semifinales estan sorteadas pero sin jugar, la final **tampoco qued
 
 En cuanto se carga **una** semifinal, las dos tarjetas se actualizan: el ganador aparece con su nombre en la final (y el perdedor en el tercer puesto), el que quedo afuera se muestra tachado como "eliminado", y las probabilidades se recalculan entre los que siguen vivos. Una semi ya jugada deja de ser un azar: el que gano pasa con probabilidad 1 y el que perdio queda en 0, y las cuentas salen solas de ahi.
 
-En **celular** el bracket sigue siendo un bracket: las dos semifinales a la izquierda, la final a la derecha y las lineas uniendolas. Lo que no entraba era el contenido de las tarjetas, que venia dimensionado para `playoffs.html`, donde son del doble de ancho. Abajo de 600px (`css/styles.css`):
+En **celular** el bracket sigue siendo un bracket: las dos semifinales a la izquierda, la final a la derecha y las lineas uniendolas. Lo que no entraba era el contenido de las tarjetas, que venia dimensionado para la vieja `playoffs.html`, donde las tarjetas eran del doble de ancho. Abajo de 600px (`css/styles.css`):
 
 - el panel de playoffs usa menos padding, asi cada columna gana 8px;
 - los dos nombres se reparten la fila en partes iguales y pueden cortar en dos lineas, asi "Ganador SF1" entra como "Ganador / SF1" en vez de salirse de la tarjeta;
@@ -307,17 +290,15 @@ La formula vive **solo en `js/probabilidades.js`**, en tres funciones:
 | `ajustePorCruce(v1, v2)` | lo que suma o resta el mano a mano |
 | `probabilidadEntre(j1, j2, historial, opciones)` | la sigmoide, con todo junto |
 
-Las cinco paginas que la usan llaman a `probabilidadEntre()`, y **todas con la misma suavidad**, `PROB_K = 60`. Lo unico que cambia de pagina en pagina es el ajuste por bicampeonato de `js/campeon.js`, que va por opcion (`{ campeon: true }`) porque solo tiene sentido donde hay un torneo con campeon defensor:
+Las paginas que la usan llaman a `probabilidadEntre()`, y **todas con la misma suavidad**, `PROB_K = 60`. Lo unico que cambia de pagina en pagina es el ajuste por bicampeonato de `js/campeon.js`, que va por opcion (`{ campeon: true }`) porque solo tiene sentido donde hay un torneo con campeon defensor:
 
 | pagina | campeon |
 |---|---|
 | Nations League, Torneos (paginas de datos) | no |
-| Creador de Torneo (`torneo.js`) | si |
 | Simulador (`simulador.js`) | si |
 | Cargar Partido (`partido.js`) | no |
-| Playoffs (`playoffs.js`) | no |
 
-Antes estaba copiada y pegada en los cinco archivos, y cada cambio habia que hacerlo cinco veces o dos paginas mostraban numeros distintos para el mismo cruce. La unificacion se hizo en dos pasos: primero juntar el calculo sin tocar ningun numero (verificado identico bit a bit sobre los 110 cruces reales del historial y sobre una grilla de 13.125 combinaciones de ranking, winrate, mano a mano y campeon), y despues pasar todo a `k = 60`.
+Antes estaba copiada y pegada en cinco archivos (los tres de arriba mas los ya borrados `torneo.js` y `playoffs.js`), y cada cambio habia que hacerlo cinco veces o dos paginas mostraban numeros distintos para el mismo cruce. La unificacion se hizo en dos pasos: primero juntar el calculo sin tocar ningun numero (verificado identico bit a bit sobre los 110 cruces reales del historial y sobre una grilla de 13.125 combinaciones de ranking, winrate, mano a mano y campeon), y despues pasar todo a `k = 60`.
 
 ### Por que todo usa la misma k
 
@@ -327,7 +308,7 @@ Con `k = 60` en todas, la ventaja promedio del favorito sobre los 55 cruces del 
 
 **`js/campeon.js` tiene que usar la misma `k`**, y no por prolijidad: su λ se multiplica por `k` justamente porque despues la sigmoide divide por `k`, asi lo que queda en log-cuota es `ln(M)·w/n`, limpio de `k`. Si las dos se separan, el castigo al campeon se escala solo. Por eso `c.k` sale de `PROB_K`, y la `k` entra en la clave del cache de calibracion. Verificado: al duplicar `k`, λ de semifinal pasa de −44,8 a −88,0 (exactamente el doble) y el factor calibrado queda igual (×1,80 contra ×1,76, dentro del ruido del Monte Carlo), o sea la maldicion sigue apuntando al mismo multiplicador de cuota de 8.
 
-Las cuatro paginas que no la cargaban (`torneo.html`, `simulador.html`, `partido.html`, `playoffs.html`) ahora incluyen `js/probabilidades.js` **antes** de su propio script.
+Las paginas que no la cargaban (`simulador.html` y `partido.html`) ahora incluyen `js/probabilidades.js` **antes** de su propio script.
 
 El fixture sale del sorteo guardado en `torneos/<slug>.json`, asi que un torneo **recien sorteado ya se ve completo** aunque no tenga ni un partido jugado. Como el sitio es estatico y no puede listar esa carpeta, `api/torneo-estado.js` mantiene `torneos/index.json` al crear y borrar torneos.
 
