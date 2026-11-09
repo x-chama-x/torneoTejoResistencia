@@ -357,15 +357,13 @@ function obtenerJugadorPorNombre(nombre) {
 
 // Función para calcular la probabilidad de victoria (sin simular, usando la fórmula directa)
 // La fórmula vive en js/probabilidades.js, que es el único lugar donde se
-// toca. Acá va con k=30, el mismo de los simuladores, y sin el ajuste por
-// campeón defensor: esta pantalla es para cargar un partido suelto, que no
-// tiene por qué ser de un torneo.
+// toca. Sin el ajuste por campeón defensor: esta pantalla es para cargar un
+// partido suelto, que no tiene por qué ser de un torneo.
 function calcularProbabilidad(jugador1, jugador2) {
     const probJ1 = probabilidadEntre(
         jugador1,
         jugador2,
-        obtenerHistorialEnfrentamiento(jugador1.nombre, jugador2.nombre),
-        { k: 30 }
+        obtenerHistorialEnfrentamiento(jugador1.nombre, jugador2.nombre)
     );
 
     return {

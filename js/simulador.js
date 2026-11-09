@@ -193,22 +193,20 @@ function obtenerHistorialEnfrentamiento(nombreJ1, nombreJ2) {
 function simularPartido(jugador1, jugador2) {
     // La fórmula (40% ranking + 60% winRate, ajuste por mano a mano y
     // sigmoide) vive en js/probabilidades.js, que es el único lugar donde se
-    // toca. Acá va con k=30 y con el ajuste por campeón defensor de
-    // js/campeon.js.
+    // toca, con la suavidad de PROB_K. Lo único propio del Simulador es el
+    // ajuste por campeón defensor de js/campeon.js.
     //
-    // k=30 da una curva más dura que la de las páginas de datos (60), que
-    // están calibradas para mostrar un número honesto. El simulador corre
-    // miles de torneos y busca otra cosa: que el favorito se note. A 30:
+    // Con PROB_K = 60 la curva es la misma que muestran las páginas de datos:
     // - Diferencia 0 → 50%
-    // - Diferencia 20 → 66%
-    // - Diferencia 40 → 79%
-    // - Diferencia 60 → 88%
-    // - Diferencia 80 → 93%
+    // - Diferencia 20 → 58%
+    // - Diferencia 40 → 66%
+    // - Diferencia 60 → 73%
+    // - Diferencia 80 → 79%
     const probFinal = probabilidadEntre(
         jugador1,
         jugador2,
         obtenerHistorialEnfrentamiento(jugador1.nombre, jugador2.nombre),
-        { k: 30, campeon: true }
+        { campeon: true }
     );
 
     const gana1 = Math.random() < probFinal;

@@ -73,7 +73,12 @@ window.CAMPEON = {
     // quitarle el favoritismo. Se sube a 8 a pedido: maldición más dramática
     // que la real, ya no una réplica fiel de las estadísticas de Mundiales.
     oddsMultiplier: 8,
-    k: 30,                 // misma constante de la sigmoide del modelo base
+    // La MISMA constante de la sigmoide del modelo base, y no por prolijidad:
+    // λ se multiplica por k justamente porque después la sigmoide divide por
+    // k, así el corrimiento que queda en log-cuota es ln(M)·w/n, limpio de k.
+    // Si las dos se separan, el castigo al campeón se escala solo. Sale de
+    // js/probabilidades.js, que es donde vive PROB_K.
+    k: typeof PROB_K !== 'undefined' ? PROB_K : 30,
 
     // 'maldicion' → el peso PERJUDICA al campeón (default) | 'pedigri' → lo favorece
     modo: 'maldicion',
@@ -432,7 +437,9 @@ function calibrarSiCorresponde(grupos, numJugadores, simPartido, simGrupo) {
 function _claveCache(grupos, numJugadores, campeon) {
     const c = window.CAMPEON;
     const roster = Object.values(grupos).flat().map(j => j.nombre).sort().join('|');
-    return `bicampeon:v3:${c.modo}:${c.oddsMultiplier}:${numJugadores}:${campeon}:${roster}`;
+    // La k entra en la clave: el factor calibrado depende de la suavidad de la
+    // sigmoide, así que si cambia PROB_K el caché viejo no sirve.
+    return `bicampeon:v4:${c.modo}:${c.oddsMultiplier}:${c.k}:${numJugadores}:${campeon}:${roster}`;
 }
 
 function _leerCache(clave) {

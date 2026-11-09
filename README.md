@@ -307,19 +307,25 @@ La formula vive **solo en `js/probabilidades.js`**, en tres funciones:
 | `ajustePorCruce(v1, v2)` | lo que suma o resta el mano a mano |
 | `probabilidadEntre(j1, j2, historial, opciones)` | la sigmoide, con todo junto |
 
-Las cinco paginas que la usan llaman a `probabilidadEntre()`. Lo que cambia de pagina en pagina va por opciones, porque es a proposito:
+Las cinco paginas que la usan llaman a `probabilidadEntre()`, y **todas con la misma suavidad**, `PROB_K = 60`. Lo unico que cambia de pagina en pagina es el ajuste por bicampeonato de `js/campeon.js`, que va por opcion (`{ campeon: true }`) porque solo tiene sentido donde hay un torneo con campeon defensor:
 
-| pagina | `k` | campeon |
-|---|---|---|
-| Nations League, Torneos (paginas de datos) | 60 | no |
-| Creador de Torneo (`torneo.js`) | 30 | si |
-| Simulador (`simulador.js`) | 30 | si |
-| Cargar Partido (`partido.js`) | 30 | no |
-| Playoffs (`playoffs.js`) | 30 | no |
+| pagina | campeon |
+|---|---|
+| Nations League, Torneos (paginas de datos) | no |
+| Creador de Torneo (`torneo.js`) | si |
+| Simulador (`simulador.js`) | si |
+| Cargar Partido (`partido.js`) | no |
+| Playoffs (`playoffs.js`) | no |
 
-`k` es la suavidad de la sigmoide: 60 en las paginas de datos, que estan calibradas para mostrar un numero honesto, y 30 en los simuladores, que corren miles de torneos y buscan que el favorito se note. El `campeon` es el ajuste por bicampeonato de `js/campeon.js`, que solo tiene sentido donde hay un torneo con campeon defensor; `campeon.js` tambien usa `k: 30` para su calibracion, asi que las dos cosas van juntas.
+Antes estaba copiada y pegada en los cinco archivos, y cada cambio habia que hacerlo cinco veces o dos paginas mostraban numeros distintos para el mismo cruce. La unificacion se hizo en dos pasos: primero juntar el calculo sin tocar ningun numero (verificado identico bit a bit sobre los 110 cruces reales del historial y sobre una grilla de 13.125 combinaciones de ranking, winrate, mano a mano y campeon), y despues pasar todo a `k = 60`.
 
-Antes estaba copiada y pegada en los cinco archivos, y cada cambio habia que hacerlo cinco veces o dos paginas mostraban numeros distintos para el mismo cruce. Al unificarla se comprobo que **ninguna pagina cambia de numero**: mismo resultado, bit a bit, sobre los 110 cruces reales del historial y sobre una grilla de 13.125 combinaciones de ranking, winrate, mano a mano y campeon.
+### Por que todo usa la misma k
+
+El 30 era el valor original de todo el sitio. Cuando se midio que las predicciones estaban **sobreconfiadas** (los cruces anunciados al 80-90% se cumplian el 57% de las veces) se subio a 60, pero solo en `js/probabilidades.js`, que es lo que ven las paginas de datos. Los simuladores quedaron en 30 por inercia, no por una razon medida: no existia ninguna calibracion que justificara mostrar un 92% en el Creador y un 78% en Playoffs para el mismo cruce.
+
+Con `k = 60` en todas, la ventaja promedio del favorito sobre los 55 cruces del roster pasa de **75,6% a 65,3%**, y el cruce mas desparejo de 96,3% a 83,5%. En el simulador eso reparte el titulo: en un round-robin de 8 (20.000 simulaciones) el favorito baja de 58,3% a 44,2% y los del medio de la tabla pasan de no existir (2,8%, 2,5%, 1,1%) a tener chance real (8,3%, 6,3%, 4,3%). Es lo mismo que paso con las paginas de datos: no cambia **quien** es favorito en ningun cruce, cambia cuanto.
+
+**`js/campeon.js` tiene que usar la misma `k`**, y no por prolijidad: su λ se multiplica por `k` justamente porque despues la sigmoide divide por `k`, asi lo que queda en log-cuota es `ln(M)·w/n`, limpio de `k`. Si las dos se separan, el castigo al campeon se escala solo. Por eso `c.k` sale de `PROB_K`, y la `k` entra en la clave del cache de calibracion. Verificado: al duplicar `k`, λ de semifinal pasa de −44,8 a −88,0 (exactamente el doble) y el factor calibrado queda igual (×1,80 contra ×1,76, dentro del ruido del Monte Carlo), o sea la maldicion sigue apuntando al mismo multiplicador de cuota de 8.
 
 Las cuatro paginas que no la cargaban (`torneo.html`, `simulador.html`, `partido.html`, `playoffs.html`) ahora incluyen `js/probabilidades.js` **antes** de su propio script.
 
