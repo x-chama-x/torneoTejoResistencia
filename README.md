@@ -297,7 +297,31 @@ Antes el peso era `n / (el par que mas se enfrento en todo el historial)`, y eso
 
 Medido sobre 67 partidos del historial, prediciendo cada uno solo con lo jugado antes, los dos pesos dan casi lo mismo (Brier 0,2338 contra 0,2307; 43 y 42 aciertos). El cambio no es por precision sino porque el peso ahora depende solo de ese cruce y no se degrada solo con el tiempo.
 
-La formula esta repetida en cinco archivos (`js/probabilidades.js`, `torneo.js`, `simulador.js`, `partido.js`, `playoffs.js`), asi que cualquier cambio hay que hacerlo en los cinco o las paginas empiezan a mostrar numeros distintos para el mismo cruce.
+### Donde vive la formula
+
+La formula vive **solo en `js/probabilidades.js`**, en tres funciones:
+
+| funcion | que hace |
+|---|---|
+| `fuerzaBase(ranking, winRate)` | ranking 40% + winrate 60% |
+| `ajustePorCruce(v1, v2)` | lo que suma o resta el mano a mano |
+| `probabilidadEntre(j1, j2, historial, opciones)` | la sigmoide, con todo junto |
+
+Las cinco paginas que la usan llaman a `probabilidadEntre()`. Lo que cambia de pagina en pagina va por opciones, porque es a proposito:
+
+| pagina | `k` | campeon |
+|---|---|---|
+| Nations League, Torneos (paginas de datos) | 60 | no |
+| Creador de Torneo (`torneo.js`) | 30 | si |
+| Simulador (`simulador.js`) | 30 | si |
+| Cargar Partido (`partido.js`) | 30 | no |
+| Playoffs (`playoffs.js`) | 30 | no |
+
+`k` es la suavidad de la sigmoide: 60 en las paginas de datos, que estan calibradas para mostrar un numero honesto, y 30 en los simuladores, que corren miles de torneos y buscan que el favorito se note. El `campeon` es el ajuste por bicampeonato de `js/campeon.js`, que solo tiene sentido donde hay un torneo con campeon defensor; `campeon.js` tambien usa `k: 30` para su calibracion, asi que las dos cosas van juntas.
+
+Antes estaba copiada y pegada en los cinco archivos, y cada cambio habia que hacerlo cinco veces o dos paginas mostraban numeros distintos para el mismo cruce. Al unificarla se comprobo que **ninguna pagina cambia de numero**: mismo resultado, bit a bit, sobre los 110 cruces reales del historial y sobre una grilla de 13.125 combinaciones de ranking, winrate, mano a mano y campeon.
+
+Las cuatro paginas que no la cargaban (`torneo.html`, `simulador.html`, `partido.html`, `playoffs.html`) ahora incluyen `js/probabilidades.js` **antes** de su propio script.
 
 El fixture sale del sorteo guardado en `torneos/<slug>.json`, asi que un torneo **recien sorteado ya se ve completo** aunque no tenga ni un partido jugado. Como el sitio es estatico y no puede listar esa carpeta, `api/torneo-estado.js` mantiene `torneos/index.json` al crear y borrar torneos.
 

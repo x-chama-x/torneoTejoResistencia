@@ -191,58 +191,25 @@ function obtenerHistorialEnfrentamiento(nombreJ1, nombreJ2) {
 }
 
 function simularPartido(jugador1, jugador2) {
-    // FÓRMULA LOGÍSTICA (SIGMOIDE) - Más sensible a diferencias grandes
+    // La fórmula (40% ranking + 60% winRate, ajuste por mano a mano y
+    // sigmoide) vive en js/probabilidades.js, que es el único lugar donde se
+    // toca. Acá va con k=30 y con el ajuste por campeón defensor de
+    // js/campeon.js.
     //
-    // Factor de fuerza combinado: 40% ranking + 60% winRate
-    // El winRate tiene más peso porque refleja mejor el rendimiento real
-    // El ranking puede estar inflado por jugar más partidos
-    let fuerza1 = (jugador1.ranking * 0.4) + (jugador1.winRate * 100 * 0.6);
-    let fuerza2 = (jugador2.ranking * 0.4) + (jugador2.winRate * 100 * 0.6);
-
-    // Ajuste por historial de enfrentamientos directos (si existe)
-    const historial = obtenerHistorialEnfrentamiento(jugador1.nombre, jugador2.nombre);
-    if (historial) {
-        const totalEnfrentamientos = (historial.victorias[jugador1.nombre] || 0) + (historial.victorias[jugador2.nombre] || 0);
-
-        if (totalEnfrentamientos > 0) {
-            // Calcular winrate del enfrentamiento directo
-            const winRateDirecto1 = (historial.victorias[jugador1.nombre] || 0) / totalEnfrentamientos;
-            const winRateDirecto2 = (historial.victorias[jugador2.nombre] || 0) / totalEnfrentamientos;
-
-            // El peso del historial directo satura con la cantidad de cruces
-            // (n / (n+4)) en vez de ir contra el maximo global: asi los mismos
-            // partidos entre dos no valen menos porque OTRO par siga jugando.
-            // Mismo criterio que js/probabilidades.js.
-            const pesoHistorial = 0.4 * (totalEnfrentamientos / (totalEnfrentamientos + 4));
-
-            const ajusteHistorial1 = (winRateDirecto1 - 0.5) * 100 * pesoHistorial;
-            const ajusteHistorial2 = (winRateDirecto2 - 0.5) * 100 * pesoHistorial;
-
-            fuerza1 += ajusteHistorial1;
-            fuerza2 += ajusteHistorial2;
-        }
-    }
-
-    // Peso por ser campeón defensor (bicampeonato). Discriminado por etapa del
-    // formato y calibrado con la referencia mundialista del ~10%.
-    // Ver js/campeon.js
-    if (typeof ajustarFuerzaPorCampeon === 'function') {
-        fuerza1 = ajustarFuerzaPorCampeon(fuerza1, jugador1.nombre);
-        fuerza2 = ajustarFuerzaPorCampeon(fuerza2, jugador2.nombre);
-    }
-
-    // Diferencia de fuerza
-    const diffFuerza = fuerza1 - fuerza2;
-
-    // Función sigmoide: prob = 1 / (1 + e^(-x/k))
-    // k=30 da una curva más suave que permite más upsets:
+    // k=30 da una curva más dura que la de las páginas de datos (60), que
+    // están calibradas para mostrar un número honesto. El simulador corre
+    // miles de torneos y busca otra cosa: que el favorito se note. A 30:
     // - Diferencia 0 → 50%
     // - Diferencia 20 → 66%
     // - Diferencia 40 → 79%
     // - Diferencia 60 → 88%
     // - Diferencia 80 → 93%
-    const k = 30;
-    const probFinal = 1 / (1 + Math.exp(-diffFuerza / k));
+    const probFinal = probabilidadEntre(
+        jugador1,
+        jugador2,
+        obtenerHistorialEnfrentamiento(jugador1.nombre, jugador2.nombre),
+        { k: 30, campeon: true }
+    );
 
     const gana1 = Math.random() < probFinal;
 
