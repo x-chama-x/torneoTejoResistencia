@@ -356,36 +356,17 @@ function obtenerJugadorPorNombre(nombre) {
 }
 
 // Función para calcular la probabilidad de victoria (sin simular, usando la fórmula directa)
+// La fórmula vive en js/probabilidades.js, que es el único lugar donde se
+// toca. Acá va con k=30, el mismo de los simuladores, y sin el ajuste por
+// campeón defensor: esta pantalla es para cargar un partido suelto, que no
+// tiene por qué ser de un torneo.
 function calcularProbabilidad(jugador1, jugador2) {
-    // Obtener historial de enfrentamientos
-    const historial = obtenerHistorialEnfrentamiento(jugador1.nombre, jugador2.nombre);
-
-    // FÓRMULA LOGÍSTICA (SIGMOIDE) - Base del simulador
-    let fuerza1 = (jugador1.ranking * 0.4) + (jugador1.winRate * 100 * 0.6);
-    let fuerza2 = (jugador2.ranking * 0.4) + (jugador2.winRate * 100 * 0.6);
-
-    // Ajuste por historial de enfrentamientos directos (si existe)
-    if (historial) {
-        const totalEnfrentamientos = (historial.victorias[jugador1.nombre] || 0) + (historial.victorias[jugador2.nombre] || 0);
-
-        if (totalEnfrentamientos > 0) {
-            const winRateDirecto1 = historial.victorias[jugador1.nombre] / totalEnfrentamientos;
-            const winRateDirecto2 = historial.victorias[jugador2.nombre] / totalEnfrentamientos;
-
-            // El peso del historial directo satura con la cantidad de cruces
-            // (n / (n+4)) en vez de ir contra el maximo global: asi los mismos
-            // partidos entre dos no valen menos porque OTRO par siga jugando.
-            // Mismo criterio que js/probabilidades.js.
-            const pesoHistorial = 0.4 * (totalEnfrentamientos / (totalEnfrentamientos + 4));
-
-            fuerza1 += (winRateDirecto1 - 0.5) * 100 * pesoHistorial;
-            fuerza2 += (winRateDirecto2 - 0.5) * 100 * pesoHistorial;
-        }
-    }
-
-    const diffFuerza = fuerza1 - fuerza2;
-    const k = 30;
-    const probJ1 = 1 / (1 + Math.exp(-diffFuerza / k));
+    const probJ1 = probabilidadEntre(
+        jugador1,
+        jugador2,
+        obtenerHistorialEnfrentamiento(jugador1.nombre, jugador2.nombre),
+        { k: 30 }
+    );
 
     return {
         probJ1: (probJ1 * 100).toFixed(1),

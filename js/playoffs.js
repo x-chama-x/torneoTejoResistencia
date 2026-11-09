@@ -109,29 +109,12 @@ function shuffleArray(arr) {
 
 // ---- Probabilidad analítica de que j1 gane contra j2 ----
 // Usa la misma fórmula sigmoide que el resto de las páginas
+// La fórmula vive en js/probabilidades.js, que es el único lugar donde se
+// toca. Acá va con k=30, el mismo de los simuladores, y sin el ajuste por
+// campeón defensor: el bracket se arma a mano, sin saber de qué torneo es.
 function probGanar(j1, j2) {
-    let f1 = (j1.ranking * 0.4) + (j1.winRate * 100 * 0.6);
-    let f2 = (j2.ranking * 0.4) + (j2.winRate * 100 * 0.6);
-
     const clave = [j1.nombre, j2.nombre].sort().join('_vs_');
-    const historial = enfrentamientosDirectos[clave];
-
-    if (historial) {
-        const total = (historial.victorias[j1.nombre] || 0) + (historial.victorias[j2.nombre] || 0);
-        if (total > 0) {
-            const winRate1 = (historial.victorias[j1.nombre] || 0) / total;
-            const winRate2 = (historial.victorias[j2.nombre] || 0) / total;
-            // El peso satura con la cantidad de cruces (n / (n+4)) en vez de
-            // ir contra el maximo global: asi los mismos partidos entre dos no
-            // valen menos porque OTRO par siga jugando. Igual que en
-            // js/probabilidades.js.
-            const peso = 0.4 * (total / (total + 4));
-            f1 += (winRate1 - 0.5) * 100 * peso;
-            f2 += (winRate2 - 0.5) * 100 * peso;
-        }
-    }
-
-    return 1 / (1 + Math.exp(-(f1 - f2) / 30));
+    return probabilidadEntre(j1, j2, enfrentamientosDirectos[clave], { k: 30 });
 }
 
 // ---- Cálculo analítico de todas las probabilidades del bracket ----

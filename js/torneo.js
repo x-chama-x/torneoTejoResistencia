@@ -159,43 +159,17 @@ function shuffleArray(arr) {
 }
 
 // ---- Simulación de partido (idéntica a simulador.js) ----
+// La fórmula vive en js/probabilidades.js, que es el único lugar donde se
+// toca. Acá va con k=30 (el Creador simula miles de torneos y con una
+// sigmoide más dura los favoritos arrasan menos de la cuenta) y con el
+// ajuste por campeón defensor de js/campeon.js.
 function calcularProbabilidadGana1(jugador1, jugador2) {
-    let fuerza1 = (jugador1.ranking * 0.4) + (jugador1.winRate * 100 * 0.6);
-    let fuerza2 = (jugador2.ranking * 0.4) + (jugador2.winRate * 100 * 0.6);
-
-    // Ajuste por historial de enfrentamientos directos (si existe)
-    const historial = obtenerHistorialEnfrentamiento(jugador1.nombre, jugador2.nombre);
-    if (historial) {
-        const totalEnfrentamientos = (historial.victorias[jugador1.nombre] || 0) + (historial.victorias[jugador2.nombre] || 0);
-
-        if (totalEnfrentamientos > 0) {
-            // Calcular winrate del enfrentamiento directo
-            const winRateDirecto1 = (historial.victorias[jugador1.nombre] || 0) / totalEnfrentamientos;
-            const winRateDirecto2 = (historial.victorias[jugador2.nombre] || 0) / totalEnfrentamientos;
-
-            // El peso del historial directo satura con la cantidad de cruces
-            // (n / (n+4)) en vez de ir contra el maximo global: asi los mismos
-            // partidos entre dos no valen menos porque OTRO par siga jugando.
-            // Mismo criterio que js/probabilidades.js.
-            const pesoHistorial = 0.4 * (totalEnfrentamientos / (totalEnfrentamientos + 4));
-
-            const ajusteHistorial1 = (winRateDirecto1 - 0.5) * 100 * pesoHistorial;
-            const ajusteHistorial2 = (winRateDirecto2 - 0.5) * 100 * pesoHistorial;
-
-            fuerza1 += ajusteHistorial1;
-            fuerza2 += ajusteHistorial2;
-        }
-    }
-
-    // Peso por ser campeón defensor (bicampeonato), discriminado por etapa del
-    // formato y calibrado con la referencia mundialista del ~10%. Ver js/campeon.js
-    if (typeof ajustarFuerzaPorCampeon === 'function') {
-        fuerza1 = ajustarFuerzaPorCampeon(fuerza1, jugador1.nombre);
-        fuerza2 = ajustarFuerzaPorCampeon(fuerza2, jugador2.nombre);
-    }
-
-    const k = 30;
-    return 1 / (1 + Math.exp(-(fuerza1 - fuerza2) / k));
+    return probabilidadEntre(
+        jugador1,
+        jugador2,
+        obtenerHistorialEnfrentamiento(jugador1.nombre, jugador2.nombre),
+        { k: 30, campeon: true }
+    );
 }
 
 function simularPartido(jugador1, jugador2) {

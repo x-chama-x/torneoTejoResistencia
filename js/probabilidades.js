@@ -42,6 +42,75 @@ const PESO_WINRATE = 0.6;
 const PESO_HISTORIAL = 0.4;        // tope del ajuste por enfrentamiento directo
 const CRUCES_FANTASMA = 4;         // a cuantos cruces el ajuste llega a la mitad del tope
 
+// =====================================================
+// EL NUCLEO, QUE USAN TODAS LAS PAGINAS
+// =====================================================
+// Esta formula estaba copiada y pegada en cinco archivos (este,
+// torneo.js, simulador.js, partido.js y playoffs.js). Cada vez que se
+// tocaba una habia que acordarse de las otras cuatro, y si no, dos
+// paginas mostraban numeros distintos para el mismo cruce. Ahora el
+// calculo vive aca y los demas lo llaman.
+//
+// Lo que SI cambia de pagina en pagina va por opciones, porque es a
+// proposito:
+//   k        la suavidad de la sigmoide. Las paginas de datos usan
+//            PROB_K; los simuladores todavia usan 30 (ver README).
+//   campeon  el ajuste por campeon defensor de js/campeon.js, que solo
+//            aplican el Creador de Torneo y el Simulador.
+
+// Ranking y winrate combinados, antes de cualquier ajuste.
+function fuerzaBase(ranking, winRate) {
+    return (ranking * PESO_RANKING) + (winRate * 100 * PESO_WINRATE);
+}
+
+// Lo que suma (o resta) el mano a mano a cada uno. Devuelve [a1, a2].
+// El peso satura con la cantidad de cruces: ver el comentario de arriba.
+function ajustePorCruce(victorias1, victorias2) {
+    const total = (victorias1 || 0) + (victorias2 || 0);
+    if (total <= 0) return [0, 0];
+
+    const peso = PESO_HISTORIAL * (total / (total + CRUCES_FANTASMA));
+    const wr1 = (victorias1 || 0) / total;
+    const wr2 = (victorias2 || 0) / total;
+
+    return [(wr1 - 0.5) * 100 * peso, (wr2 - 0.5) * 100 * peso];
+}
+
+// La probabilidad de que gane el primero, entre 0 y 1.
+//
+//   j1, j2     { nombre, ranking, winRate }
+//   historial  { victorias: { nombre: n } } del cruce, o null
+//   opciones   { k, campeon }
+function probabilidadEntre(j1, j2, historial, opciones) {
+    const op = opciones || {};
+    const k = op.k || PROB_K;
+
+    let fuerza1 = fuerzaBase(j1.ranking, j1.winRate);
+    let fuerza2 = fuerzaBase(j2.ranking, j2.winRate);
+
+    if (historial && historial.victorias) {
+        const [a1, a2] = ajustePorCruce(
+            historial.victorias[j1.nombre],
+            historial.victorias[j2.nombre]
+        );
+        fuerza1 += a1;
+        fuerza2 += a2;
+    }
+
+    // El campeon defensor pesa un poco mas (o menos, en modo maldicion).
+    // Calibrado en js/campeon.js, que no todas las paginas cargan.
+    if (op.campeon && typeof ajustarFuerzaPorCampeon === 'function') {
+        fuerza1 = ajustarFuerzaPorCampeon(fuerza1, j1.nombre);
+        fuerza2 = ajustarFuerzaPorCampeon(fuerza2, j2.nombre);
+    }
+
+    return 1 / (1 + Math.exp(-(fuerza1 - fuerza2) / k));
+}
+
+// =====================================================
+// LO QUE USA ESTA PAGINA: los datos salen del .txt
+// =====================================================
+
 const probData = {
     listo: false,
     jugadores: {},                 // nombre -> { ranking, winRate }
@@ -106,20 +175,11 @@ function probabilidadGana1(nombre1, nombre2) {
     const b = probData.jugadores[nombre2];
     if (!a || !b) return null;
 
-    let fuerza1 = (a.ranking * PESO_RANKING) + (a.winRate * 100 * PESO_WINRATE);
-    let fuerza2 = (b.ranking * PESO_RANKING) + (b.winRate * 100 * PESO_WINRATE);
-
-    const cruce = probData.cruces[[nombre1, nombre2].sort().join('_vs_')];
-    if (cruce && cruce.total > 0) {
-        const wr1 = (cruce.victorias[nombre1] || 0) / cruce.total;
-        const wr2 = (cruce.victorias[nombre2] || 0) / cruce.total;
-        const peso = PESO_HISTORIAL * (cruce.total / (cruce.total + CRUCES_FANTASMA));
-
-        fuerza1 += (wr1 - 0.5) * 100 * peso;
-        fuerza2 += (wr2 - 0.5) * 100 * peso;
-    }
-
-    return 1 / (1 + Math.exp(-(fuerza1 - fuerza2) / PROB_K));
+    return probabilidadEntre(
+        { nombre: nombre1, ranking: a.ranking, winRate: a.winRate },
+        { nombre: nombre2, ranking: b.ranking, winRate: b.winRate },
+        probData.cruces[[nombre1, nombre2].sort().join('_vs_')]
+    );
 }
 
 // Cuántas veces se enfrentaron, para poder mostrar el historial al lado.
