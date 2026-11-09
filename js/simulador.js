@@ -584,7 +584,7 @@ function renderPlayoffsHTML(playoffs, numJugadores, repechajePreMatch) {
 // Genera el HTML de la tabla de estadísticas del torneo
 function renderEstadisticasHTML(estadisticasJugadores, numJugadores, soloFaseFinal = false) {
     let htmlStats = '<h2>📊 ESTADÍSTICAS DEL TORNEO</h2><br>';
-    htmlStats += '<div class="table-responsive"><table class="ranking-table">';
+    htmlStats += '<div class="table-responsive"><table class="ranking-table densa-max">';
     const groupLabel = (numJugadores === 7 || numJugadores === 6) ? "G(FL)" : "G(FG)";
     htmlStats += `
         <thead>
@@ -713,7 +713,7 @@ function drawSimBracketLines() {
 function renderGrupoUIX(partidos, rankingGrupo, clasifCount) {
     let out = '<div class="home-container" style="margin-bottom:2rem;">';
     out += '<div><h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Posiciones</h4>';
-    out += '<div class="table-responsive"><table class="ranking-table">';
+    out += '<div class="table-responsive"><table class="ranking-table densa">';
     out += '<thead><tr><th>#</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>DIF</th><th>PTS</th></tr></thead><tbody>';
     rankingGrupo.forEach((r, idx) => {
         out += `<tr ${idx < clasifCount ? 'style="background: rgba(46, 160, 67, 0.15);"' : ''}>

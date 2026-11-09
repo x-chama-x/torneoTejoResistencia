@@ -1134,20 +1134,47 @@ select:hover {
         font-size: 0.75rem;
     }
 
-    /* --- Letra de Estadisticas Generales en celular ---
-       Tiene 10 columnas, asi que heredaba la letra chica de .ranking-table
-       y, abajo de 480px, los 9.5px del media query de mas abajo. Pero le
-       sobra lugar: a 320px, la pantalla mas angosta que vale la pena
-       mirar, la tabla pide 287px de los 298 que tiene. Se agranda la letra
-       y se compensa achicando el padding (6px 5px -> 4px 2px), que en 10
-       columnas son 60px menos, asi la tabla sigue midiendo lo mismo.
-       Va por id porque el media query de 480px pisa cualquier regla de
-       clase. Mismo criterio que #tabla-stats-nl en nationsleague.html.
-       El clamp es porque el limite no es un breakpoint sino el ancho real:
-       asi la letra acompaña al ancho en vez de pegar un salto. */
-    #general-stats-table,
-    #general-stats-table th, #general-stats-table td {
+    /* --- Tablas anchas en celular: .densa y .densa-max ---
+       Las tablas de muchas columnas heredaban la letra chica de
+       .ranking-table y, abajo de 480px, los 9.5px del media query de mas
+       abajo. Pero les sobra lugar: lo que las hacia anchas no era la
+       letra sino el padding de 6px 5px, que en 10 columnas son 110px solo
+       de aire. Bajandolo a 4px 2px se liberan 60px, y con eso la letra
+       puede crecer sin que la tabla mida mas.
+
+       Van como modificador de .ranking-table (dos clases) para ganarle al
+       media query de 480px, que es de una sola clase. Mismo criterio que
+       #tabla-stats-nl y #tabla-posiciones-nl en nationsleague.html.
+
+       El clamp es porque el limite no es un breakpoint sino el ancho
+       real: asi la letra acompaña al ancho en vez de pegar un salto.
+
+       Son dos clases y no una porque el piso lo marca el ancho que pide
+       la tabla, y eso depende de los titulos de columna, no de cuantas
+       sean. Por eso Estadisticas Generales tiene 10 columnas y usa la
+       grande: sus titulos son cortos (PJ, G, P, WR, GF, GC, DIF, PG).
+
+         .densa      la que va por defecto. Posiciones de grupos, de liga
+                     y del simulador (9 columnas), y Estadisticas
+                     Generales del index. A 320px la que mas pide son
+                     267px de los 298 que hay.
+
+         .densa-max  para las que no entran con la grande: Estadisticas
+                     del Torneo, en torneos y en el simulador, que lleva
+                     "Prom TG/PJ" y "G(FL)", los titulos mas largos del
+                     sitio. Con el padding viejo pedia 326px de 298, o
+                     sea a 320px ya se salia. Con esta entra en 291.
+
+       Si a alguna de estas tablas se le agrega una columna o se le
+       alarga un titulo, hay que revisar que siga entrando a 320px. */
+    .ranking-table.densa,
+    .ranking-table.densa th, .ranking-table.densa td {
         font-size: clamp(11.5px, 3.6vw, 1.1rem);
+        padding: 4px 2px;
+    }
+    .ranking-table.densa-max,
+    .ranking-table.densa-max th, .ranking-table.densa-max td {
+        font-size: clamp(10.5px, 3.3vw, 1.05rem);
         padding: 4px 2px;
     }
 }

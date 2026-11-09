@@ -52,7 +52,7 @@ function renderRepechajes(repechajes, eliminatorio) {
                 <div>
                     <h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Posiciones</h4>
                     <div class="table-responsive">
-                        <table class="ranking-table">
+                        <table class="ranking-table densa">
                             <thead>
                                 <tr><th>#</th><th>Jugador</th><th>PJ</th><th>G</th><th>P</th><th>GF</th><th>GC</th><th>DIF</th><th>PTS(GF)</th></tr>
                             </thead>
@@ -374,7 +374,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                         <div>
                             <h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Posiciones</h4>
                             <div class="table-responsive">
-                                <table class="ranking-table">
+                                <table class="ranking-table densa">
                                 <thead>
                                     <tr>
                                         <th>#</th>
@@ -631,7 +631,7 @@ function renderTournamentStats(allMatches, nombreTorneo) {
 
     statsContainer.innerHTML = `
         <h2>📊 ESTADÍSTICAS DEL TORNEO</h2>
-        <div class="table-responsive"><table class="ranking-table">
+        <div class="table-responsive"><table class="ranking-table densa-max">
             <thead><tr>
                 <th>Jugador</th>
                 <th>${groupLabel}</th>
