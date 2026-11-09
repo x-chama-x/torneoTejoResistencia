@@ -1106,10 +1106,24 @@ select:hover {
         background: transparent;
         border-bottom: 1px solid #30363d;
     }
+    /* La misma letra que los Resultados de la Nations League (1.25rem, de
+       .ranking-table.large-table-font): son la misma tabla, Azul /
+       Resultado / Rojo, y no habia razon para que una se leyera y la otra
+       no. Lo que no se copia es el padding de 12px 10px: esta tiene una
+       cuarta columna, Tipo, y a 320px las tres de la Nations ya piden 294
+       de los 298 que hay. El padding horizontal baja a 4px, que en 4
+       columnas paga el ancho de Tipo, y la letra queda igual. */
     #resultados-fechas .ranking-table.large-table-font th,
     #resultados-fechas .ranking-table.large-table-font td {
-        font-size: 0.95rem;
-        padding: 6px 4px;
+        font-size: 1.25rem;
+        padding: 10px 4px;
+    }
+    /* Tipo es un dato al costado, no una columna mas: va chica y pegada */
+    #resultados-fechas .ranking-table.large-table-font th:nth-child(4),
+    #resultados-fechas .ranking-table.large-table-font td:nth-child(4) {
+        font-size: 0.72rem;
+        padding-left: 2px;
+        padding-right: 0;
     }
 
     .panel {
@@ -1118,6 +1132,23 @@ select:hover {
     .ranking-table th, .ranking-table td {
         padding: 4px 4px;
         font-size: 0.75rem;
+    }
+
+    /* --- Letra de Estadisticas Generales en celular ---
+       Tiene 10 columnas, asi que heredaba la letra chica de .ranking-table
+       y, abajo de 480px, los 9.5px del media query de mas abajo. Pero le
+       sobra lugar: a 320px, la pantalla mas angosta que vale la pena
+       mirar, la tabla pide 287px de los 298 que tiene. Se agranda la letra
+       y se compensa achicando el padding (6px 5px -> 4px 2px), que en 10
+       columnas son 60px menos, asi la tabla sigue midiendo lo mismo.
+       Va por id porque el media query de 480px pisa cualquier regla de
+       clase. Mismo criterio que #tabla-stats-nl en nationsleague.html.
+       El clamp es porque el limite no es un breakpoint sino el ancho real:
+       asi la letra acompaña al ancho en vez de pegar un salto. */
+    #general-stats-table,
+    #general-stats-table th, #general-stats-table td {
+        font-size: clamp(11.5px, 3.6vw, 1.1rem);
+        padding: 4px 2px;
     }
 }
 
@@ -1137,11 +1168,17 @@ select:hover {
         font-size: 9.5px; /* Tamaño de fuente ideal para no scrollear */
     }
 
-    /* Override large-table-font para resultados en pantallas muy pequeñas */
+    /* Abajo de 480px la letra se mantiene (la misma que la Nations League);
+       lo que se achica es el aire vertical, para que la tabla no se haga
+       larguisima en una pantalla de 320px. */
     #resultados-fechas .ranking-table.large-table-font th,
     #resultados-fechas .ranking-table.large-table-font td {
-        font-size: 0.85rem;
-        padding: 5px 3px;
+        padding: 7px 3px;
+    }
+    #resultados-fechas .ranking-table.large-table-font th:nth-child(4),
+    #resultados-fechas .ranking-table.large-table-font td:nth-child(4) {
+        padding-left: 1px;
+        padding-right: 0;
     }
 
     /* Achicar cajas de rachas para que no empujen el ancho */
