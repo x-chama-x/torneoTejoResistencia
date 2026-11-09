@@ -1,9 +1,8 @@
 // =====================================================
 // PROBABILIDAD DE VICTORIA ENTRE DOS JUGADORES
 // =====================================================
-// Misma fórmula que usa el Creador de Torneo (js/torneo.js) para sus
-// simulaciones, extraída acá para poder reusarla en la página de
-// torneos sin duplicarla ni inventar otra:
+// La única fórmula del sitio: la usan las páginas de datos (Nations
+// League, Torneos) y los simuladores (js/simulador.js, js/partido.js):
 //
 //   fuerza = ranking FIFA × 0.4 + winrate global × 100 × 0.6
 //
@@ -46,10 +45,10 @@ const CRUCES_FANTASMA = 4;         // a cuantos cruces el ajuste llega a la mita
 // EL NUCLEO, QUE USAN TODAS LAS PAGINAS
 // =====================================================
 // Esta formula estaba copiada y pegada en cinco archivos (este,
-// torneo.js, simulador.js, partido.js y playoffs.js). Cada vez que se
-// tocaba una habia que acordarse de las otras cuatro, y si no, dos
-// paginas mostraban numeros distintos para el mismo cruce. Ahora el
-// calculo vive aca y los demas lo llaman.
+// simulador.js, partido.js y los ya borrados torneo.js y playoffs.js).
+// Cada vez que se tocaba una habia que acordarse de las otras cuatro, y
+// si no, dos paginas mostraban numeros distintos para el mismo cruce.
+// Ahora el calculo vive aca y los demas lo llaman.
 //
 // La suavidad es PROB_K en todas: antes los simuladores usaban 30, que
 // era el valor original de todo el sitio y quedo ahi cuando las paginas de
