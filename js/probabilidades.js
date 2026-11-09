@@ -25,7 +25,7 @@
 // juega el campeón defensor.
 // =====================================================
 
-const PROB_K = 30;                 // suavidad de la sigmoide
+const PROB_K = 60;                 // suavidad de la sigmoide
 const PESO_RANKING = 0.4;
 const PESO_WINRATE = 0.6;
 const PESO_HISTORIAL = 0.4;        // tope del ajuste por enfrentamiento directo
