@@ -213,6 +213,41 @@ Se muestran en: ranking FIFA, invictos, goleadores, Estadisticas Generales, posi
 | Campeones (mundiales y Nations) | 1.6em, 1.35em abajo de 360px | siempre | Tres columnas con la letra grande y el titulo "Subcampeon", que no se parte. En celular bajan a 1.05rem con padding 8px 4px. |
 | Tarjetas del bracket | 2em, **arriba** del nombre | siempre | En celular cada tarjeta mide 126px: al costado no entra, arriba cuesta alto. El placeholder "Ganador SF1" no lleva escudo. |
 
+### La letra de las tablas se mide contra su contenedor
+
+Las tablas anchas tenian la letra atada al ancho de la **pantalla**, con un clamp en `vw`. Eso anda en celular, donde la tabla ocupa casi todo, pero se rompe en PC: a partir de 901px la pagina se parte en dos columnas y cada tabla recibe 257px, **menos que en un celular de 320**. El resultado es que entre 901 y 1280px casi todas se desbordaban: Estadisticas del Torneo se pasaba 159px a 901, Estadisticas Generales 146, el ranking FIFA 139.
+
+Ahora la letra se mide en **`cqw`** (1% del ancho del contenedor, con `container-type: inline-size` en `.table-responsive`) y el padding queda en el minimo. Dos consecuencias:
+
+- la letra crece hasta llenar el ancho disponible en vez de dejar aire entre columnas;
+- deja de importar el ancho de la pantalla, asi que el mismo numero sirve en un celular, en la columna angosta de 901px y en un monitor.
+
+Los coeficientes salen de medir, tabla por tabla y en doce anchos distintos, la letra mas grande que entra sin que la tabla scrollee. El cociente letra/contenedor resulto casi constante (Posiciones da entre 4,88% y 5,28%), asi que se toma el minimo y se redondea para abajo:
+
+| clase | tabla | coeficiente | tope |
+|---|---|---|---|
+| `.densa` | Posiciones (9 columnas) | 4.8cqw | 1.5rem |
+| `.densa-10` | Estadisticas de 10 columnas con titulos cortos | 3.9cqw | 1.35rem |
+| `.densa-max` | Estadisticas del Torneo ("Prom TG/PJ") | 3.6cqw | 1.3rem |
+| por id | las dos de campeones | 5.6cqw | 1.6rem |
+| por id | ranking FIFA | 5.2cqw | 1.25rem |
+
+El ranking FIFA es el caso raro: su columna Racha son cinco cajitas de ancho fijo, asi que achicar la letra no achica esa columna. Las cajitas tambien pasaron a medirse en cqw (`clamp(11px, 4.3cqw, 22px)`), y con eso la tabla deja de desbordarse tambien a 320 y 360px, donde scrolleaba desde siempre.
+
+Que gano la letra, a 320px y a 1440px:
+
+| tabla | antes | ahora |
+|---|---|---|
+| NL Posiciones | 11,5 / 17,6 | **14 / 24** |
+| Posiciones de torneo | 11,5 / 14,1 (desbordaba) | **14 / 24** |
+| Estadisticas Generales | 11,5 / 14,1 (desbordaba) | **12 / 21** |
+| Estadisticas del Torneo | 10,6 / 14,1 (desbordaba) | **11 / 19** |
+| Campeones | 16,8 / 20 (desbordaba) | **17 / 26** |
+
+Verificado en 12 anchos de 320 a 1920px: **ninguna tabla se desborda**. Hay un respaldo con los clamps en vw para un navegador sin container queries.
+
+Si una tabla cambia de columnas o le alargan un titulo, hay que volver a medir su coeficiente.
+
 ### Dos desbordes viejos que aparecieron en el camino
 
 Buscando lugar para los escudos salieron dos problemas que no tenian nada que ver con ellos:

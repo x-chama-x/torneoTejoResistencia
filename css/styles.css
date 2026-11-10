@@ -1143,41 +1143,14 @@ select:hover {
         font-size: 0.75rem;
     }
 
-    /* --- Tablas anchas en celular: .densa y .densa-max ---
-       Las tablas de muchas columnas heredaban la letra chica de
-       .ranking-table y, abajo de 480px, los 9.5px del media query de mas
-       abajo. Pero les sobra lugar: lo que las hacia anchas no era la
-       letra sino el padding de 6px 5px, que en 10 columnas son 110px solo
-       de aire. Bajandolo a 4px 2px se liberan 60px, y con eso la letra
-       puede crecer sin que la tabla mida mas.
-
-       Van como modificador de .ranking-table (dos clases) para ganarle al
-       media query de 480px, que es de una sola clase. Mismo criterio que
-       #tabla-stats-nl y #tabla-posiciones-nl en nationsleague.html.
-
-       El clamp es porque el limite no es un breakpoint sino el ancho
-       real: asi la letra acompaña al ancho en vez de pegar un salto.
-
-       Son dos clases y no una porque el piso lo marca el ancho que pide
-       la tabla, y eso depende de los titulos de columna, no de cuantas
-       sean. Por eso Estadisticas Generales tiene 10 columnas y usa la
-       grande: sus titulos son cortos (PJ, G, P, WR, GF, GC, DIF, PG).
-
-         .densa      la que va por defecto. Posiciones de grupos, de liga
-                     y del simulador (9 columnas), y Estadisticas
-                     Generales del index. A 320px la que mas pide son
-                     267px de los 298 que hay.
-
-         .densa-max  para las que no entran con la grande: Estadisticas
-                     del Torneo, en torneos y en el simulador, que lleva
-                     "Prom TG/PJ" y "G(FL)", los titulos mas largos del
-                     sitio. Con el padding viejo pedia 326px de 298, o
-                     sea a 320px ya se salia. Con esta entra en 291.
-
-       Si a alguna de estas tablas se le agrega una columna o se le
-       alarga un titulo, hay que revisar que siga entrando a 320px. */
+    /* Las tablas anchas (.densa, .densa-10, .densa-max) se dimensionan
+       contra el ancho de su CONTENEDOR, no de la pantalla: ver el
+       bloque @container mas abajo. Esto de aca es el respaldo para un
+       navegador sin container queries. */
     .ranking-table.densa,
-    .ranking-table.densa th, .ranking-table.densa td {
+    .ranking-table.densa th, .ranking-table.densa td,
+    .ranking-table.densa-10,
+    .ranking-table.densa-10 th, .ranking-table.densa-10 td {
         font-size: clamp(11.5px, 3.6vw, 1.1rem);
         padding: 4px 2px;
     }
@@ -1658,4 +1631,95 @@ select:hover {
 @media (max-width: 389px) {
     #resultados-fechas .fila-resultado .escudo { display: none; }
     #resultados-fechas .fila-resultado .con-escudo { gap: 0; }
+}
+
+/* =====================================================
+   TABLAS ANCHAS: LA LETRA SE MIDE CONTRA SU CONTENEDOR
+   =====================================================
+   Las tablas de muchas columnas (posiciones, estadisticas, campeones)
+   tenian la letra atada al ancho de la PANTALLA, con un clamp en vw.
+   Eso funciona en celular, donde la tabla ocupa casi toda la pantalla,
+   pero se rompe en PC: a partir de 901px la pagina se parte en dos
+   columnas y cada tabla recibe 257px, menos que en un celular de 320.
+   Resultado: entre 901 y 1280px casi todas se desbordaban. Estadisticas
+   del Torneo se pasaba 159px a 901.
+
+   Ahora la letra se mide en cqw, que es 1% del ancho del contenedor, y
+   el padding queda en el minimo (4px 2px). Dos cosas salen de ahi:
+
+     - la letra crece hasta llenar el ancho disponible en vez de dejar
+       aire entre columnas, que era lo que se veia raro;
+     - deja de importar el ancho de la pantalla, asi que el mismo
+       numero sirve en un celular, en la columna angosta de 901px y en
+       un monitor.
+
+   Los coeficientes salen de medir, tabla por tabla y layout por
+   layout, la letra mas grande que entra sin que la tabla scrollee. El
+   cociente letra/contenedor resulto casi constante (por ejemplo
+   Posiciones da entre 4,88% y 5,28% en ocho anchos distintos), asi que
+   se toma el minimo de cada una y se redondea para abajo.
+
+   El tope en rem existe para que en un monitor grande la tabla no
+   termine con letra de titular. El piso, para que en un contenedor muy
+   angosto siga siendo legible.
+
+   Si una tabla cambia de columnas o le alargan un titulo, hay que
+   volver a medir su coeficiente. */
+.table-responsive { container-type: inline-size; }
+
+@supports (width: 1cqw) {
+    /* Posiciones: 9 columnas de titulos cortos (#, Jugador, PJ, G, P,
+       GF, GC, DIF, PTS). Medido: entre 4,88% y 5,28%. */
+    .ranking-table.densa,
+    .ranking-table.densa th, .ranking-table.densa td {
+        font-size: clamp(10px, 4.8cqw, 1.5rem);
+        padding: 4px 2px;
+    }
+
+    /* Estadisticas de 10 columnas con titulos cortos: la general del
+       index (PJ, G, P, WR, GF, GC, DIF, PG) y la de la Nations.
+       Medido: entre 3,94% y 4,69%. */
+    .ranking-table.densa-10,
+    .ranking-table.densa-10 th, .ranking-table.densa-10 td {
+        font-size: clamp(10px, 3.9cqw, 1.35rem);
+        padding: 4px 2px;
+    }
+
+    /* Estadisticas del Torneo: 10 columnas y los dos titulos mas largos
+       del sitio, "Prom TG/PJ" y "G(FL)". Medido: entre 3,78% y 4,19%. */
+    .ranking-table.densa-max,
+    .ranking-table.densa-max th, .ranking-table.densa-max td {
+        font-size: clamp(9px, 3.6cqw, 1.3rem);
+        padding: 4px 2px;
+    }
+
+    /* Las dos de campeones: tres columnas, pero una es "Subcampeon",
+       que no se puede partir. Medido: 5,89% la de mundiales (la mas
+       apretada de las dos) y 6,99% la de la Nations. */
+    #champions-table, #nations-league-champions-table,
+    #champions-table th, #champions-table td,
+    #nations-league-champions-table th, #nations-league-champions-table td {
+        font-size: clamp(12px, 5.6cqw, 1.6rem);
+        padding: 4px 3px;
+    }
+    /* El ranking FIFA de la home es el caso raro: su columna Racha son
+       cinco cajitas de ancho FIJO, asi que achicar la letra no achica
+       esa columna. Aun asi el cqw ayuda, porque lo que si achica son
+       las otras tres columnas. Medido, con esto deja de desbordarse
+       entre 901 y 1101px, donde se pasaba hasta 139px. En celular
+       sigue scrolleando abajo de 390: ahi no hay letra que alcance,
+       las cajitas solas se llevan 106px. */
+    #ranking-table, #ranking-table th, #ranking-table td {
+        font-size: clamp(11px, 5.2cqw, 1.25rem);
+        padding: 6px 4px;
+    }
+    /* Y las cajitas tambien contra el contenedor, por lo mismo: en la
+       columna de 257px de un PC a 901px, cinco cajitas de 22px se
+       llevaban 110 de los 257. Arriba siguen siendo 22px, como siempre. */
+    #ranking-table .streak-box {
+        width: clamp(11px, 4.3cqw, 22px);
+        height: clamp(11px, 4.3cqw, 22px);
+        font-size: clamp(8px, 2.2cqw, 11px);
+    }
+    #ranking-table .streak-container { gap: clamp(2px, 0.8cqw, 4px); }
 }
