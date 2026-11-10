@@ -10,8 +10,8 @@
 // ganadores de index.html. Acá solo queda el armado visual de esta página:
 // selector de año, tablas y resultados.
 //
-// Las medallas (🥇🥈🥉) van para los primeros 3 puestos de la tabla
-// (ya ordenada por PG*, ver nationsLeagueCalculator.js).
+// La tabla va numerada 1, 2, 3... y se ordena por PG* (ver
+// nationsLeagueCalculator.js).
 // =====================================================
 
 // Las jornadas abiertas (las que todavía tienen partidos por jugar) las
@@ -150,13 +150,9 @@ function renderPosiciones(posiciones) {
         return;
     }
 
-    // Medallas de podio para los primeros 3 puestos de la tabla (PG* > DIF/PJ > WR > PTS).
-    const medallas = ['🥇', '🥈', '🥉'];
-    const filas = posiciones.map((s, i) => ({ ...s, medalla: medallas[i] || '' }));
-
-    tbody.innerHTML = filas.map((s, i) => `
+    tbody.innerHTML = posiciones.map((s, i) => `
         <tr>
-            <td>${s.medalla || (i + 1)}</td>
+            <td>${i + 1}</td>
             <td>${conEscudo(s.nombre, { negrita: true })}</td>
             <td>${s.pj}</td>
             <td>${s.g}</td>

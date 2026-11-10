@@ -6,11 +6,11 @@ document.addEventListener('DOMContentLoaded', () => {
         <a href="index.html" title="Inicio">Inicio</a>
         <a href="simulador.html" title="Simulador">Simulador</a>
         <a href="partido.html" title="Simulador de Partido 1vs1">Partido 1vs1</a>
-        <a href="torneos.html" title="Torneos">🏆 Torneos</a>
-        <a href="copadecampeones.html" title="Copa de Campeones">👑 Copa de Campeones</a>
-        <a href="nationsleague.html" title="Tejo Nations League">🌍 Tejo Nations League</a>
-        <a href="airhockeygame.html" title="Air Hockey">🎮 Air Hockey</a>
-        <a href="sabermas.html" title="Saber Más">📖 Saber Más</a>
+        <a href="torneos.html" title="Torneos">Torneos</a>
+        <a href="copadecampeones.html" title="Copa de Campeones">Copa de Campeones</a>
+        <a href="nationsleague.html" title="Tejo Nations League">Tejo Nations League</a>
+        <a href="airhockeygame.html" title="Air Hockey">Air Hockey</a>
+        <a href="sabermas.html" title="Saber Más">Saber Más</a>
         <div class="sidebar-footer">
             <img src="img/favicon2.png" alt="Logo">
             <br>
