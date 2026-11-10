@@ -202,15 +202,22 @@ El escudo mide `2.2em` (variable `--escudo-tam`), no un tamaño fijo. Todas las 
 
 Se muestran en: ranking FIFA, invictos, goleadores, Estadisticas Generales, posiciones y estadisticas de la Nations League, posiciones de grupos, de liga y de repechajes, estadisticas del torneo, los Resultados de todas las paginas, el Simulador, el partido 1vs1 y la Copa de Campeones.
 
-**Tres excepciones**, cada una por su propia razon de ancho:
+**Donde se achica o se esconde**, por ancho:
 
-| donde | tamaño | aparece desde | por que |
+| donde | tamaño | se ve desde | por que |
 |---|---|---|---|
-| Estadisticas del Torneo (`.densa-max`) | 1.8em | 400px | Es la tabla mas ancha del sitio: a 320px pide 291px de los 298 que hay. A 400px con 2.2em quedaria en 0px de margen. |
-| Ranking FIFA de la home | 2.2em | 430px | La columna Racha son cinco cajitas de ancho fijo. Esa tabla ya pedia 359px **antes** de los escudos, asi que abajo de 390px scrollea sola; con escudo pide 396 y scrollearia tambien a 390. |
-| Resultados (Azul / Resultado / Rojo) | 1.4em | 390px (420 en el index) | Dos escudos por fila con la letra mas grande del sitio (1.25rem, que no se achica nunca). A 2.2em los dos suman 90px y no entran en ningun celular. |
+| Estadisticas del Torneo (`.densa-max`) | 1.8em | siempre | Es la tabla mas ancha del sitio, por eso 1.8 y no 2.2. A 320px entra igual: lo unico que pasa es que "Prom TG/PJ" va a dos lineas en el encabezado. |
+| Ranking FIFA de la home | 1.8em hasta 413px, 2.2em arriba | 390px | La columna Racha son cinco cajitas de ancho fijo. Abajo de 390 la tabla scrollea con escudo o sin el: ya pedia 359px antes de que existieran. |
+| Resultados por Fecha (index) | 1.4em | 390px | Dos escudos por fila con la letra mas grande del sitio. A 360 se pasa por 6px. |
+| Resultados (Nations) | 0.9em hasta 389px, 1.4em arriba | 360px | Igual que la anterior, pero ademas lleva las barras de probabilidad de los pendientes, que tienen ancho minimo propio. |
 
-La de "Resultados por Fecha" del index necesita mas que la de la Nations porque tiene una cuarta columna (Tipo): con el escudo a 1.4em pide 383px, asi que los suyos aparecen a 420 y no a 390.
+### El bug de las cajitas de Racha
+
+Buscando lugar para el escudo del ranking aparecio que `.streak-box` tenia **dos reglas en media queries de 480px que la bajaban a 14px y nunca se aplicaron**: la regla base que la pone en 22px esta declarada mas abajo en el archivo, y con la misma especificidad gana la ultima. Las cajitas estuvieron siempre en 22px en celular, no en 14.
+
+Arreglado con `.streak-container .streak-box` (dos clases), y puesto en **18px** en vez de los 14 originales, que al lado de la letra de la tabla quedaban muy chicas. La columna Racha pasa de 126px a 106px, y esos 20px son los que necesitaba el escudo para entrar en un celular de 390px. De paso el ranking scrollea menos: a 360px pasa de desbordar 21px a 1px.
+
+Un criterio que vale para todo esto: **medir con el ancho real, no con `max-content`**. El primer corte de Estadisticas del Torneo (400px) salio de mirar `max-content`, que es el umbral de "no se parte nada en dos lineas", y es mas duro que el real: la tabla comprime columnas antes de scrollear. Medido de verdad, entra a 320.
 
 Verificado a 320, 360, 390, 400, 414, 420, 430, 480 y 768px: ninguna tabla scrollea ni parte celdas, y en el corte mas ajustado quedan 5px.
 

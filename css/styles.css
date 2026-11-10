@@ -760,15 +760,24 @@ select:hover {
         padding: 3px 1px;
         font-size: 9.5px;
     }
-    /* Achicar cajas de rachas para que no empujen el ancho */
-    .streak-box {
-        width: 14px;
-        height: 14px;
-        font-size: 8px;
-        border-radius: 2px;
+    /* Achicar cajas de rachas para que no empujen el ancho.
+       Va por .streak-container .streak-box (dos clases) y no por
+       .streak-box solo: la regla base de .streak-box, que las pone en
+       22px, esta declarada MAS ABAJO en este archivo, y con la misma
+       especificidad gana la ultima. Por eso esto no se aplicaba nunca.
+       18px en vez de los 14 originales: a 14 las cajitas quedaban muy
+       chicas al lado de la letra de la tabla. Con 18 la columna pasa
+       de 126px a 106px, y esos 20px son los que necesita el escudo del
+       ranking para entrar en un celular de 390px. */
+    .streak-container .streak-box {
+        width: 18px;
+        height: 18px;
+        font-size: 9.5px;
+        border-radius: 3px;
     }
     .streak-container {
-        gap: 2px;
+        gap: 2px;   /* los 2px de la regla original: con 3 el ranking
+                       todavia scrolleaba por 1px a 360 */
     }
 }
 
@@ -1208,15 +1217,24 @@ select:hover {
         padding-right: 0;
     }
 
-    /* Achicar cajas de rachas para que no empujen el ancho */
-    .streak-box {
-        width: 14px;
-        height: 14px;
-        font-size: 8px;
-        border-radius: 2px;
+    /* Achicar cajas de rachas para que no empujen el ancho.
+       Va por .streak-container .streak-box (dos clases) y no por
+       .streak-box solo: la regla base de .streak-box, que las pone en
+       22px, esta declarada MAS ABAJO en este archivo, y con la misma
+       especificidad gana la ultima. Por eso esto no se aplicaba nunca.
+       18px en vez de los 14 originales: a 14 las cajitas quedaban muy
+       chicas al lado de la letra de la tabla. Con 18 la columna pasa
+       de 126px a 106px, y esos 20px son los que necesita el escudo del
+       ranking para entrar en un celular de 390px. */
+    .streak-container .streak-box {
+        width: 18px;
+        height: 18px;
+        font-size: 9.5px;
+        border-radius: 3px;
     }
     .streak-container {
-        gap: 2px;
+        gap: 2px;   /* los 2px de la regla original: con 3 el ranking
+                       todavia scrolleaba por 1px a 360 */
     }
 }
 
@@ -1548,24 +1566,27 @@ select:hover {
    Tres excepciones, cada una por su propia razon de ancho. */
 
 /* 1. "Estadisticas del Torneo" (.densa-max) es la tabla mas ancha del
-   sitio. A 320px pide 291px de los 298 que hay: le quedan 7 y el escudo
-   son 25, asi que abajo de 400px no aparece. Y aun a 400px, con 2.2em
-   quedaria en 0px de margen, asi que ahi va a 1.8em. */
+   sitio, asi que el escudo va a 1.8em y no a 2.2. Pero se ve siempre:
+   el corte de 400px que tenia antes estaba de mas. Lo habia puesto
+   mirando el ancho max-content, que es el "nada se parte en dos
+   lineas", y ese es un criterio mas duro que el real: la tabla
+   comprime las columnas antes de scrollear. Medido a 320, 340, 360 y
+   390px, con el escudo puesto, no scrollea en ninguno. */
 .ranking-table.densa-max { --escudo-tam: 1.8em; }
-@media (max-width: 399px) {
-    .ranking-table.densa-max .escudo { display: none; }
-    .ranking-table.densa-max .con-escudo { gap: 0; }
-}
 
-/* 2. El ranking FIFA de la home tiene la columna Racha, que son cinco
-   cajitas de ancho fijo que no se achican. Esa tabla ya pedia 359px
-   antes de los escudos, asi que abajo de 390px scrolleaba sola. Con el
-   escudo pide 396 y empezaria a scrollear tambien a 390, que es el
-   celular mas comun. Por eso aca aparece recien a 430px, donde entra
-   con 12px de sobra. */
-@media (max-width: 429px) {
+/* 2. El ranking FIFA de la home tiene la columna Racha, cinco cajitas
+   de ancho fijo. Con las cajitas en 18px (ver mas arriba) esa columna
+   mide 106px y el escudo entra desde 390px. Abajo de eso la tabla
+   scrollea igual, con escudo o sin el: ya pedia 359px antes de que
+   existieran los escudos. */
+@media (max-width: 389px) {
     #ranking-table .escudo { display: none; }
     #ranking-table .con-escudo { gap: 0; }
+}
+/* Entre 390 y 413px entra justo: a 2.2em (44px) se pasa por 8px, a
+   1.8em (36px) entra. Arriba de 414 vuelve al tamaño de siempre. */
+@media (max-width: 413px) {
+    #ranking-table { --escudo-tam: 1.8em; }
 }
 
 /* 3. Los Resultados (Azul / Resultado / Rojo) llevan DOS escudos por
@@ -1573,17 +1594,23 @@ select:hover {
    nunca): a 320px esa tabla ya pide 294 de los 298 que hay. Por eso aca
    el escudo va a 1.4em y no a 2.2: a 2.2 los dos suman 90px y no entran
    en ningun celular; a 1.4 suman 56px y entran de 390px para arriba. */
+/* La de la Nations si necesita achicarse: entre 360 y 389px solo entra
+   a 0.9em, y abajo de 360 no entra de ninguna manera. */
 @media (max-width: 389px) {
-    .fila-resultado .escudo { display: none; }
-    .fila-resultado .con-escudo { gap: 0; }
+    #resultados-nl { --escudo-tam-res: 0.9em; }
+}
+@media (max-width: 359px) {
+    #resultados-nl .escudo { display: none; }
+    #resultados-nl .con-escudo { gap: 0; }
 }
 .fila-resultado .escudo { width: var(--escudo-tam-res); height: var(--escudo-tam-res); }
 .fila-resultado .con-escudo { gap: 0.18em; }
 
-/* "Resultados por Fecha" del index tiene una cuarta columna (Tipo), asi
-   que necesita mas ancho que la de la Nations para lo mismo. Con el
-   escudo a 1.4em pide 383px, asi que los suyos aparecen a 420. */
-@media (max-width: 419px) {
+/* "Resultados por Fecha" del index: con el escudo a 1.4em entra desde
+   390px. A 360 se pasa por 6px y a 320 por 46, asi que abajo de 390 se
+   esconde. (Sin escudo esa tabla no scrollea a ningun ancho, asi que
+   el corte es para no empeorarla.) */
+@media (max-width: 389px) {
     #resultados-fechas .fila-resultado .escudo { display: none; }
     #resultados-fechas .fila-resultado .con-escudo { gap: 0; }
 }
