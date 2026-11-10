@@ -210,6 +210,14 @@ Se muestran en: ranking FIFA, invictos, goleadores, Estadisticas Generales, posi
 | Ranking FIFA de la home | 1.8em hasta 413px, 2.2em arriba | 390px | La columna Racha son cinco cajitas de ancho fijo. Abajo de 390 la tabla scrollea con escudo o sin el: ya pedia 359px antes de que existieran. |
 | Resultados por Fecha (index) | 1.4em | 390px | Dos escudos por fila con la letra mas grande del sitio. A 360 se pasa por 6px. |
 | Resultados (Nations) | 0.9em hasta 389px, 1.4em arriba | 360px | Igual que la anterior, pero ademas lleva las barras de probabilidad de los pendientes, que tienen ancho minimo propio. |
+| Campeones (mundiales y Nations) | 1.6em, 1.35em abajo de 360px | siempre | Tres columnas con la letra grande y el titulo "Subcampeon", que no se parte. En celular bajan a 1.05rem con padding 8px 4px. |
+| Tarjetas del bracket | 2em, **arriba** del nombre | siempre | En celular cada tarjeta mide 126px: al costado no entra, arriba cuesta alto. El placeholder "Ganador SF1" no lleva escudo. |
+
+### Dos desbordes viejos que aparecieron en el camino
+
+Buscando lugar para los escudos salieron dos problemas que no tenian nada que ver con ellos:
+
+**Las tablas de campeones del index se desbordaban desde siempre**: la de mundiales se pasaba 74px a 320px, 34 a 360 y 4 a 390. Son tres columnas con `large-table-font` y el titulo "Subcampeon", que no se puede partir. Arreglado bajandolas en celular a 1.05rem con padding 8px 4px: ahora entran a 320px **con** escudo.
 
 ### El bug de las cajitas de Racha
 

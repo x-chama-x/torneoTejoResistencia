@@ -141,9 +141,9 @@ function tarjetaProbabilidad(cruce, titulo) {
         <div class="match-card match-card-pendiente">
             <div class="match-number">${escaparTexto(titulo)}</div>
             <div class="match-players">
-                <div class="player blue">${escaparTexto(cruce.j1)}</div>
+                <div class="player blue">${conEscudo(escaparTexto(cruce.j1), { bloque: true })}</div>
                 <div class="vs">VS</div>
-                <div class="player red">${escaparTexto(cruce.j2)}</div>
+                <div class="player red">${conEscudo(escaparTexto(cruce.j2), { bloque: true })}</div>
             </div>
             ${barraProbabilidad(cruce.j1, cruce.j2)}
             <div class="sf-insight">Probabilidad de ganar</div>
@@ -232,7 +232,7 @@ function tarjetaFinalPorDefinirse(semis, estados) {
 // Si ya se sabe quién es, va el nombre; si no, la etiqueta en gris.
 function nombreOEtiqueta(nombre, etiqueta, color) {
     return nombre
-        ? `<div class="player ${color}">${escaparTexto(nombre)}</div>`
+        ? `<div class="player ${color}">${conEscudo(escaparTexto(nombre), { bloque: true })}</div>`
         : `<div class="player por-definir">${etiqueta}</div>`;
 }
 

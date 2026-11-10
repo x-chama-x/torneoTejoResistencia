@@ -1553,6 +1553,18 @@ select:hover {
    derecha: ahi el escudo va del lado del borde, no del medio. */
 .con-escudo-der { flex-direction: row; }
 
+/* Para las tarjetas del bracket: el escudo ARRIBA del nombre. En celular
+   cada tarjeta mide 126px y los dos nombres se reparten ese ancho, asi
+   que al costado no entra; arriba cuesta alto, que ahi sobra. El nombre
+   vuelve a poder partirse en dos lineas, que es como estaba. */
+.con-escudo-bloque {
+    flex-direction: column;
+    gap: 0.15em;
+    white-space: normal;
+    width: 100%;
+}
+.con-escudo-bloque .escudo { width: 2em; height: 2em; }
+
 .escudo {
     width: var(--escudo-tam);
     height: var(--escudo-tam);
@@ -1589,7 +1601,40 @@ select:hover {
     #ranking-table { --escudo-tam: 1.8em; }
 }
 
-/* 3. Los Resultados (Azul / Resultado / Rojo) llevan DOS escudos por
+/* 3. Las dos tablas de campeones del index (mundiales y Nations) tienen
+   tres columnas con la letra grande, y una de ellas es el titulo
+   "Subcampeon", que no se puede partir.
+
+   La de mundiales **ya se desbordaba antes de los escudos**: +4px a
+   390px, +34 a 360 y +74 a 320. Como el escudo solo puede empeorar
+   eso, ahi aparece recien a 414px, y a 1.6em en vez de 2.2 (a 2.2 se
+   pasa por 5px justo a 414).
+
+   La de la Nations tiene una fila sola y aguanta el escudo entero
+   desde 360px. */
+#champions-table { --escudo-tam: 1.6em; }
+#nations-league-champions-table { --escudo-tam: 1.6em; }
+
+/* En celular las dos bajan de 1.25rem a 1.05rem y el padding de
+   12px 10px a 8px 5px, el mismo criterio que .densa. Con eso entran a
+   320px CON escudo, y de paso se arregla un desborde que arrastraban
+   desde antes: la de mundiales se pasaba 74px a 320, 34 a 360 y 4 a
+   390, y la de la Nations 34 a 320. Van por id porque el media query
+   de 480px pisa cualquier regla de clase. */
+@media (max-width: 900px) {
+    #champions-table, #nations-league-champions-table,
+    #champions-table th, #champions-table td,
+    #nations-league-champions-table th, #nations-league-champions-table td {
+        font-size: 1.05rem;
+        padding: 8px 4px;
+    }
+}
+/* A 320px todavia se pasaba 5px: ahi el escudo va un poco mas chico. */
+@media (max-width: 359px) {
+    #champions-table, #nations-league-champions-table { --escudo-tam: 1.35em; }
+}
+
+/* 4. Los Resultados (Azul / Resultado / Rojo) llevan DOS escudos por
    fila y la letra mas grande del sitio (1.25rem, que no se achica
    nunca): a 320px esa tabla ya pide 294 de los 298 que hay. Por eso aca
    el escudo va a 1.4em y no a 2.2: a 2.2 los dos suman 90px y no entran
