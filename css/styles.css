@@ -1046,11 +1046,24 @@ select:hover {
     width: 100%;
 }
 
-@media (max-width: 900px) {
+/* --- Cuando se parte en dos columnas ---
+   Hasta 1199px va en una sola. Antes el corte estaba en 900, y en la
+   franja de 901 a 1100 el resultado era peor que en un celular: con el
+   menu lateral ocupando su lugar, cada bloque recibia entre 215 y 315px
+   contra los 298 de una pantalla de 320. La tabla de Resultados se
+   desbordaba 101px en la Nations y 163 en el index.
+
+   Va aparte del media query de 900px de abajo porque eso es LAYOUT y lo
+   otro es celular: a 1024px queremos los bloques apilados pero con el
+   recuadro, la letra y el orden de PC. */
+@media (max-width: 1199px) {
     .home-container {
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
+}
+
+@media (max-width: 900px) {
 
     .index-layout {
         display: flex;
@@ -1491,6 +1504,20 @@ select:hover {
 
 @media (min-width: 901px) {
     #screen-game { flex-direction: row; justify-content: center; align-items: center; gap: 30px; }
+}
+
+/* "Resultados por Fecha" del index arriba de 1200px: ahi la pagina pasa
+   a dos columnas y su bloque recibe 364px, el ancho mas angosto que esa
+   tabla ve en todo el rango. Con sus 4 columnas, los dos escudos y la
+   letra en 1.25rem fija se pasaba 54px. El min() la achica solo en esa
+   franja; de 1440 para arriba vuelve a 1.25rem sola. Abajo de 1200 no
+   se toca, que es donde esta el celular. */
+@media (min-width: 1200px) {
+    #resultados-fechas .ranking-table,
+    #resultados-fechas .ranking-table th,
+    #resultados-fechas .ranking-table td {
+        font-size: min(1.25rem, 4.6cqw);
+    }
 }
 
 /* =====================================================

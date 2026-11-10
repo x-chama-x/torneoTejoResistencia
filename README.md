@@ -213,6 +213,16 @@ Se muestran en: ranking FIFA, invictos, goleadores, Estadisticas Generales, posi
 | Campeones (mundiales y Nations) | 1.6em, 1.35em abajo de 360px | siempre | Tres columnas con la letra grande y el titulo "Subcampeon", que no se parte. En celular bajan a 1.05rem con padding 8px 4px. |
 | Tarjetas del bracket | 2em, **arriba** del nombre | siempre | En celular cada tarjeta mide 126px: al costado no entra, arriba cuesta alto. El placeholder "Ganador SF1" no lleva escudo. |
 
+### Cuando la pagina se parte en dos columnas
+
+A partir de **1200px**, no de 900 como antes. El corte viejo hacia que entre 901 y 1100px el resultado fuera peor que en un celular: con el menu lateral ocupando su lugar, cada bloque recibia entre 215 y 315px contra los 298 de una pantalla de 320. La tabla de Resultados se desbordaba 101px en la Nations y 163 en el index, y pasaba desde siempre.
+
+La regla del layout (`.home-container` a una columna) va aparte del media query de 900px, porque eso es layout y lo otro es celular: a 1024px queremos los bloques apilados pero con el recuadro, la letra y el orden de PC.
+
+Las dos paginas con colocacion explicita en la grilla (`nationsleague.html` y `torneos.html`) movieron su `min-width: 901px` a `1200px`.
+
+Verificado en 14 anchos de 320 a 1920px, en index, Nations y Torneos: **ninguna tabla se desborda**.
+
 ### La letra de las tablas se mide contra su contenedor
 
 Las tablas anchas tenian la letra atada al ancho de la **pantalla**, con un clamp en `vw`. Eso anda en celular, donde la tabla ocupa casi todo, pero se rompe en PC: a partir de 901px la pagina se parte en dos columnas y cada tabla recibe 257px, **menos que en un celular de 320**. El resultado es que entre 901 y 1280px casi todas se desbordaban: Estadisticas del Torneo se pasaba 159px a 901, Estadisticas Generales 146, el ranking FIFA 139.
