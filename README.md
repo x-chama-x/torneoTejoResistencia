@@ -213,6 +213,16 @@ Se muestran en: ranking FIFA, invictos, goleadores, Estadisticas Generales, posi
 | Campeones (mundiales y Nations) | 1.6em, 1.35em abajo de 360px | siempre | Tres columnas con la letra grande y el titulo "Subcampeon", que no se parte. En celular bajan a 1.05rem con padding 8px 4px. |
 | Tarjetas del bracket | 2em, **arriba** del nombre | siempre | En celular cada tarjeta mide 126px: al costado no entra, arriba cuesta alto. El placeholder "Ganador SF1" no lleva escudo. |
 
+### El recuadro gris de los Resultados
+
+Los bloques de Resultados llevan un recuadro gris (fondo, borde, radio y sombra) **solo de 901px para arriba**: en celular el ancho es escaso y 20px de padding por lado son 40 que le faltan a la tabla.
+
+Lo hace la clase `.panel-resultados` de `css/styles.css`, una sola regla para no repetir el reset de celular en cada lugar. La usan: la Nations League, Torneos, las fases de grupos y de liga del historial, y el Simulador. El index tiene el suyo de antes (`#resultados-fechas-panel`), con sus propias reglas de orden.
+
+### Sin emojis en los titulos
+
+Los `<h1>` a `<h4>` de todo el sitio quedaron sin emoji: 57 titulos en 10 archivos. Siguen teniendolos, a proposito, los botones, los `<option>`, los badges de ganador (`CAMPEON`, `Avanza a la Final`), los avisos y el juego de Air Hockey, que no son titulos.
+
 ### Cuando la pagina se parte en dos columnas
 
 A partir de **1200px**, no de 900 como antes. El corte viejo hacia que entre 901 y 1100px el resultado fuera peor que en un celular: con el menu lateral ocupando su lugar, cada bloque recibia entre 215 y 315px contra los 298 de una pantalla de 320. La tabla de Resultados se desbordaba 101px en la Nations y 163 en el index, y pasaba desde siempre.

@@ -163,7 +163,7 @@ function mostrarHistorial(nombreJ1, nombreJ2) {
         if (ultimosPartidos.length > 0) {
             partidosHTML = `
                 <div class="partidos-previos">
-                    <h4>📋 Últimos ${ultimosPartidos.length} partido${ultimosPartidos.length > 1 ? 's' : ''}</h4>
+                    <h4>Últimos ${ultimosPartidos.length} partido${ultimosPartidos.length > 1 ? 's' : ''}</h4>
                     <div class="partidos-lista">
                         ${ultimosPartidos.map(p => {
                             // Determinar quién es azul y quién es rojo según la selección actual
@@ -280,7 +280,7 @@ function mostrarPartidosIndividuales(nombreJugador, evento) {
             <div class="stat-item"><div class="stat-label">WR</div><div class="stat-value">${stats.wr}%</div></div>
         </div>
         <div class="partidos-previos">
-            <h4>📋 Partidos en ${evento}</h4>
+            <h4>Partidos en ${evento}</h4>
             <div class="partidos-lista">
                 ${partidos.map(p => {
                     const esJugador1 = p.jugador1 === nombreJugador;

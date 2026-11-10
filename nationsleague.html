@@ -24,17 +24,6 @@
         }
         @media (max-width: 900px) {
 
-            /* En celular el recuadro se va y los Resultados ocupan todo el
-               ancho, igual que los del index (ver #resultados-fechas-panel
-               en css/styles.css). El ancho es escaso y 20px de padding por
-               lado son 40 que le faltan a la tabla. */
-            #col-resultados-nl {
-                background: none;
-                border: none;
-                border-radius: 0;
-                padding: 0;
-                box-shadow: none;
-            }
         }
 
         .year-selector {
@@ -219,7 +208,7 @@
                 <p style="text-align: center; color: #8b949e; font-size: 0.78em; margin-top: 0.5rem;">La tabla se ordena por rendimiento, no por goles totales. * PG ajustado: arranca cerca del promedio general y se acerca a tu promedio real a medida que jugás más partidos, así un partidazo aislado no alcanza para el primer puesto.</p>
             </div>
 
-            <div class="panel" id="col-resultados-nl">
+            <div class="panel-resultados" id="col-resultados-nl">
                 <h3 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Resultados</h3>
                 <div id="resultados-nl">
                     <!-- Poblado por JS -->
@@ -229,7 +218,7 @@
 
         <div class="tablas-paralelas">
         <div>
-            <h2>⚽ Goleadores</h2>
+            <h2>Goleadores</h2>
             <div class="table-responsive">
                 <table class="ranking-table large-table-font" id="tabla-goleadores-nl">
                     <thead>
@@ -247,7 +236,7 @@
         </div>
 
         <div>
-            <h2>📊 Estadísticas Generales</h2>
+            <h2>Estadísticas Generales</h2>
             <div class="table-responsive">
                 <table class="ranking-table densa-10" id="tabla-stats-nl">
                     <thead>

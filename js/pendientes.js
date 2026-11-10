@@ -239,7 +239,7 @@ function nombreOEtiqueta(nombre, etiqueta, color) {
 // Lo mismo para el tercer puesto: lo juegan los dos que pierdan las semis.
 function tarjetaTercerPuestoPorDefinirse(estados) {
     return `
-        <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">🥉 Tercer Puesto</h3>
+        <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">Tercer Puesto</h3>
         <div style="display: flex; justify-content: center;">
             <div class="match-card match-card-pendiente">
                 <div class="match-number">Tercer y Cuarto Puesto</div>
@@ -297,7 +297,7 @@ function inyectarPendientes(pendientes, semisDelTorneo, partidosDelTorneo) {
     if (tpc && !tpc.querySelector('.match-card')) {
         if (tercero) {
             tpc.innerHTML = `
-                <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">🥉 Tercer Puesto</h3>
+                <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">Tercer Puesto</h3>
                 <div style="display: flex; justify-content: center;">
                     ${tarjetaProbabilidad(tercero, 'Tercer y Cuarto Puesto')}
                 </div>`;
