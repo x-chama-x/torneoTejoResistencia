@@ -179,6 +179,40 @@ torneoTejoResistencia/
 
 ---
 
+## Escudos de los jugadores
+
+Cada jugador puede tener su escudo al lado del nombre. Viven en `img/escudos/` y los maneja `js/escudos.js`.
+
+**Para agregar uno nuevo, dos pasos:**
+
+1. Guardar la imagen como `img/escudos/<nombre en minuscula>.png`.
+2. Agregar el nombre a `CON_ESCUDO`, arriba de todo en `js/escudos.js`.
+
+El segundo paso parece de mas, pero sin la lista la unica forma de saber si un escudo existe es pedirlo y que falle: serian 10 pedidos fallidos por pagina.
+
+El que todavia no tiene el suyo usa `_generico.svg`, un escudo neutro con la corona, el borde dorado y el tejo adentro. Es SVG (2 KB) y esta dibujado para leerse a 16px: a ese tamaño no se ve detalle fino, solo la silueta.
+
+Los originales en alta van a `img/escudos/originales/`, que el sitio no usa. Lo que se publica conviene que no pase de ~256px de lado: el de Chama bajo de 1,3 MB a 79 KB sin que se note a los tamaños en que se muestra, y con 11 jugadores esa diferencia son 14 MB por pagina.
+
+### Donde se muestran, y donde no
+
+El escudo mide `1.35em`, no un tamaño fijo. Todas las tablas tienen la letra ajustada al ancho real (ver `.densa` y `.densa-max`), asi que en em el escudo acompaña: grande donde la letra es grande, chico donde es chica.
+
+Se muestran en: ranking FIFA, invictos, goleadores, Estadisticas Generales, posiciones y estadisticas de la Nations League, posiciones de grupos, de liga y de repechajes, estadisticas del torneo, los Resultados de todas las paginas, el Simulador, el partido 1vs1 y la Copa de Campeones.
+
+**Hay dos lugares donde el escudo se esconde en pantallas chicas**, porque no entra sin romper la tabla:
+
+| donde | aparece desde | por que |
+|---|---|---|
+| Estadisticas del Torneo (`.densa-max`) | 400px | A 320px esa tabla pide 291px de los 298 que hay: le quedan 7, y un escudo son 18. |
+| Resultados (Azul / Resultado / Rojo) | 390px (400px en el index) | Son dos escudos por fila con la letra mas grande del sitio. A 320px la tabla ya pide 294 de 298. |
+
+En esas filas el escudo ademas va a `1.05em` en vez de `1.35em`: a 1.35 los dos suman 65px y no entran ni en un celular grande; a 1.05 suman 48px y entran de 390px para arriba. La de "Resultados por Fecha" del index necesita 10px mas que la de la Nations porque tiene una cuarta columna (Tipo), asi que sus escudos aparecen a 400 y no a 390.
+
+Verificado a 320, 360, 390, 400, 414, 430 y 480px: ninguna tabla scrollea ni parte celdas, y las que ya estaban ajustadas no crecieron.
+
+La app (`/app`) todavia no muestra escudos.
+
 ## Archivos de Configuracion
 
 ### enfrentamientos_directos.txt

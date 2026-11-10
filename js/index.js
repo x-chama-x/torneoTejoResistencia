@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 rachaHtml += '</div>';
 
-                tr.innerHTML = `<td>${index + 1}</td><td><strong>${j.nombre}</strong></td><td>${j.ranking}</td><td>${rachaHtml}</td>`;
+                tr.innerHTML = `<td>${index + 1}</td><td>${conEscudo(j.nombre, { negrita: true })}</td><td>${j.ranking}</td><td>${rachaHtml}</td>`;
                 tbodyRanking.appendChild(tr);
             });
         }
@@ -248,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? item.fechaInicio
                     : `${item.fechaInicio} → ${item.fechaFin}`;
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${index + 1}</td><td><strong>${item.nombre}</strong></td><td>${item.npi}</td><td>${periodo}</td>`;
+                tr.innerHTML = `<td>${index + 1}</td><td>${conEscudo(item.nombre, { negrita: true })}</td><td>${item.npi}</td><td>${periodo}</td>`;
                 tbodyInvictos.appendChild(tr);
             });
             if (top5Invictos.length === 0) {
@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (tbodyGoals) {
             arrGoles.forEach((j, index) => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${index + 1}</td><td><strong>${j.nombre}</strong></td><td>${j.goles}</td>`;
+                tr.innerHTML = `<td>${index + 1}</td><td>${conEscudo(j.nombre, { negrita: true })}</td><td>${j.goles}</td>`;
                 tbodyGoals.appendChild(tr);
             });
         }
@@ -300,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${index + 1}</td>
-                    <td><strong>${j.nombre}</strong></td>
+                    <td>${conEscudo(j.nombre, { negrita: true })}</td>
                     <td>${j.pj}</td>
                     <td>${j.g}</td>
                     <td>${j.p}</td>
@@ -480,10 +480,10 @@ function renderResultadosPorFecha(partidos) {
                             const w2 = g[1] > g[0];
                             const tipo = getTipoLabel(m);
                             return `
-                                <tr>
-                                    <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #58a6ff;' : ''}">${m.j1}</td>
+                                <tr class="fila-resultado">
+                                    <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #58a6ff;' : ''}">${conEscudo(m.j1, { derecha: true })}</td>
                                     <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${m.marcador}</td>
-                                    <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #f85149;' : ''}">${m.j2}</td>
+                                    <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #f85149;' : ''}">${conEscudo(m.j2)}</td>
                                     <td style="text-align: center; font-size: 0.78em; color: #8b949e;">${tipo}</td>
                                 </tr>
                             `;

@@ -157,7 +157,7 @@ function renderPosiciones(posiciones) {
     tbody.innerHTML = filas.map((s, i) => `
         <tr>
             <td>${s.medalla || (i + 1)}</td>
-            <td><strong>${s.nombre}</strong></td>
+            <td>${conEscudo(s.nombre, { negrita: true })}</td>
             <td>${s.pj}</td>
             <td>${s.g}</td>
             <td>${s.p}</td>
@@ -183,7 +183,7 @@ function renderGoleadores(posiciones) {
     tbody.innerHTML = goleadores.map((s, i) => `
         <tr>
             <td>${i + 1}</td>
-            <td><strong>${s.nombre}</strong></td>
+            <td>${conEscudo(s.nombre, { negrita: true })}</td>
             <td>${s.gf}</td>
         </tr>
     `).join('');
@@ -204,7 +204,7 @@ function renderEstadisticas(posiciones) {
         return `
             <tr>
                 <td>${i + 1}</td>
-                <td><strong>${s.nombre}</strong></td>
+                <td>${conEscudo(s.nombre, { negrita: true })}</td>
                 <td>${s.pj}</td>
                 <td>${s.g}</td>
                 <td>${s.p}</td>
@@ -325,24 +325,24 @@ function renderResultados(partidos, abiertas = []) {
             const w1 = g[0] > g[1];
             const w2 = g[1] > g[0];
             return `
-                <tr>
-                    <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #58a6ff;' : ''}">${m.j1}</td>
+                <tr class="fila-resultado">
+                    <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #58a6ff;' : ''}">${conEscudo(m.j1, { derecha: true })}</td>
                     <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${m.marcador}</td>
-                    <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #f85149;' : ''}">${m.j2}</td>
+                    <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #f85149;' : ''}">${conEscudo(m.j2)}</td>
                 </tr>`;
         }).join('');
 
         // Los que faltan van abajo, en su lugar, con la barra de
         // probabilidad donde iría el resultado (igual que en los torneos).
         const porJugar = (j.pendientes || []).map(c => `
-            <tr class="fila-pendiente">
-                <td style="text-align: right;">${escaparNL(c.j1)}</td>
+            <tr class="fila-pendiente fila-resultado">
+                <td style="text-align: right;">${conEscudo(escaparNL(c.j1), { derecha: true })}</td>
                 <td style="text-align: center; padding: 8px 10px;">
                     ${typeof barraProbabilidad === 'function'
                         ? barraProbabilidad(c.j1, c.j2, true)
                         : '<span style="color:#8b949e;">por jugar</span>'}
                 </td>
-                <td style="text-align: left;">${escaparNL(c.j2)}</td>
+                <td style="text-align: left;">${conEscudo(escaparNL(c.j2))}</td>
             </tr>`).join('');
 
         return `

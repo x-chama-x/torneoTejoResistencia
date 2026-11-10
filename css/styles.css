@@ -1501,3 +1501,70 @@ select:hover {
 @media (min-width: 901px) {
     #screen-game { flex-direction: row; justify-content: center; align-items: center; gap: 30px; }
 }
+
+/* =====================================================
+   ESCUDOS DE LOS JUGADORES
+   =====================================================
+   El escudo va pegado al nombre, en el mismo <span>, para que nunca
+   queden en lineas distintas. Lo genera js/escudos.js con conEscudo().
+
+   El tamaño va en em y no en px: todas las tablas del sitio tienen la
+   letra ajustada al ancho real (ver .densa y .densa-max mas arriba), asi
+   que si el escudo fuera fijo seria enorme en la tabla de 10 columnas de
+   un celular y diminuto en el ranking de la home. En em acompaña.
+
+   1.35em es el valor mas grande que sigue entrando en la columna
+   "Jugador" de las tablas apretadas sin empujar nada. */
+.con-escudo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28em;
+    white-space: nowrap;   /* que el nombre no caiga debajo del escudo */
+    min-width: 0;
+}
+/* Para la columna "Azul" de los resultados, que esta alineada a la
+   derecha: ahi el escudo va del lado del borde, no del medio. */
+.con-escudo-der { flex-direction: row; }
+
+.escudo {
+    width: 1.35em;
+    height: 1.35em;
+    object-fit: contain;   /* el escudo no es cuadrado: que no se deforme */
+    flex: none;            /* y que no lo apriete el flex si falta lugar */
+    vertical-align: middle;
+}
+.escudo-grande { width: 2.2em; height: 2.2em; }
+
+/* --- Donde NO entra ---
+   "Estadisticas del Torneo" (.densa-max) es la tabla mas ancha del
+   sitio: a 320px pide 291px de los 298 que hay, o sea le quedan 7px.
+   Un escudo son ~18px, asi que ahi no entra y la tabla empezaria a
+   partir celdas. Abajo de 400px se esconde y vuelve sola cuando hay
+   lugar. Es el unico lugar donde se pierde, y es el que menos lo
+   necesita: es una tabla de numeros, no un ranking. */
+@media (max-width: 399px) {
+    .ranking-table.densa-max .escudo { display: none; }
+    .ranking-table.densa-max .con-escudo { gap: 0; }
+}
+
+/* Los Resultados (Azul / Resultado / Rojo) llevan DOS nombres por fila y
+   la letra mas grande del sitio (1.25rem, que no se achica nunca): a
+   320px esa tabla ya pide 294 de los 298 que hay. Por eso aca el escudo
+   va mas chico que en el resto, 1.05em en vez de 1.35em: a 1.35 los dos
+   escudos suman 65px y no entran ni en un celular grande; a 1.05 suman
+   48px y entran de 390px para arriba, que es el celular tipico.
+   Abajo de eso se esconden: no hay ancho que alcance. */
+.fila-resultado .escudo { width: 1.05em; height: 1.05em; }
+.fila-resultado .con-escudo { gap: 0.18em; }
+
+@media (max-width: 389px) {
+    .fila-resultado .escudo { display: none; }
+    .fila-resultado .con-escudo { gap: 0; }
+}
+/* "Resultados por Fecha" del index tiene una cuarta columna (Tipo), asi
+   que necesita 10px mas que la de la Nations para lo mismo: a 390px le
+   falta 1px justo. Los suyos aparecen a partir de 400. */
+@media (max-width: 399px) {
+    #resultados-fechas .fila-resultado .escudo { display: none; }
+    #resultados-fechas .fila-resultado .con-escudo { gap: 0; }
+}
