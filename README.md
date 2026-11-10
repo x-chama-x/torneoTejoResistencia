@@ -196,20 +196,23 @@ Los originales en alta van a `img/escudos/originales/`, que el sitio no usa. Lo 
 
 ### Donde se muestran, y donde no
 
-El escudo mide `1.35em`, no un tamaño fijo. Todas las tablas tienen la letra ajustada al ancho real (ver `.densa` y `.densa-max`), asi que en em el escudo acompaña: grande donde la letra es grande, chico donde es chica.
+El escudo mide `2.2em` (variable `--escudo-tam`), no un tamaño fijo. Todas las tablas tienen la letra ajustada al ancho real (ver `.densa` y `.densa-max`), asi que en em el escudo acompaña: a 320px mide 25px y en PC 39px.
+
+2.2em suena mucho al lado de la letra, pero el escudo es alto y angosto: en la tabla de 10 columnas de un celular de 320px ocupa 25px de ancho, y subirlo de 1.35em a 2.2em le costo a esa tabla 9px de los 19 que le sobraban. Lo que crece es el alto de la fila, no el ancho.
 
 Se muestran en: ranking FIFA, invictos, goleadores, Estadisticas Generales, posiciones y estadisticas de la Nations League, posiciones de grupos, de liga y de repechajes, estadisticas del torneo, los Resultados de todas las paginas, el Simulador, el partido 1vs1 y la Copa de Campeones.
 
-**Hay dos lugares donde el escudo se esconde en pantallas chicas**, porque no entra sin romper la tabla:
+**Tres excepciones**, cada una por su propia razon de ancho:
 
-| donde | aparece desde | por que |
-|---|---|---|
-| Estadisticas del Torneo (`.densa-max`) | 400px | A 320px esa tabla pide 291px de los 298 que hay: le quedan 7, y un escudo son 18. |
-| Resultados (Azul / Resultado / Rojo) | 390px (400px en el index) | Son dos escudos por fila con la letra mas grande del sitio. A 320px la tabla ya pide 294 de 298. |
+| donde | tamaño | aparece desde | por que |
+|---|---|---|---|
+| Estadisticas del Torneo (`.densa-max`) | 1.8em | 400px | Es la tabla mas ancha del sitio: a 320px pide 291px de los 298 que hay. A 400px con 2.2em quedaria en 0px de margen. |
+| Ranking FIFA de la home | 2.2em | 430px | La columna Racha son cinco cajitas de ancho fijo. Esa tabla ya pedia 359px **antes** de los escudos, asi que abajo de 390px scrollea sola; con escudo pide 396 y scrollearia tambien a 390. |
+| Resultados (Azul / Resultado / Rojo) | 1.4em | 390px (420 en el index) | Dos escudos por fila con la letra mas grande del sitio (1.25rem, que no se achica nunca). A 2.2em los dos suman 90px y no entran en ningun celular. |
 
-En esas filas el escudo ademas va a `1.05em` en vez de `1.35em`: a 1.35 los dos suman 65px y no entran ni en un celular grande; a 1.05 suman 48px y entran de 390px para arriba. La de "Resultados por Fecha" del index necesita 10px mas que la de la Nations porque tiene una cuarta columna (Tipo), asi que sus escudos aparecen a 400 y no a 390.
+La de "Resultados por Fecha" del index necesita mas que la de la Nations porque tiene una cuarta columna (Tipo): con el escudo a 1.4em pide 383px, asi que los suyos aparecen a 420 y no a 390.
 
-Verificado a 320, 360, 390, 400, 414, 430 y 480px: ninguna tabla scrollea ni parte celdas, y las que ya estaban ajustadas no crecieron.
+Verificado a 320, 360, 390, 400, 414, 420, 430, 480 y 768px: ninguna tabla scrollea ni parte celdas, y en el corte mas ajustado quedan 5px.
 
 La app (`/app`) todavia no muestra escudos.
 
