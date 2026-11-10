@@ -1506,6 +1506,20 @@ select:hover {
     #screen-game { flex-direction: row; justify-content: center; align-items: center; gap: 30px; }
 }
 
+/* El recuadro gris de los bloques de Resultados.
+   Solo de 901px para arriba: en celular el ancho es escaso y 20px de
+   padding por lado son 40 que le faltan a la tabla, asi que ahi se va,
+   igual que el del index (#resultados-fechas-panel). */
+@media (min-width: 901px) {
+    .panel-resultados {
+        background: #21262d;
+        border: 1px solid #30363d;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+}
+
 /* "Resultados por Fecha" del index arriba de 1200px: ahi la pagina pasa
    a dos columnas y su bloque recibe 364px, el ancho mas angosto que esa
    tabla ve en todo el rango. Con sus 4 columnas, los dos escudos y la

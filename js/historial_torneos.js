@@ -77,7 +77,7 @@ function renderRepechajes(repechajes, eliminatorio) {
                         <span style="vertical-align: middle;">[1] Avanza al partido eliminatorio</span>
                     </div>
                 </div>
-                <div>
+                <div class="panel-resultados">
                     <h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Resultados</h4>
                     <div class="table-responsive">
                         <table class="ranking-table align-center large-table-font">
@@ -412,7 +412,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                             <span>[1-2] Clasifica a playoffs</span>
                         </div>
                         </div>
-                        <div>
+                        <div class="panel-resultados">
                             <h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Resultados</h4>
                             <div class="table-responsive">
                                 <table class="ranking-table align-center large-table-font">
@@ -540,7 +540,7 @@ function renderPlayoffs(semis, final, tercerPuesto) {
         bracket.innerHTML = `
             <div class="bracket-fixture">
                 <div class="bracket-col-semis">
-                    <h3 class="round-title">⚔️ Semifinales</h3>
+                    <h3 class="round-title">Semifinales</h3>
                     <div id="sf1-wrap">${semis.length > 0 ? createMatchCard(semis[0], "Semifinal 1") : ""}</div>
                     <div id="sf2-wrap">${semis.length > 1 ? createMatchCard(semis[1], "Semifinal 2") : ""}</div>
                 </div>
@@ -548,7 +548,7 @@ function renderPlayoffs(semis, final, tercerPuesto) {
                     <svg id="bracket-svg" style="width:100%; height:100%; display:block; overflow:visible;"></svg>
                 </div>
                 <div class="bracket-col-final">
-                    <h3 class="round-title">👑 Final</h3>
+                    <h3 class="round-title">Final</h3>
                     <div id="final-wrap">${final.length > 0 ? createMatchCard(final[0], "Gran Final") : ""}</div>
                 </div>
             </div>
@@ -560,7 +560,7 @@ function renderPlayoffs(semis, final, tercerPuesto) {
     const tpc = document.getElementById("tercer-puesto-container");
     if (tpc && tercerPuesto.length > 0) {
         tpc.innerHTML = `
-            <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">🥉 Tercer Puesto</h3>
+            <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">Tercer Puesto</h3>
             <div style="display: flex; justify-content: center;">
                 ${createMatchCard(tercerPuesto[0], "Tercer y Cuarto Puesto")}
             </div>
@@ -630,7 +630,7 @@ function renderTournamentStats(allMatches, nombreTorneo) {
         : `${goleadores.map(g => `<strong style="color: #1a56db;">${g.nombre}</strong>`).join(", ").replace(/,([^,]*)$/, " y$1")} son los goleadores del torneo con un promedio de <strong style="color: #1a56db;">${goleadores[0].promedioStr}</strong> goles por partido`;
 
     statsContainer.innerHTML = `
-        <h2>📊 ESTADÍSTICAS DEL TORNEO</h2>
+        <h2>ESTADÍSTICAS DEL TORNEO</h2>
         <div class="table-responsive"><table class="ranking-table densa-max">
             <thead><tr>
                 <th>Jugador</th>

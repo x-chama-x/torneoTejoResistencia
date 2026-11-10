@@ -137,7 +137,7 @@ function renderPlayoffsIdaVuelta(matches) {
     bracket.innerHTML = `
         <div class="bracket-fixture">
             <div class="bracket-col-semis">
-                <h3 class="round-title">⚔️ Semifinales</h3>
+                <h3 class="round-title">Semifinales</h3>
                 <div id="sf1-wrap">${createSeriesCard(sf1, "Semifinal 1", false)}</div>
                 <div id="sf2-wrap">${createSeriesCard(sf2, "Semifinal 2", false)}</div>
             </div>
@@ -145,7 +145,7 @@ function renderPlayoffsIdaVuelta(matches) {
                 <svg id="bracket-svg" style="width:100%; height:100%; display:block; overflow:visible;"></svg>
             </div>
             <div class="bracket-col-final">
-                <h3 class="round-title">👑 Final</h3>
+                <h3 class="round-title">Final</h3>
                 <div id="final-wrap">${createSeriesCard(final, "Final", true)}</div>
             </div>
         </div>
@@ -381,7 +381,7 @@ function crearTablaH2H(matches, clasificados) {
     }
 
     return `
-        <h3 class="h2h-titulo">🤝 Historial entre clasificados</h3>
+        <h3 class="h2h-titulo">Historial entre clasificados</h3>
         <div class="table-responsive">
             <table class="ranking-table align-center">
                 <thead>
