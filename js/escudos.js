@@ -70,6 +70,13 @@ function escudoImg(nombre, clase) {
 //                                              que esta alineada a la
 //                                              derecha y quedaria con el
 //                                              escudo despegado del nombre.
+//   conEscudo('Chama', { bloque: true })    -> escudo ARRIBA del nombre.
+//                                              Para las tarjetas del
+//                                              bracket, que en celular
+//                                              miden 126px de ancho: ahi
+//                                              el escudo al costado no
+//                                              entra, pero arriba cuesta
+//                                              alto y no ancho.
 //
 // El <span> es inline-flex y no deja que el nombre se corte en dos
 // lineas debajo del escudo.
@@ -77,6 +84,11 @@ function conEscudo(nombre, opciones) {
     const op = opciones || {};
     const texto = op.negrita ? `<strong>${nombre}</strong>` : nombre;
     const img = escudoImg(nombre, op.clase);
+
+    if (op.bloque) {
+        return `<span class="con-escudo con-escudo-bloque">${img}${texto}</span>`;
+    }
+
     const clase = 'con-escudo' + (op.derecha ? ' con-escudo-der' : '');
     return op.derecha
         ? `<span class="${clase}">${texto}${img}</span>`

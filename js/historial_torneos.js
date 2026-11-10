@@ -473,9 +473,9 @@ function createMatchCard(m, matchTitle) {
         <div class="${clases}"${datos}>
             <div class="match-number">${matchTitle || m.fase}</div>
             <div class="match-players">
-                <div class="player blue">${m.j1}</div>
+                <div class="player blue">${conEscudo(m.j1, { bloque: true })}</div>
                 <div class="vs">VS</div>
-                <div class="player red">${m.j2}</div>
+                <div class="player red">${conEscudo(m.j2, { bloque: true })}</div>
             </div>
             <div class="score">${g[0]} - ${g[1]}</div>
             <div class="winner-badge">${winnerLabel}</div>

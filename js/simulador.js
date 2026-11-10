@@ -759,9 +759,9 @@ function createMatchCardSimulador(ganador, j1, j2, g1, g2, title) {
         <div class="match-card">
             <div class="match-number">${title}</div>
             <div class="match-players">
-                <div class="player blue">${j1}</div>
+                <div class="player blue">${conEscudo(j1, { bloque: true })}</div>
                 <div class="vs">VS</div>
-                <div class="player red">${j2}</div>
+                <div class="player red">${conEscudo(j2, { bloque: true })}</div>
             </div>
             <div class="score">${g1} - ${g2}</div>
             <div class="winner-badge">${winnerLabel}</div>

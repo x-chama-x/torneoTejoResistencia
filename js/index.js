@@ -359,8 +359,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${camp.mesAnio}</td>
-                    <td><strong>${camp.champion}</strong></td>
-                    <td>${camp.subcampeon}</td>
+                    <td>${conEscudo(camp.champion, { negrita: true })}</td>
+                    <td>${camp.subcampeon && camp.subcampeon !== '-'
+                            ? conEscudo(camp.subcampeon) : camp.subcampeon}</td>
                 `;
                 tbodyChampions.appendChild(tr);
             });
@@ -389,8 +390,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${anio}</td>
-                    <td><strong>${campeon ? campeon.nombre : '-'}</strong></td>
-                    <td>${subcampeon ? subcampeon.nombre : '-'}</td>
+                    <td>${campeon ? conEscudo(campeon.nombre, { negrita: true }) : '<strong>-</strong>'}</td>
+                    <td>${subcampeon ? conEscudo(subcampeon.nombre) : '-'}</td>
                 `;
                 tbodyNL.appendChild(tr);
             });
