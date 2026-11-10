@@ -63,9 +63,9 @@ function crearFilaIdaVuelta(m, etiqueta) {
         <div class="leg-row">
             <span class="leg-label">${etiqueta}${m.fecha ? ` <em>(${m.fecha})</em>` : ""}</span>
             <div class="leg-score">
-                <span class="leg-player ${w1 ? "leg-winner" : ""}">${m.j1}</span>
+                <span class="leg-player ${w1 ? "leg-winner" : ""}">${conEscudo(m.j1, { derecha: true })}</span>
                 <span class="leg-marcador">${g[0]} - ${g[1]}</span>
-                <span class="leg-player ${w2 ? "leg-winner" : ""}">${m.j2}</span>
+                <span class="leg-player ${w2 ? "leg-winner" : ""}">${conEscudo(m.j2)}</span>
             </div>
         </div>`;
 }
@@ -325,7 +325,7 @@ function crearTarjetaClasificado(slot, nombre, datos) {
         <div class="clasificado-card">
             <div class="clasificado-header">
                 <span class="clasificado-slot">#${slot}</span>
-                <span class="clasificado-nombre">${nombre}</span>
+                <span class="clasificado-nombre">${conEscudo(nombre, { clase: "escudo-grande" })}</span>
                 <span class="clasificado-ranking-badge">🏅 #${rankingPos} FIFA · ${rankingPts} pts</span>
             </div>
             <div class="clasificado-titulos">${titulosHtml}</div>

@@ -624,7 +624,7 @@ function renderEstadisticasHTML(estadisticasJugadores, numJugadores, soloFaseFin
     statsArray.forEach(stat => {
         htmlStats += `
             <tr>
-                <td><strong>${stat.nombre}</strong></td>
+                <td>${conEscudo(stat.nombre, { negrita: true })}</td>
                 ${soloFaseFinal ? '' : `<td>${stat.golesLiga}</td>`}
                 <td>${stat.golesFaseFinal}</td>
                 <td><strong>${stat.totalGoles}</strong></td>
@@ -718,7 +718,7 @@ function renderGrupoUIX(partidos, rankingGrupo, clasifCount) {
     rankingGrupo.forEach((r, idx) => {
         out += `<tr ${idx < clasifCount ? 'style="background: rgba(46, 160, 67, 0.15);"' : ''}>
             <td>${idx + 1}</td>
-            <td><strong>${r.nombre}</strong></td>
+            <td>${conEscudo(r.nombre, { negrita: true })}</td>
             <td>${r.pj}</td>
             <td>${r.pg}</td>
             <td>${r.pp}</td>
@@ -740,10 +740,10 @@ function renderGrupoUIX(partidos, rankingGrupo, clasifCount) {
     partidos.forEach(p => {
         const w1 = p.ganador === p.azul;
         const w2 = p.ganador === p.rojo;
-        out += `<tr>
-            <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #58a6ff;' : ''}">${p.azul}</td>
+        out += `<tr class="fila-resultado">
+            <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #58a6ff;' : ''}">${conEscudo(p.azul, { derecha: true })}</td>
             <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${p.golesAzul}-${p.golesRojo}</td>
-            <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #f85149;' : ''}">${p.rojo}</td>
+            <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #f85149;' : ''}">${conEscudo(p.rojo)}</td>
         </tr>`;
     });
     out += '</tbody></table></div></div>';

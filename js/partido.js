@@ -410,10 +410,10 @@ function mostrarProbabilidad(nombreJ1, nombreJ2) {
                 <div class="sf-matchup">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
                         <div class="sf-player-info">
-                            <span class="sf-player-name">${jugador1.nombre}</span>
+                            <span class="sf-player-name">${conEscudo(jugador1.nombre)}</span>
                         </div>
                         <div class="sf-player-info" style="align-items: flex-end;">
-                            <span class="sf-player-name">${jugador2.nombre}</span>
+                            <span class="sf-player-name">${conEscudo(jugador2.nombre, { derecha: true })}</span>
                         </div>
                     </div>
                     <div class="sf-split-bar">
