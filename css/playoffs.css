@@ -615,6 +615,59 @@
     }
 }
 
+/* Celular (el bracket va en dos columnas de ~160px): en una sola fila no
+   entran nombre + escudo + resultado + escudo + nombre, y la fila se salia
+   de la tarjeta hasta 60px a 390px de ancho. Como en las tarjetas de los
+   torneos, el escudo pasa ARRIBA del nombre y el resultado queda en el
+   medio, entre los dos. */
+@media (max-width: 600px) {
+    .leg-score {
+        gap: 3px;
+    }
+
+    .leg-player {
+        display: flex;
+        justify-content: center;
+        min-width: 0;          /* que se achique en vez de empujar la fila */
+        text-align: center;
+        line-height: 1.15;
+    }
+
+    .leg-score .leg-player:last-child {
+        text-align: center;
+    }
+
+    .leg-player .con-escudo {
+        flex-direction: column;
+        gap: 0.12em;
+    }
+
+    /* el de la izquierda viene "nombre + escudo": se da vuelta */
+    .leg-player .con-escudo-der {
+        flex-direction: column-reverse;
+    }
+
+    .leg-marcador {
+        padding: 0 2px;
+        letter-spacing: 0;
+        word-spacing: -0.1em;
+    }
+}
+
+/* Abajo de 360px la tarjeta mide ~125px: un poco mas chico todo, y el
+   resultado casi sin espacios ("4-7"), para que "Hector" no lo toque. */
+@media (max-width: 359px) {
+    .leg-player {
+        font-size: 0.78em;
+    }
+
+    .leg-marcador {
+        font-size: 0.82em;
+        padding: 0 1px;
+        word-spacing: -0.22em;
+    }
+}
+
 /* ================================================
    CLASIFICADOS (Copa de Campeones)
    ================================================ */
