@@ -188,11 +188,15 @@ Cada jugador puede tener su escudo al lado del nombre. Viven en `img/escudos/` y
 1. Guardar la imagen como `img/escudos/<nombre en minuscula>.png`.
 2. Agregar el nombre a `CON_ESCUDO`, arriba de todo en `js/escudos.js`.
 
+Con el paso 1 solo el escudo **no aparece**: el jugador sigue con el generico hasta que este en la lista.
+
 El segundo paso parece de mas, pero sin la lista la unica forma de saber si un escudo existe es pedirlo y que falle: serian 10 pedidos fallidos por pagina.
 
 El que todavia no tiene el suyo usa `_generico.svg`, un escudo neutro con la corona, el borde dorado y el tejo adentro. Es SVG (2 KB) y esta dibujado para leerse a 16px: a ese tamaño no se ve detalle fino, solo la silueta.
 
-Los originales en alta van a `img/escudos/originales/`, que el sitio no usa. Lo que se publica conviene que no pase de ~256px de lado: el de Chama bajo de 1,3 MB a 79 KB sin que se note a los tamaños en que se muestra, y con 11 jugadores esa diferencia son 14 MB por pagina.
+La imagen va **recortada al borde del escudo y de unos 256px de alto**. Recortada, porque el escudo se ajusta al alto de su casillero contando el margen transparente: uno con margen se ve mas chico que los demas (el de Santi llenaba el 87% del alto). Y chica, porque se muestra a 30-80px: los tres primeros pesaban 3,4 MB entre todos y recortados pesan 211 KB. Los originales en alta no hacen falta en el repo: quedan en el historial de git.
+
+Los escudos propios se muestran un 12% mas grandes que el generico, que es provisorio (clase `escudo-propio`: un `transform`, asi que no cambia el alto de las filas ni el ancho de las tablas).
 
 ### Donde se muestran, y donde no
 
