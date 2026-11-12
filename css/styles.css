@@ -1588,6 +1588,17 @@ select:hover {
 }
 .escudo-grande { width: 3em; height: 3em; }
 
+/* Los escudos de verdad van un 12% mas grandes que el generico, que es
+   provisorio y no tiene por que llamar mas la atencion. Es un transform y
+   no un width a proposito: no mueve nada. El casillero sigue midiendo lo
+   mismo, asi que no cambia el alto de las filas ni el ancho de las
+   tablas; el escudo se pasa un 6% por arriba y por abajo, dentro del
+   relleno de la celda. */
+.escudo-propio { transform: scale(1.12); }
+/* En las tarjetas del bracket el nombre va justo debajo: ahi crece solo
+   hacia arriba, para no tocarlo. */
+.con-escudo-bloque .escudo-propio { transform-origin: center bottom; }
+
 /* --- Donde hay que achicarlo o esconderlo ---
    Tres excepciones, cada una por su propia razon de ancho. */
 

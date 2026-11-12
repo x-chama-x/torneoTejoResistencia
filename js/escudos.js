@@ -11,14 +11,27 @@
 //      con la de la lista de abajo).
 //   2. Agregar el nombre del jugador a CON_ESCUDO.
 //
+// OJO: con el paso 1 solo, el escudo NO aparece. El jugador sigue con el
+// generico hasta que este en la lista.
+//
 // El segundo paso parece de mas, pero evita que el navegador pida 10
 // archivos que no existen cada vez que se abre una pagina: sin la lista,
 // la unica forma de saber si un escudo existe es pedirlo y que falle.
 //
+// LA IMAGEN, RECORTADA Y CHICA. Dos cosas que no se ven en el archivo
+// pero si en la pagina:
+//   - Sin margen transparente alrededor. El escudo se ajusta al alto de
+//     su casillero contando el margen, asi que uno con margen se ve mas
+//     chico que los demas (el de Santi llenaba el 87% del alto).
+//   - De 256 px de alto alcanza: se muestra a 30-80 px. El original de
+//     Mateo pesaba 1,8 MB; recortado y a 256 px pesa 86 KB.
+//
 // Los nombres van como figuran en enfrentamientos_directos.txt.
 
 const CON_ESCUDO = {
-    'Chama': 'chama.png'
+    'Chama': 'chama.png',
+    'Mateo': 'mateo.png',
+    'Santi': 'santi.png'
     // 'Tomy':  'tomy.png',
     // 'Kovic': 'kovic.png',
     // ...
@@ -56,7 +69,10 @@ function tieneEscudoPropio(nombre) {
 // escrito, asi que para un lector de pantalla es decoracion, y repetir
 // "escudo de Chama" antes de "Chama" solo molesta.
 function escudoImg(nombre, clase) {
-    const cls = 'escudo' + (clase ? ' ' + clase : '');
+    // 'escudo-propio' los muestra un 12% mas grandes que el generico (ver CSS)
+    const cls = 'escudo'
+        + (tieneEscudoPropio(nombre) ? ' escudo-propio' : '')
+        + (clase ? ' ' + clase : '');
     return `<img class="${cls}" src="${rutaEscudo(nombre)}" alt="" loading="lazy">`;
 }
 
