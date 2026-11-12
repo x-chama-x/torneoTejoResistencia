@@ -174,11 +174,26 @@ select:hover {
     font-weight: bold;
 }
 
-.score {
+/* Partido ya jugado: el resultado va en el lugar del VS, a la altura de
+   los escudos y los nombres. Antes iba en un renglon aparte debajo, y
+   quedaba lejos de los dos jugadores. Los que todavia no se jugaron
+   siguen diciendo VS. */
+.vs.marcador-vs {
     font-size: 24px;
-    font-weight: bold;
-    text-align: center;
-    margin: 10px 0;
+    color: #e6edf3;
+    padding: 0 10px;
+    white-space: nowrap;   /* que "7 - 4" no se parta en dos lineas */
+    font-variant-numeric: tabular-nums;
+}
+/* Los dos jugadores miden lo mismo (110px, lo que ya ocupaban), asi el
+   resultado queda justo en el centro. Y si la tarjeta es mas angosta que
+   eso, se achican los dos por igual en vez de salirse: pasaba con el
+   repechaje y el tercer puesto del formato de 9, que entre 769 y 1100px
+   van de a dos por fila y miden 300px. */
+.match-players:has(.marcador-vs) .player {
+    width: 110px;
+    min-width: 0;
+    flex-shrink: 1;
 }
 
 .winner-badge {
@@ -580,11 +595,11 @@ select:hover {
         font-size: 11px;
     }
 
-    .bracket-fixture .score,
-    #tercer-puesto-container .score,
-    .extra-matches-container #pre-playoff-container .score {
-        font-size: 14px;
-        margin: 4px 0;
+    .bracket-fixture .vs.marcador-vs,
+    #tercer-puesto-container .vs.marcador-vs,
+    .extra-matches-container #pre-playoff-container .vs.marcador-vs {
+        font-size: 15px;
+        padding: 0 4px;
     }
 
     .bracket-fixture .winner-badge,
@@ -666,6 +681,17 @@ select:hover {
         font-size: 10px;
     }
 
+    /* El resultado va mas grande que el VS, pero la tarjeta mide ~150px:
+       los espacios de "7 - 4" se achican para no quitarle ancho a los
+       nombres. */
+    .bracket-fixture .vs.marcador-vs,
+    #tercer-puesto-container .vs.marcador-vs,
+    .extra-matches-container #pre-playoff-container .vs.marcador-vs {
+        font-size: 14px;
+        padding: 0 2px;
+        word-spacing: -0.12em;
+    }
+
     /* El min-width de 64px por badge venia de la pagina de Playoffs */
     .bracket-fixture .sf-prob-badge,
     #tercer-puesto-container .sf-prob-badge {
@@ -694,6 +720,18 @@ select:hover {
     /* El tercer puesto se queda del ancho de una columna del bracket,
        como estaba: lo que antes se desbordaba eran los nombres, y eso ya
        lo arreglan el flex y el wrap de arriba */
+}
+
+/* Abajo de 360px el tercer puesto mide 122px: el resultado se achica un
+   poco mas y casi sin espacios ("7-4"), para que entren los nombres. */
+@media (max-width: 359px) {
+    .bracket-fixture .vs.marcador-vs,
+    #tercer-puesto-container .vs.marcador-vs,
+    .extra-matches-container #pre-playoff-container .vs.marcador-vs {
+        font-size: 12.5px;
+        padding: 0 1px;
+        word-spacing: -0.2em;
+    }
 }
 
 @media (max-width: 768px) {
