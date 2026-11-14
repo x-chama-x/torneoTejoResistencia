@@ -31,9 +31,12 @@
 const CON_ESCUDO = {
     'Chama': 'chama.png',
     'Mateo': 'mateo.png',
-    'Santi': 'santi.png'
+    'Santi': 'santi.png',
+    'Facu':  'facu.png',
+    'Marco': 'marco.png',
+    'Lucas': 'lucas.png',
+    'Kovic': 'kovic.png'
     // 'Tomy':  'tomy.png',
-    // 'Kovic': 'kovic.png',
     // ...
 };
 
