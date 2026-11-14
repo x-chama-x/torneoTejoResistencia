@@ -160,13 +160,8 @@ select:hover {
     color: #c9d1d9;
 }
 
-.player.blue {
-    color: #58a6ff;
-}
-
-.player.red {
-    color: #f85149;
-}
+/* Los dos jugadores del mismo color: ya no hay rojo vs azul, ahora es
+   local vs visitante, y el que gano se ve por el marcador. */
 
 .vs {
     padding: 0 15px;
@@ -1848,4 +1843,20 @@ select:hover {
         font-size: clamp(8px, 2.2cqw, 11px);
     }
     #ranking-table .streak-container { gap: clamp(2px, 0.8cqw, 4px); }
+}
+
+/* =====================================================
+   LOCAL / VISITANTE
+   =====================================================
+   "Visitante" es mas largo que "Rojo", y en las tablas de Resultados el
+   titulo es lo mas ancho de su columna. Abajo de 360px eso hacia
+   scrollear los Resultados del index (10px) y de la Nations League
+   (14px). Ahi los titulos de todas las tablas de Resultados van mas
+   chicos; los datos quedan igual. */
+@media (max-width: 359px) {
+    .ranking-table.large-table-font:has(.con-escudo-der) th,
+    #resultados-fechas .ranking-table.large-table-font th,
+    #resultados-nl .ranking-table.large-table-font th {
+        font-size: 1rem;
+    }
 }

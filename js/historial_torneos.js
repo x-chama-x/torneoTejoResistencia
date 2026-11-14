@@ -82,15 +82,15 @@ function renderRepechajes(repechajes, eliminatorio) {
                     <div class="table-responsive">
                         <table class="ranking-table align-center large-table-font">
                             <thead>
-                                <tr><th style="text-align:right;">Azul</th><th style="text-align:center;">Resultado</th><th style="text-align:left;">Rojo</th></tr>
+                                <tr><th style="text-align:right;">Local</th><th style="text-align:center;">Resultado</th><th style="text-align:left;">Visitante</th></tr>
                             </thead>
                             <tbody>
                                 ${delFase.map(m => {
                                     const g = m.marcador.split("-").map(Number);
                                     return `<tr class="fila-resultado">
-                                        <td style="text-align:right; ${g[0] > g[1] ? 'font-weight:bold; color:#58a6ff;' : ''}">${conEscudo(m.j1, { derecha: true })}</td>
+                                        <td style="text-align:right;">${conEscudo(m.j1, { derecha: true })}</td>
                                         <td style="text-align:center; font-weight:bold; letter-spacing:2px;">${m.marcador}</td>
-                                        <td style="text-align:left; ${g[1] > g[0] ? 'font-weight:bold; color:#f85149;' : ''}">${conEscudo(m.j2)}</td>
+                                        <td style="text-align:left;">${conEscudo(m.j2)}</td>
                                     </tr>`;
                                 }).join("")}
                             </tbody>
@@ -111,9 +111,9 @@ function renderRepechajes(repechajes, eliminatorio) {
             <h3 style="margin-bottom: 1rem; color: #58a6ff;">${m.fase}</h3>
             <div style="display:inline-block; background:#161b22; border:1px solid #30363d; border-radius:12px; padding:14px 22px;">
                 <div style="font-size:1.05rem; font-weight:700;">
-                    <span style="${g[0] > g[1] ? 'color:#58a6ff;' : ''}">${conEscudo(m.j1, { derecha: true })}</span>
+                    <span>${conEscudo(m.j1, { derecha: true })}</span>
                     <span style="margin:0 10px; letter-spacing:2px;">${m.marcador}</span>
-                    <span style="${g[1] > g[0] ? 'color:#f85149;' : ''}">${conEscudo(m.j2)}</span>
+                    <span>${conEscudo(m.j2)}</span>
                 </div>
                 <div style="margin-top:8px; background:#d29922; color:#0d1117; border-radius:6px; padding:4px 10px; font-weight:700; font-size:0.85rem;">
                     Clasifica: ${ganador}
@@ -288,21 +288,19 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
         table.innerHTML = `
             <thead>
                 <tr>
-                    <th style="text-align: right;">Azul</th>
+                    <th style="text-align: right;">Local</th>
                     <th style="text-align: center;">Resultado</th>
-                    <th style="text-align: left;">Rojo</th>
+                    <th style="text-align: left;">Visitante</th>
                 </tr>
             </thead>
             <tbody>
                 ${matches.map(m => {
                     const g = m.marcador.split("-").map(Number);
-                    const w1 = g[0] > g[1];
-                    const w2 = g[1] > g[0];
                     return `
                     <tr class="fila-resultado">
-                        <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #58a6ff;' : ''}">${conEscudo(m.j1, { derecha: true })}</td>
+                        <td style="text-align: right;">${conEscudo(m.j1, { derecha: true })}</td>
                         <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${m.marcador}</td>
-                        <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #f85149;' : ''}">${conEscudo(m.j2)}</td>
+                        <td style="text-align: left;">${conEscudo(m.j2)}</td>
                     </tr>
                     `;
                 }).join("")}
@@ -418,21 +416,19 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                                 <table class="ranking-table align-center large-table-font">
                                     <thead>
                                         <tr>
-                                            <th style="text-align: right;">Azul</th>
+                                            <th style="text-align: right;">Local</th>
                                             <th style="text-align: center;">Resultado</th>
-                                            <th style="text-align: left;">Rojo</th>
+                                            <th style="text-align: left;">Visitante</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         ${gMatches.map(m => {
                     const g = m.marcador.split("-").map(Number);
-                    const w1 = g[0] > g[1];
-                    const w2 = g[1] > g[0];
                     return `
                                             <tr class="fila-resultado">
-                                                <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #58a6ff;' : ''}">${conEscudo(m.j1, { derecha: true })}</td>
+                                                <td style="text-align: right;">${conEscudo(m.j1, { derecha: true })}</td>
                                                 <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${m.marcador}</td>
-                                                <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #f85149;' : ''}">${conEscudo(m.j2)}</td>
+                                                <td style="text-align: left;">${conEscudo(m.j2)}</td>
                                             </tr>`;
                 }).join("")}
                                     </tbody>
@@ -473,9 +469,9 @@ function createMatchCard(m, matchTitle) {
         <div class="${clases}"${datos}>
             <div class="match-number">${matchTitle || m.fase}</div>
             <div class="match-players">
-                <div class="player blue">${conEscudo(m.j1, { bloque: true })}</div>
+                <div class="player local">${conEscudo(m.j1, { bloque: true })}</div>
                 <div class="vs marcador-vs">${g[0]} - ${g[1]}</div>
-                <div class="player red">${conEscudo(m.j2, { bloque: true })}</div>
+                <div class="player visitante">${conEscudo(m.j2, { bloque: true })}</div>
             </div>
             <div class="winner-badge">${winnerLabel}</div>
             ${cinta}

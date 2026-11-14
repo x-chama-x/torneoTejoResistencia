@@ -85,7 +85,7 @@ function escudoImg(nombre, clase) {
 //   conEscudo('Chama', { negrita: true })   -> el nombre en <strong>
 //   conEscudo('Chama', { derecha: true })   -> escudo a la DERECHA del
 //                                              nombre, para la columna
-//                                              "Azul" de los resultados,
+//                                              "Local" de los resultados,
 //                                              que esta alineada a la
 //                                              derecha y quedaria con el
 //                                              escudo despegado del nombre.

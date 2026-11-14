@@ -318,13 +318,11 @@ function renderResultados(partidos, abiertas = []) {
     function tablaDeJornada(j) {
         const jugados = j.partidos.map(m => {
             const g = m.marcador.split('-').map(Number);
-            const w1 = g[0] > g[1];
-            const w2 = g[1] > g[0];
             return `
                 <tr class="fila-resultado">
-                    <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #58a6ff;' : ''}">${conEscudo(m.j1, { derecha: true })}</td>
+                    <td style="text-align: right;">${conEscudo(m.j1, { derecha: true })}</td>
                     <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${m.marcador}</td>
-                    <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #f85149;' : ''}">${conEscudo(m.j2)}</td>
+                    <td style="text-align: left;">${conEscudo(m.j2)}</td>
                 </tr>`;
         }).join('');
 
@@ -346,9 +344,9 @@ function renderResultados(partidos, abiertas = []) {
                 <table class="ranking-table large-table-font">
                     <thead>
                         <tr>
-                            <th style="text-align: right;">Azul</th>
+                            <th style="text-align: right;">Local</th>
                             <th style="text-align: center;">Resultado</th>
-                            <th style="text-align: left;">Rojo</th>
+                            <th style="text-align: left;">Visitante</th>
                         </tr>
                     </thead>
                     <tbody>

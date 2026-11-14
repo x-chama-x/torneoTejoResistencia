@@ -141,9 +141,9 @@ function tarjetaProbabilidad(cruce, titulo) {
         <div class="match-card match-card-pendiente">
             <div class="match-number">${escaparTexto(titulo)}</div>
             <div class="match-players">
-                <div class="player blue">${conEscudo(escaparTexto(cruce.j1), { bloque: true })}</div>
+                <div class="player local">${conEscudo(escaparTexto(cruce.j1), { bloque: true })}</div>
                 <div class="vs">VS</div>
-                <div class="player red">${conEscudo(escaparTexto(cruce.j2), { bloque: true })}</div>
+                <div class="player visitante">${conEscudo(escaparTexto(cruce.j2), { bloque: true })}</div>
             </div>
             ${barraProbabilidad(cruce.j1, cruce.j2)}
             <div class="sf-insight">Probabilidad de ganar</div>
@@ -220,9 +220,9 @@ function tarjetaFinalPorDefinirse(semis, estados) {
         <div class="match-card match-card-pendiente">
             <div class="match-number">Gran Final</div>
             <div class="match-players">
-                ${nombreOEtiqueta(estados[0].ganador, 'Ganador SF1', 'blue')}
+                ${nombreOEtiqueta(estados[0].ganador, 'Ganador SF1', 'local')}
                 <div class="vs">VS</div>
-                ${nombreOEtiqueta(estados[1].ganador, 'Ganador SF2', 'red')}
+                ${nombreOEtiqueta(estados[1].ganador, 'Ganador SF2', 'visitante')}
             </div>
             ${lista}
             <div class="sf-insight">Se define con las semifinales</div>
@@ -244,9 +244,9 @@ function tarjetaTercerPuestoPorDefinirse(estados) {
             <div class="match-card match-card-pendiente">
                 <div class="match-number">Tercer y Cuarto Puesto</div>
                 <div class="match-players">
-                    ${nombreOEtiqueta(estados[0].perdedor, 'Perdedor SF1', 'blue')}
+                    ${nombreOEtiqueta(estados[0].perdedor, 'Perdedor SF1', 'local')}
                     <div class="vs">VS</div>
-                    ${nombreOEtiqueta(estados[1].perdedor, 'Perdedor SF2', 'red')}
+                    ${nombreOEtiqueta(estados[1].perdedor, 'Perdedor SF2', 'visitante')}
                 </div>
                 <div class="sf-insight">Se define con las semifinales</div>
             </div>

@@ -166,18 +166,17 @@ function mostrarHistorial(nombreJ1, nombreJ2) {
                     <h4>Últimos ${ultimosPartidos.length} partido${ultimosPartidos.length > 1 ? 's' : ''}</h4>
                     <div class="partidos-lista">
                         ${ultimosPartidos.map(p => {
-                            // Determinar quién es azul y quién es rojo según la selección actual
-                            const esJ1Ganador = p.ganador === nombreJ1;
+                            // El marcador siempre del lado del primer jugador elegido
                             const marcadorDisplay = p.jugador1 === nombreJ1 
                                 ? p.marcador 
                                 : `${p.goles2}-${p.goles1}`;
                             
                             return `
-                                <div class="partido-item ${esJ1Ganador ? 'win-j1' : 'win-j2'}">
+                                <div class="partido-item">
                                     <div class="partido-resultado">
-                                        <span class="jugador-nombre ${esJ1Ganador ? 'ganador' : ''}">${nombreJ1}</span>
+                                        <span class="jugador-nombre">${nombreJ1}</span>
                                         <span class="marcador">${marcadorDisplay}</span>
-                                        <span class="jugador-nombre ${!esJ1Ganador ? 'ganador' : ''}">${nombreJ2}</span>
+                                        <span class="jugador-nombre">${nombreJ2}</span>
                                     </div>
                                     <div class="partido-info">
                                         <span class="torneo">${p.torneo}</span>
@@ -194,7 +193,7 @@ function mostrarHistorial(nombreJ1, nombreJ2) {
 
         historialContent.innerHTML = `
             <div class="historial-stats">
-                <div class="historial-player blue">
+                <div class="historial-player">
                     <div class="nombre">${nombreJ1}</div>
                     <div class="victorias">${victoriasJ1}</div>
                     <div class="goles">${golesJ1} goles</div>
@@ -203,7 +202,7 @@ function mostrarHistorial(nombreJ1, nombreJ2) {
                     <div class="total-partidos">${totalPartidos}</div>
                     <div class="subtitulo">partidos jugados</div>
                 </div>
-                <div class="historial-player red">
+                <div class="historial-player">
                     <div class="nombre">${nombreJ2}</div>
                     <div class="victorias">${victoriasJ2}</div>
                     <div class="goles">${golesJ2} goles</div>
@@ -285,15 +284,14 @@ function mostrarPartidosIndividuales(nombreJugador, evento) {
                 ${partidos.map(p => {
                     const esJugador1 = p.jugador1 === nombreJugador;
                     const oponente = esJugador1 ? p.jugador2 : p.jugador1;
-                    const gano = p.ganador === nombreJugador;
                     const marcadorDisplay = esJugador1 ? p.marcador : `${p.goles2}-${p.goles1}`;
 
                     return `
-                        <div class="partido-item ${gano ? 'win-j1' : 'win-j2'}">
+                        <div class="partido-item">
                             <div class="partido-resultado">
-                                <span class="jugador-nombre ${gano ? 'ganador' : ''}">${nombreJugador}</span>
+                                <span class="jugador-nombre">${nombreJugador}</span>
                                 <span class="marcador">${marcadorDisplay}</span>
-                                <span class="jugador-nombre ${!gano ? 'ganador' : ''}">${oponente}</span>
+                                <span class="jugador-nombre">${oponente}</span>
                             </div>
                             <div class="partido-info">
                                 <span class="fase">${p.fase}</span>
