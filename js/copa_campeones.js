@@ -57,15 +57,13 @@ function crearFilaIdaVuelta(m, etiqueta) {
             </div>`;
     }
     const g = m.marcador.split("-").map(Number);
-    const w1 = g[0] > g[1];
-    const w2 = g[1] > g[0];
     return `
         <div class="leg-row">
             <span class="leg-label">${etiqueta}${m.fecha ? ` <em>(${m.fecha})</em>` : ""}</span>
             <div class="leg-score">
-                <span class="leg-player ${w1 ? "leg-winner" : ""}">${conEscudo(m.j1, { derecha: true })}</span>
+                <span class="leg-player">${conEscudo(m.j1, { derecha: true })}</span>
                 <span class="leg-marcador">${g[0]} - ${g[1]}</span>
-                <span class="leg-player ${w2 ? "leg-winner" : ""}">${conEscudo(m.j2)}</span>
+                <span class="leg-player">${conEscudo(m.j2)}</span>
             </div>
         </div>`;
 }

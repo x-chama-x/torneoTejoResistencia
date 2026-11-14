@@ -736,14 +736,12 @@ function renderGrupoUIX(partidos, rankingGrupo, clasifCount) {
 
     out += '<div class="panel-resultados"><h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Resultados</h4>';
     out += '<div class="table-responsive"><table class="ranking-table align-center large-table-font">';
-    out += '<thead><tr><th style="text-align: right;">Azul</th><th style="text-align: center;">Resultado</th><th style="text-align: left;">Rojo</th></tr></thead><tbody>';
+    out += '<thead><tr><th style="text-align: right;">Local</th><th style="text-align: center;">Resultado</th><th style="text-align: left;">Visitante</th></tr></thead><tbody>';
     partidos.forEach(p => {
-        const w1 = p.ganador === p.azul;
-        const w2 = p.ganador === p.rojo;
         out += `<tr class="fila-resultado">
-            <td style="text-align: right; ${w1 ? 'font-weight: bold; color: #58a6ff;' : ''}">${conEscudo(p.azul, { derecha: true })}</td>
+            <td style="text-align: right;">${conEscudo(p.azul, { derecha: true })}</td>
             <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${p.golesAzul}-${p.golesRojo}</td>
-            <td style="text-align: left; ${w2 ? 'font-weight: bold; color: #f85149;' : ''}">${conEscudo(p.rojo)}</td>
+            <td style="text-align: left;">${conEscudo(p.rojo)}</td>
         </tr>`;
     });
     out += '</tbody></table></div></div>';
@@ -759,9 +757,9 @@ function createMatchCardSimulador(ganador, j1, j2, g1, g2, title) {
         <div class="match-card">
             <div class="match-number">${title}</div>
             <div class="match-players">
-                <div class="player blue">${conEscudo(j1, { bloque: true })}</div>
+                <div class="player local">${conEscudo(j1, { bloque: true })}</div>
                 <div class="vs marcador-vs">${g1} - ${g2}</div>
-                <div class="player red">${conEscudo(j2, { bloque: true })}</div>
+                <div class="player visitante">${conEscudo(j2, { bloque: true })}</div>
             </div>
             <div class="winner-badge">${winnerLabel}</div>
         </div>
