@@ -1637,6 +1637,42 @@ select:hover {
    hacia arriba, para no tocarlo. */
 .con-escudo-bloque .escudo-propio { transform-origin: center bottom; }
 
+/* --- Tablas con columna de jugador ---
+   Posiciones, estadisticas, ranking, invictos, goleadores y campeones.
+   Los Resultados (Azul / Resultado / Rojo) no entran: son simetricos a
+   proposito, y se reconocen porque el de la izquierda lleva el escudo a
+   la derecha del nombre (.con-escudo-der).
+
+   1. Escudos en columna. Centrado, cada nombre arrancaba en otro lado
+      segun lo largo que fuera, y los escudos quedaban en zigzag (hasta
+      10px de diferencia). A la izquierda, todos arrancan en la misma
+      vertical, y el titulo "Jugador" con ellos.
+   2. El nombre a la altura de los numeros. El escudo se apoyaba sobre la
+      linea del texto como si fuera una letra, y eso subia el nombre 2-3px
+      respecto de los numeros de la misma fila. Con vertical-align:
+      middle queda centrado igual que ellos, y de paso la fila pierde el
+      espacio que le sobraba abajo (5px menos de alto por fila).
+   3. El # centrado en su columna, como el resto de los numeros.
+   Nada de esto cambia el ancho de ninguna columna (por eso no van los
+   digitos de ancho fijo, tabular-nums: ensanchaban el ranking de
+   invictos en celular y lo hacian scrollear 9px mas). */
+.ranking-table .con-escudo {
+    vertical-align: middle;
+}
+
+.ranking-table:not(:has(.con-escudo-der)) td:has(> .con-escudo),
+.ranking-table:not(:has(.con-escudo-der)):has(tbody td:nth-child(1) > .con-escudo) thead th:nth-child(1),
+.ranking-table:not(:has(.con-escudo-der)):has(tbody td:nth-child(2) > .con-escudo) thead th:nth-child(2),
+.ranking-table:not(:has(.con-escudo-der)):has(tbody td:nth-child(3) > .con-escudo) thead th:nth-child(3) {
+    text-align: left;
+}
+
+/* el # solo existe en las tablas con el jugador en la 2da columna (las de
+   campeones tambien tienen escudo en la 3ra, y su 1ra columna es la fecha) */
+.ranking-table:not(:has(.con-escudo-der)):has(tbody td:nth-child(2) > .con-escudo):not(:has(tbody td:nth-child(3) > .con-escudo)) :is(th, td):first-child {
+    text-align: center;
+}
+
 /* --- Donde hay que achicarlo o esconderlo ---
    Tres excepciones, cada una por su propia razon de ancho. */
 
