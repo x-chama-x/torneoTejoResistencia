@@ -680,7 +680,9 @@
 
 .clasificados-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    /* min(280px, 100%): con la pantalla mas angosta que 280px la tarjeta
+       se achica en vez de salirse de la pagina */
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
     gap: 18px;
 }
 
@@ -837,4 +839,13 @@
     .clasificado-nombre {
         font-size: 1.05em;
     }
+}
+
+/* Tarjetas de clasificados con la pantalla mas angosta que 240px: el
+   cartel del ranking y las cinco cajitas de la racha pasan a la linea de
+   abajo en vez de salirse de la tarjeta. */
+@media (max-width: 239px) {
+    .clasificado-card { padding: 14px 10px; }
+    .clasificado-ranking-badge { white-space: normal; }
+    .clasificado-racha { flex-wrap: wrap; justify-content: center; gap: 6px; }
 }

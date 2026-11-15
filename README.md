@@ -210,14 +210,14 @@ El escudo mide `2.2em` (variable `--escudo-tam`), no un tamaño fijo. Todas las 
 
 Se muestran en: ranking FIFA, invictos, goleadores, Estadisticas Generales, posiciones y estadisticas de la Nations League, posiciones de grupos, de liga y de repechajes, estadisticas del torneo, los Resultados de todas las paginas, el Simulador, el partido 1vs1, la tarjeta del goleador del torneo y la Copa de Campeones.
 
-**Donde se achica o se esconde**, por ancho:
+**Donde se achica o cambia de lugar**, por ancho (ya no se esconde en ningun lado):
 
 | donde | tamaño | se ve desde | por que |
 |---|---|---|---|
 | Estadisticas del Torneo (`.densa-max`) | 1.8em | siempre | Es la tabla mas ancha del sitio, por eso 1.8 y no 2.2. A 320px entra igual: lo unico que pasa es que "Prom TG/PJ" va a dos lineas en el encabezado. |
-| Ranking FIFA de la home | 1.8em hasta 413px, 2.2em arriba | 390px | La columna Racha son cinco cajitas de ancho fijo. Abajo de 390 la tabla scrollea con escudo o sin el: ya pedia 359px antes de que existieran. |
-| Resultados por Fecha (index) | 1.4em | 390px | Dos escudos por fila con la letra mas grande del sitio. A 360 se pasa por 6px. |
-| Resultados (Nations) | 0.9em hasta 389px, 1.4em arriba | 360px | Igual que la anterior, pero ademas lleva las barras de probabilidad de los pendientes, que tienen ancho minimo propio. |
+| Ranking FIFA de la home | 1.8em hasta 413px, 2.2em arriba | siempre (**arriba** del nombre abajo de 390px) | La columna Racha son cinco cajitas de ancho fijo. Al costado del nombre el escudo entra desde 390px; abajo de eso va arriba, y la columna mide lo mismo que sin escudo. |
+| Resultados (todas las tablas: index, Nations, torneos, simulador) | 1.4em | siempre (**arriba** del nombre abajo de 390px) | Dos escudos por fila con la letra mas grande del sitio: al costado no entran en celular. Arriba del nombre cada columna mide lo que el nombre solo, y de paso dejaron de scrollear las de los torneos (37px a 320). |
+| Pantallas de menos de 300px | la letra de las tablas de Resultados se achica con el ancho | siempre | Ningun celular comun mide menos de 320, pero achicando la ventana la tabla del index se salia de la pagina. Ahora entra hasta unos 180px (ver "PANTALLAS MUY ANGOSTAS" en `css/styles.css`). |
 | Campeones (mundiales y Nations) | 1.6em, 1.35em abajo de 360px | siempre | Tres columnas con la letra grande y el titulo "Subcampeon", que no se parte. En celular bajan a 1.05rem con padding 8px 4px. |
 | Tarjetas del bracket | 2em, **arriba** del nombre | siempre | En celular cada tarjeta mide 126px: al costado no entra, arriba cuesta alto. El placeholder "Ganador SF1" no lleva escudo. |
 
