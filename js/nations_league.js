@@ -320,9 +320,9 @@ function renderResultados(partidos, abiertas = []) {
             const g = m.marcador.split('-').map(Number);
             return `
                 <tr class="fila-resultado">
-                    <td style="text-align: right;">${conEscudo(m.j1, { derecha: true })}</td>
+                    <td style="text-align: center;">${conEscudo(m.j1, { derecha: true })}</td>
                     <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${m.marcador}</td>
-                    <td style="text-align: left;">${conEscudo(m.j2)}</td>
+                    <td style="text-align: center;">${conEscudo(m.j2)}</td>
                 </tr>`;
         }).join('');
 
@@ -330,13 +330,13 @@ function renderResultados(partidos, abiertas = []) {
         // probabilidad donde iría el resultado (igual que en los torneos).
         const porJugar = (j.pendientes || []).map(c => `
             <tr class="fila-pendiente fila-resultado">
-                <td style="text-align: right;">${conEscudo(escaparNL(c.j1), { derecha: true })}</td>
+                <td style="text-align: center;">${conEscudo(escaparNL(c.j1), { derecha: true })}</td>
                 <td style="text-align: center; padding: 8px 10px;">
                     ${typeof barraProbabilidad === 'function'
                         ? barraProbabilidad(c.j1, c.j2, true)
                         : '<span style="color:#8b949e;">por jugar</span>'}
                 </td>
-                <td style="text-align: left;">${conEscudo(escaparNL(c.j2))}</td>
+                <td style="text-align: center;">${conEscudo(escaparNL(c.j2))}</td>
             </tr>`).join('');
 
         return `
@@ -344,9 +344,9 @@ function renderResultados(partidos, abiertas = []) {
                 <table class="ranking-table large-table-font">
                     <thead>
                         <tr>
-                            <th style="text-align: right;">Local</th>
+                            <th style="text-align: center;">Local</th>
                             <th style="text-align: center;">Resultado</th>
-                            <th style="text-align: left;">Visitante</th>
+                            <th style="text-align: center;">Visitante</th>
                         </tr>
                     </thead>
                     <tbody>

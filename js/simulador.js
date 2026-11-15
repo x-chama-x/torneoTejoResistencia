@@ -753,12 +753,12 @@ function renderGrupoUIX(partidos, rankingGrupo, clasifCount) {
 
     out += '<div class="panel-resultados"><h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Resultados</h4>';
     out += '<div class="table-responsive"><table class="ranking-table align-center large-table-font">';
-    out += '<thead><tr><th style="text-align: right;">Local</th><th style="text-align: center;">Resultado</th><th style="text-align: left;">Visitante</th></tr></thead><tbody>';
+    out += '<thead><tr><th style="text-align: center;">Local</th><th style="text-align: center;">Resultado</th><th style="text-align: center;">Visitante</th></tr></thead><tbody>';
     partidos.forEach(p => {
         out += `<tr class="fila-resultado">
-            <td style="text-align: right;">${conEscudo(p.azul, { derecha: true })}</td>
+            <td style="text-align: center;">${conEscudo(p.azul, { derecha: true })}</td>
             <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${p.golesAzul}-${p.golesRojo}</td>
-            <td style="text-align: left;">${conEscudo(p.rojo)}</td>
+            <td style="text-align: center;">${conEscudo(p.rojo)}</td>
         </tr>`;
     });
     out += '</tbody></table></div></div>';

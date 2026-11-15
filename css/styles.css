@@ -1596,9 +1596,14 @@ select:hover {
     white-space: nowrap;   /* que el nombre no caiga debajo del escudo */
     min-width: 0;
 }
-/* Para la columna "Azul" de los resultados, que esta alineada a la
-   derecha: ahi el escudo va del lado del borde, no del medio. */
+/* Para la columna "Local" de los resultados: el escudo va a la derecha
+   del nombre, del lado del resultado (conEscudo con { derecha: true }). */
 .con-escudo-der { flex-direction: row; }
+/* En las tablas de Resultados todos los escudo+nombre de una columna
+   miden lo mismo (ver igualarColumnasDeEscudos en js/escudos.js). En el
+   Local lo que sobra va a la izquierda: los escudos quedan en columna
+   al lado del resultado y los nombres alineados contra ellos. */
+.ranking-table .con-escudo-der { justify-content: flex-end; }
 
 /* Para las tarjetas del bracket: el escudo ARRIBA del nombre. En celular
    cada tarjeta mide 126px y los dos nombres se reparten ese ancho, asi
@@ -1634,9 +1639,12 @@ select:hover {
 
 /* --- Tablas con columna de jugador ---
    Posiciones, estadisticas, ranking, invictos, goleadores y campeones.
-   Los Resultados (Azul / Resultado / Rojo) no entran: son simetricos a
-   proposito, y se reconocen porque el de la izquierda lleva el escudo a
-   la derecha del nombre (.con-escudo-der).
+   Los Resultados (Local / Resultado / Visitante) no entran en estas
+   reglas: se reconocen porque el Local lleva el escudo a la derecha del
+   nombre (.con-escudo-der). Esos van centrados, titulo y bloque, igual
+   que los de campeones, y js/escudos.js les iguala el ancho a todos los
+   escudo+nombre de la columna para que los escudos no queden en zigzag
+   (lo hace solo con cada tabla de Resultados que aparece en la pagina).
 
    1. Escudos en columna. Centrado, cada nombre arrancaba en otro lado
       segun lo largo que fuera, y los escudos quedaban en zigzag (hasta
