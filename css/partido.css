@@ -747,11 +747,39 @@
    Mismo recuadro que los historicos del cruce (.cruce-historicos), al
    costado de la lista o debajo en celular. El primero de cada lado va mas
    grande. */
-.rivales-alcance {
+/* Arriba, de quien son los datos: escudo y nombre a la izquierda y el
+   titulo al lado */
+.rivales-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid #30363d;
+}
+
+.rivales-jugador {
+    display: flex;
+    align-items: center;
+    flex: none;
+    font-weight: 700;
+    font-size: 1.1em;
+    color: #c9d1d9;
+}
+.rivales-jugador .con-escudo { gap: 0.4em; }
+.rivales-jugador .escudo { width: 2.4em; height: 2.4em; }
+
+.rivales-cabecera-texto {
+    flex: 1;
+    min-width: 0;
     text-align: center;
+}
+
+.cruce-cuerpo .rivales-cabecera h4 { margin-bottom: 2px; }
+
+.rivales-alcance {
     font-size: 0.82em;
     color: #8b949e;
-    margin: -10px 0 14px;
 }
 
 .rivales-grupo + .rivales-grupo {
