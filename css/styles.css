@@ -1713,13 +1713,12 @@ select:hover {
 
 /* 2. El ranking FIFA de la home tiene la columna Racha, cinco cajitas
    de ancho fijo. Con las cajitas en 18px (ver mas arriba) esa columna
-   mide 106px y el escudo entra desde 390px. Abajo de eso la tabla
-   scrollea igual, con escudo o sin el: ya pedia 359px antes de que
-   existieran los escudos. */
+   mide 106px y el escudo entra al costado desde 390px. Abajo de eso va
+   ARRIBA del nombre (antes se escondia): asi la columna mide lo mismo
+   que el nombre solo y la tabla no se ensancha nada. El nombre va
+   centrado bajo el titulo, con el escudo encima. */
 @media (max-width: 389px) {
-    #ranking-table .escudo { display: none; }
-    #ranking-table .con-escudo { gap: 0; }
-    /* sin escudo no hay nada que alinear: el nombre centrado bajo el titulo */
+    #ranking-table .con-escudo { flex-direction: column; gap: 0.1em; }
     #ranking-table td:has(> .con-escudo) { text-align: center; }
 }
 /* Entre 390 y 413px entra justo: a 2.2em (44px) se pasa por 8px, a
@@ -1766,26 +1765,20 @@ select:hover {
    nunca): a 320px esa tabla ya pide 294 de los 298 que hay. Por eso aca
    el escudo va a 1.4em y no a 2.2: a 2.2 los dos suman 90px y no entran
    en ningun celular; a 1.4 suman 56px y entran de 390px para arriba. */
-/* La de la Nations si necesita achicarse: entre 360 y 389px solo entra
-   a 0.9em, y abajo de 360 no entra de ninguna manera. */
+/* Abajo de 390px el escudo pasa ARRIBA del nombre en todas las tablas
+   de Resultados (antes se escondia en las del index y la Nations, y en
+   las de los torneos hacia scrollear la tabla). Asi cada columna mide lo
+   que el nombre solo, como si no hubiera escudo, y el escudo se sigue
+   viendo entero. El Local viene "nombre + escudo": se da vuelta para que
+   el escudo quede arriba igual. Es lo mismo que hace la Copa de
+   Campeones con sus filas de ida y vuelta. */
 @media (max-width: 389px) {
-    #resultados-nl { --escudo-tam-res: 0.9em; }
-}
-@media (max-width: 359px) {
-    #resultados-nl .escudo { display: none; }
-    #resultados-nl .con-escudo { gap: 0; }
+    .ranking-table .fila-resultado .con-escudo { flex-direction: column; gap: 0.12em; }
+    .ranking-table .fila-resultado .con-escudo-der { flex-direction: column-reverse; }
 }
 .fila-resultado .escudo { width: var(--escudo-tam-res); height: var(--escudo-tam-res); }
 .fila-resultado .con-escudo { gap: 0.18em; }
 
-/* "Resultados por Fecha" del index: con el escudo a 1.4em entra desde
-   390px. A 360 se pasa por 6px y a 320 por 46, asi que abajo de 390 se
-   esconde. (Sin escudo esa tabla no scrollea a ningun ancho, asi que
-   el corte es para no empeorarla.) */
-@media (max-width: 389px) {
-    #resultados-fechas .fila-resultado .escudo { display: none; }
-    #resultados-fechas .fila-resultado .con-escudo { gap: 0; }
-}
 
 /* =====================================================
    TABLAS ANCHAS: LA LETRA SE MIDE CONTRA SU CONTENEDOR
@@ -1891,5 +1884,63 @@ select:hover {
     #resultados-fechas .ranking-table.large-table-font th,
     #resultados-nl .ranking-table.large-table-font th {
         font-size: 1rem;
+    }
+}
+
+/* =====================================================
+   PANTALLAS MUY ANGOSTAS (menos de 300px)
+   =====================================================
+   Ningun celular comun mide menos de 320px, pero achicando la ventana
+   (o en un plegable cerrado, 280px) las tablas de Resultados se pasaban
+   del ancho: la del index se salia de la pagina, porque esa tabla no
+   scrollea (ver "Sin scroll horizontal" mas arriba), y las demas
+   scrolleaban. Con el escudo arriba del nombre entran justo hasta 300px
+   con la letra entera; abajo de eso la letra y el aire de los costados
+   se achican con el ancho de la tabla (cqw: la .table-responsive es un
+   contenedor), asi siempre entran y los escudos se siguen viendo. Por
+   encima de 300px esto no cambia nada. */
+@media (max-width: 299px) {
+    .ranking-table.large-table-font:has(.con-escudo-der) th,
+    .ranking-table.large-table-font:has(.con-escudo-der) td {
+        font-size: min(1.25rem, 7.2cqw);
+        padding-left: min(10px, 3.6cqw);
+        padding-right: min(10px, 3.6cqw);
+    }
+    /* La del index tiene cuatro columnas y mas partes de ancho fijo (el
+       aire entre columnas, el espaciado del resultado), asi que su letra
+       se achica un poco mas rapido: medida, ocupa 11.6 veces la letra mas
+       46px. */
+    /* (va tambien en la tabla y no solo en las celdas: la columna Tipo
+       tiene su letra en em, relativa a la de la tabla) */
+    #resultados-fechas .ranking-table.large-table-font,
+    #resultados-fechas .ranking-table.large-table-font th,
+    #resultados-fechas .ranking-table.large-table-font td {
+        font-size: min(1.25rem, calc(8.4cqw - 4px));
+    }
+    /* los titulos van un poco mas chicos que los datos (ver LOCAL /
+       VISITANTE): "Visitante" es lo mas ancho de su columna */
+    .ranking-table.large-table-font:has(.con-escudo-der) th,
+    #resultados-nl .ranking-table.large-table-font th {
+        font-size: min(1rem, 5.8cqw);
+    }
+    #resultados-fechas .ranking-table.large-table-font th {
+        font-size: min(1rem, calc(6.7cqw - 3px));
+    }
+    #resultados-fechas .ranking-table.large-table-font th:nth-child(4) {
+        font-size: min(0.72rem, 4.1cqw);
+    }
+    /* y si igual algo no entrara, que scrollee la tabla y no la pagina */
+    #resultados-fechas .table-responsive {
+        overflow-x: auto;
+    }
+
+    /* los botones de "Volver a simular" del simulador: van de a dos en
+       una fila (con estilo en linea, sin wrap); que bajen a otra fila en
+       vez de salirse de la pagina */
+    div:has(> .re-simular-btn) { flex-wrap: wrap; }
+    .re-simular-btn {
+        max-width: 100%;
+        white-space: normal;
+        padding: 6px 10px;
     }
 }

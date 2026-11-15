@@ -504,8 +504,13 @@ function mostrarPartidosIndividuales(nombreJugador, filtro, suyos) {
                 <div class="cruce-tandas"></div>
             </section>
             <aside class="cruce-historicos rivales">
-                <h4>Goles por rival</h4>
-                <div class="rivales-alcance">${filtro.alcance}</div>
+                <div class="rivales-cabecera">
+                    <span class="rivales-jugador">${conEscudo(nombreJugador)}</span>
+                    <div class="rivales-cabecera-texto">
+                        <h4>Goles por rival</h4>
+                        <div class="rivales-alcance">${filtro.alcance}</div>
+                    </div>
+                </div>
                 ${grupoRivales('a-favor', 'Le metió más goles a', aFavor, r => r.gf, 'Todavía no le metió goles a nadie')}
                 ${grupoRivales('en-contra', 'El que más goles le metió', enContra, r => r.gc, 'Nadie le metió goles todavía')}
             </aside>

@@ -747,11 +747,39 @@
    Mismo recuadro que los historicos del cruce (.cruce-historicos), al
    costado de la lista o debajo en celular. El primero de cada lado va mas
    grande. */
-.rivales-alcance {
+/* Arriba, de quien son los datos: escudo y nombre a la izquierda y el
+   titulo al lado */
+.rivales-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid #30363d;
+}
+
+.rivales-jugador {
+    display: flex;
+    align-items: center;
+    flex: none;
+    font-weight: 700;
+    font-size: 1.1em;
+    color: #c9d1d9;
+}
+.rivales-jugador .con-escudo { gap: 0.4em; }
+.rivales-jugador .escudo { width: 2.4em; height: 2.4em; }
+
+.rivales-cabecera-texto {
+    flex: 1;
+    min-width: 0;
     text-align: center;
+}
+
+.cruce-cuerpo .rivales-cabecera h4 { margin-bottom: 2px; }
+
+.rivales-alcance {
     font-size: 0.82em;
     color: #8b949e;
-    margin: -10px 0 14px;
 }
 
 .rivales-grupo + .rivales-grupo {
@@ -979,5 +1007,80 @@
         font-size: 0.7em;
         max-width: 60px;
         margin: 0 auto;
+    }
+}
+
+/* --- Pantallas muy angostas ---
+   Se decide por el ancho del recuadro (container query, ver .cruce-cuerpo)
+   y no de la pantalla. Abajo de 300px no entraban: las dos tarjetas del
+   resumen del cruce, los cuatro numeros de arriba de la vista de un
+   jugador y el escudo + nombre a los costados del resultado. */
+@container historial (max-width: 300px) {
+    /* Escudo ARRIBA del nombre, como en las tablas de Resultados: la
+       columna mide lo que el nombre solo */
+    .partido-resultado .con-escudo { flex-direction: column; gap: 0.15em; }
+    .partido-resultado .con-escudo-der { flex-direction: column-reverse; }
+
+    .historial-stats { gap: 6px; }
+    .historial-player {
+        min-width: 0;
+        padding: 8px 4px;
+    }
+    .historial-player .victorias-texto {
+        font-size: 0.6em;
+        letter-spacing: 0;
+    }
+    .historial-middle { padding: 4px 2px; }
+
+    .stats-grid-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+    .stat-item { padding: 8px 4px; }
+
+    .rival { padding: 6px 8px; gap: 6px; }
+    .rival.primero { padding: 8px; }
+    .rivales-cabecera { gap: 8px; }
+}
+
+/* Y abajo de 220px (una ventana achicada al minimo) todo lo de adentro
+   va un poco mas chico: casi todo esta en em, asi que alcanza con bajar
+   la letra del contenedor. Lo de ancho fijo se achica aparte. */
+@container historial (max-width: 220px) {
+    #historialContent, #individualContent { font-size: 0.8em; }
+
+    .partido-resultado { gap: 4px; }
+    .partido-resultado .marcador { padding: 3px 6px; }
+    .partido-item { padding: 8px 6px; }
+    .partido-item.compacta { padding: 6px 4px; }
+    .partido-item.compacta .partido-resultado { gap: 3px; }
+    .partido-item.compacta .marcador { padding: 2px 5px; }
+
+    .tanda-flecha, .tanda-flecha:hover { padding: 0.25rem 0.45rem; }
+    .tanda-rango { font-size: 0.85em; }
+
+    .stat-item .stat-label { font-size: 0.75em; }
+
+    .cruce-historicos { padding: 10px 8px; }
+    .rival-dato { white-space: normal; }
+    .rivales-cabecera { flex-wrap: wrap; justify-content: center; }
+}
+
+/* La tarjeta de probabilidad (arriba del cruce) con la pantalla mas
+   angosta que 340px: los dos nombres con su escudo quedaban pegados
+   (a 320px, "Chama" y "Hector" a 4px; a 300 se tocaban) y mas abajo la
+   tarjeta los cortaba. Escudo arriba del nombre y todo un poco mas
+   chico. */
+@media (max-width: 339px) {
+    .probabilidad-container { padding: 15px 8px; }
+    #probabilidadContent .sf-matchup { padding: 12px 10px; }
+    #probabilidadContent .sf-player-name { font-size: 0.95em; }
+    #probabilidadContent .sf-player-name .con-escudo { flex-direction: column; gap: 0.15em; }
+    #probabilidadContent .sf-player-name .con-escudo-der { flex-direction: column-reverse; }
+    #probabilidadContent .sf-player-info { align-items: center !important; }
+    #probabilidadContent .sf-prob-badge {
+        font-size: 0.95em;
+        padding: 3px 6px;
+        min-width: 0;
     }
 }
