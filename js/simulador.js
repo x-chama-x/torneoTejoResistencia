@@ -250,11 +250,13 @@ function simularPartido(jugador1, jugador2) {
 // Se inyecta como callback `simGrupo` en calibrarSiCorresponde()/calibrarPesoCampeon().
 function simGrupoBicampeon(jugadoresGrupo) {
     const stats = {};
+    const partidos = [];
     jugadoresGrupo.forEach(j => { stats[j.nombre] = { pg: 0, pp: 0, gf: 0, gc: 0, pts: 0 }; });
     for (let i = 0; i < jugadoresGrupo.length; i++) {
         for (let j = i + 1; j < jugadoresGrupo.length; j++) {
             const r = simularPartido(jugadoresGrupo[i], jugadoresGrupo[j]);
             const a = jugadoresGrupo[i].nombre, b = jugadoresGrupo[j].nombre;
+            partidos.push({ j1: a, j2: b, g1: r.goles1, g2: r.goles2 });
             stats[a].gf += r.goles1; stats[a].gc += r.goles2;
             stats[b].gf += r.goles2; stats[b].gc += r.goles1;
             if (r.ganador === a) {
@@ -264,9 +266,9 @@ function simGrupoBicampeon(jugadoresGrupo) {
             }
         }
     }
-    return Object.entries(stats)
-        .sort((x, y) => y[1].pts - x[1].pts || y[1].pg - x[1].pg || (y[1].gf - y[1].gc) - (x[1].gf - x[1].gc))
-        .map((e, i) => ({ pos: i + 1, nombre: e[0], ...e[1] }));
+    // Mismo orden y desempate que las tablas reales (lib/torneo-formatos.js)
+    return ordenarPosiciones(Object.entries(stats).map(([nombre, s]) => ({ nombre, ...s })), partidos)
+        .map((fila, i) => ({ pos: i + 1, ...fila }));
 }
 
 function simularGrupo(jugadoresGrupo, nombreGrupo, matchNumberInicial, estadisticasGlobales = null) {
@@ -334,9 +336,12 @@ function simularGrupo(jugadoresGrupo, nombreGrupo, matchNumberInicial, estadisti
         }
     }
 
-    const rankingGrupo = Object.entries(estadisticas)
-        .sort((a, b) => b[1].pts - a[1].pts || b[1].pg - a[1].pg || (b[1].gf - b[1].gc) - (a[1].gf - a[1].gc))
-        .map((entry, index) => ({ pos: index + 1, nombre: entry[0], ...entry[1] }));
+    // Mismo orden y desempate que las tablas reales (lib/torneo-formatos.js):
+    // puntos, diferencia, y el enfrentamiento directo si quedan dos iguales
+    const rankingGrupo = ordenarPosiciones(
+        Object.entries(estadisticas).map(([nombre, s]) => ({ nombre, ...s })),
+        partidos.map(p => ({ j1: p.azul, j2: p.rojo, g1: p.golesAzul, g2: p.golesRojo }))
+    ).map((fila, index) => ({ pos: index + 1, ...fila }));
 
     return { partidos, rankingGrupo, matchNumber };
 }
@@ -424,9 +429,10 @@ function simularMiniLiga(candidatos, estadisticasGlobales = null) {
         }
     }
 
-    const ranking = Object.entries(stats)
-        .map(entry => ({ nombre: entry[0], ...entry[1] }))
-        .sort((a, b) => b.pts - a.pts || b.pg - a.pg || (b.gf - b.gc) - (a.gf - a.gc));
+    const ranking = ordenarPosiciones(
+        Object.entries(stats).map(([nombre, s]) => ({ nombre, ...s })),
+        partidos.map(p => ({ j1: p.azul, j2: p.rojo, g1: p.golesAzul, g2: p.golesRojo }))
+    );
 
     return { partidos, ranking };
 }
@@ -731,6 +737,17 @@ function renderGrupoUIX(partidos, rankingGrupo, clasifCount) {
     out += '</tbody></table></div>';
     if(clasifCount>0) {
         out += `<div class="leyenda-clasificacion" style="margin-top: 10px; font-size: 0.85rem; color: #8b949e; display: flex; align-items: center;"><span style="display:inline-block; width:12px; height:12px; background: rgba(46, 160, 67, 0.5); border-radius: 2px; margin-right: 5px;"></span><span>[1-${clasifCount}] Clasifica</span></div>`;
+    }
+    // Tres o mas empatados en todo: el directo no alcanza (puede ser
+    // circular). Mismo aviso que en las paginas de torneos.
+    for (let i = 0; i < rankingGrupo.length; ) {
+        let fin = i;
+        while (fin + 1 < rankingGrupo.length && empatanEnTodo(rankingGrupo[fin], rankingGrupo[fin + 1])) fin++;
+        if (fin - i >= 2 && (rankingGrupo[i].pj || 0) > 0) {
+            const nombres = rankingGrupo.slice(i, fin + 1).map(r => r.nombre).join(', ');
+            out += `<div class="aviso-empate-multiple" style="margin-top: 10px; font-size: 0.85rem; color: #d29922; background: rgba(210, 153, 34, 0.1); border: 1px solid rgba(210, 153, 34, 0.35); border-radius: 8px; padding: 10px 12px;">⚠️ <strong>${nombres}</strong> quedaron empatados en puntos y diferencia de gol. El enfrentamiento directo solo desempata entre dos, así que en un torneo real este orden se define a mano. Acá quedaron en un orden cualquiera.</div>`;
+        }
+        i = fin + 1;
     }
     out += '</div>';
 

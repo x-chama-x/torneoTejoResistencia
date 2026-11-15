@@ -186,74 +186,16 @@ function processStandings(matches, plantel) {
             stats[m.j2].w++; stats[m.j1].l++;
         }
     });
-    const tabla = Object.values(stats)
-        .map(s => ({ ...s, dif: s.gf - s.gc }))
-        .sort((a, b) => b.pts - a.pts || b.dif - a.dif || b.gf - a.gf);
-
-    // Desempate por enfrentamiento directo.
-    //
-    // Solo se aplica cuando son EXACTAMENTE dos los empatados. Con tres o más
-    // el mano a mano puede ser circular (A le gana a B, B a C y C a A), así que
-    // no existe un orden válido: en ese caso se deja el orden como está y se
-    // avisa en pantalla para resolverlo a mano.
-    const empatesSinResolver = [];
-    let i = 0;
-    while (i < tabla.length) {
-        let fin = i;
-        while (fin + 1 < tabla.length && mismaPosicion(tabla[fin], tabla[fin + 1])) fin++;
-
-        const empatados = fin - i + 1;
-        if (empatados === 2) {
-            // Si el de abajo ganó el mano a mano, se intercambian.
-            if (ganoElManoAMano(tabla[i + 1], tabla[i], matches)) {
-                [tabla[i], tabla[i + 1]] = [tabla[i + 1], tabla[i]];
-            }
-        } else if (empatados > 2) {
-            // No se avisa por los que todavia no jugaron: al arranque de un
-            // torneo estan todos en cero y el cartel seria puro ruido.
-            const grupo = tabla.slice(i, fin + 1);
-            if (grupo.some(s => s.p > 0)) {
-                empatesSinResolver.push(grupo.map(s => s.nombre));
-            }
-        }
-        i = fin + 1;
-    }
-
-    // Se cuelga del array para que el render pueda mostrar el aviso sin cambiar
-    // la firma de la función (la usan varios lugares).
-    tabla.empatesSinResolver = empatesSinResolver;
-    return tabla;
-}
-
-// Dos jugadores ocupan la misma posición si empatan en los tres criterios.
-function mismaPosicion(a, b) {
-    return a.pts === b.pts && a.dif === b.dif && a.gf === b.gf;
-}
-
-// ¿"jugador" le ganó el mano a mano a "rival"? Se suman los goles de los
-// partidos entre ellos dentro de esta fase (en liga es uno solo, así que
-// equivale a quién ganó ese partido).
-function ganoElManoAMano(jugador, rival, matches) {
-    let golesJugador = 0;
-    let golesRival = 0;
-
-    matches.forEach(m => {
-        const esElCruce =
-            (m.j1 === jugador.nombre && m.j2 === rival.nombre) ||
-            (m.j1 === rival.nombre && m.j2 === jugador.nombre);
-        if (!esElCruce) return;
-
-        const g = m.marcador.split("-").map(Number);
-        if (m.j1 === jugador.nombre) {
-            golesJugador += g[0];
-            golesRival += g[1];
-        } else {
-            golesJugador += g[1];
-            golesRival += g[0];
-        }
-    });
-
-    return golesJugador > golesRival;
+    // Orden y desempate: ordenarPosiciones(), en lib/torneo-formatos.js.
+    // Es la misma regla que usa el simulador. Devuelve la tabla con
+    // .empatesSinResolver colgado (los grupos de 3 o mas empatados).
+    return ordenarPosiciones(
+        Object.values(stats).map(s => ({ ...s, dif: s.gf - s.gc })),
+        matches.map(m => {
+            const g = m.marcador.split("-").map(Number);
+            return { j1: m.j1, j2: m.j2, g1: g[0], g2: g[1] };
+        })
+    );
 }
 
 // Cartel de aviso cuando hay empates de 3 o más que no se pueden desempatar solos.

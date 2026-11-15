@@ -431,7 +431,9 @@ La formula no incluye el ajuste por bicampeonato de `js/campeon.js`, que el Crea
 
 El orden es: puntos (goles a favor), diferencia de gol, goles a favor. Si dos jugadores quedan empatados en los tres, desempata el **enfrentamiento directo** entre ellos.
 
-Con tres o mas empatados no se aplica, porque el mano a mano puede ser circular (A le gana a B, B a C y C a A) y no existiria un orden valido. En ese caso la tabla muestra un aviso para definir ese tramo a mano.
+Con tres o mas empatados no se aplica, porque el mano a mano puede ser circular (A le gana a B, B a C y C a A) y no existiria un orden valido. En ese caso la tabla muestra un aviso para definir ese tramo a mano. Es un caso abierto: mas adelante se vera como resolverlo.
+
+La regla vive en un solo lugar, `ordenarPosiciones()` en `lib/torneo-formatos.js`, y la usan las tablas de los torneos (y la app, via `processStandings`) y el **simulador**. Antes el simulador tenia su propio orden (puntos, partidos ganados, diferencia) y nunca miraba el enfrentamiento directo, asi que podia clasificar a alguien distinto que un torneo real con los mismos resultados.
 
 ### Video del partido
 
