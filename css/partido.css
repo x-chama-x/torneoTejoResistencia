@@ -743,6 +743,85 @@
 }
 .partido-item.compacta .partido-info { gap: 6px 10px; font-size: 0.8em; }
 
+/* --- Vista de un jugador: goles por rival ---
+   Mismo recuadro que los historicos del cruce (.cruce-historicos), al
+   costado de la lista o debajo en celular. El primero de cada lado va mas
+   grande. */
+.rivales-alcance {
+    text-align: center;
+    font-size: 0.82em;
+    color: #8b949e;
+    margin: -10px 0 14px;
+}
+
+.rivales-grupo + .rivales-grupo {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #30363d;
+}
+
+.rivales-titulo {
+    font-weight: 700;
+    font-size: 1.05em;
+    margin-bottom: 8px;
+}
+.rivales-grupo.a-favor .rivales-titulo { color: #3fb950; }
+.rivales-grupo.en-contra .rivales-titulo { color: #f0883e; }
+
+.rivales-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.rival {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 10px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+}
+
+.rival-nombre {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    font-weight: 600;
+    color: #c9d1d9;
+}
+.rival .con-escudo { gap: 0.45em; }
+.rival .escudo { width: 1.6em; height: 1.6em; }
+
+.rival-dato {
+    text-align: right;
+    color: #8b949e;
+    font-size: 0.85em;
+    white-space: nowrap;
+    line-height: 1.2;
+}
+.rival-dato strong {
+    color: #c9d1d9;
+    font-size: 1.3em;
+}
+.rival-dato small {
+    display: block;
+    font-size: 0.9em;
+}
+
+.rival.primero {
+    padding: 10px 12px;
+    background: #21262d;
+}
+.rival.primero .rival-nombre { font-size: 1.1em; }
+.rival.primero .escudo { width: 2.4em; height: 2.4em; }
+.rival.primero .rival-dato strong { font-size: 1.7em; }
+
 /* Selector de eventos (vista individual de un jugador) */
 .individual-hint {
     text-align: center;

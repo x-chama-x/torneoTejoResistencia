@@ -64,7 +64,8 @@ La aplicacion utiliza un sistema de probabilidades basado en una **funcion sigmo
 - **Historial de enfrentamientos**: Victorias totales y goles de cada uno, con su escudo
 - **Todos los partidos del cruce**, de a 5 con flechas (los mas recientes primero)
 - **Partidos historicos** al costado (debajo en celular): las palizas, ganadas por 5 goles o mas (7-2, 7-1, 7-0), y los peleados, definidos por un gol (7-6). En la lista de todos los partidos se marcan con un borde y una etiqueta
-- Con un solo jugador elegido: sus partidos por torneo o amistoso
+- Con un solo jugador elegido: todos sus partidos, de a 5 con flechas, filtrables por torneo o por edicion de la Nations League (los amistosos, un año por edicion). Al costado, los goles por rival: a quien le metio mas goles y quien le metio mas a el (los 3 primeros de cada lado). Sigue al filtro: con "Todos" son los datos generales
+- Los partidos se ordenan por fecha: en el archivo los amistosos estan todos al final, despues de los torneos
 - Datos calculados desde `enfrentamientos_directos.txt`
 
 ---
