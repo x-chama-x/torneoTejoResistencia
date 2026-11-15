@@ -1,0 +1,23 @@
+{
+  "nombre": "Cuarto torneo de hockey de mesa",
+  "formato": 9,
+  "fecha": "15/11/2026",
+  "grupos": {
+    "A": [
+      "Kovic",
+      "Tomy",
+      "Mateo"
+    ],
+    "B": [
+      "Santi",
+      "Facu",
+      "Hector"
+    ],
+    "C": [
+      "Chama",
+      "Marco",
+      "Pedro"
+    ]
+  },
+  "creado": "2026-11-15T03:23:58.551Z"
+}
