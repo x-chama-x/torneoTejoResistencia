@@ -370,6 +370,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 tr.innerHTML = `<td colspan="3" style="text-align:center; color:#8b949e;">Aún no hay campeones</td>`;
                 tbodyChampions.appendChild(tr);
             }
+            // escudos en columna con el titulo centrado (ver js/escudos.js)
+            if (typeof igualarColumnasDeEscudos === 'function') {
+                igualarColumnasDeEscudos(document.getElementById('champions-table'));
+            }
         }
 
         // --- Procesar Historial de ganadores: Tejo Nations League ---
@@ -400,6 +404,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td colspan="3" style="text-align:center; color:#8b949e;">Aún no hay ediciones cerradas</td>`;
                 tbodyNL.appendChild(tr);
+            }
+            if (typeof igualarColumnasDeEscudos === 'function') {
+                igualarColumnasDeEscudos(document.getElementById('nations-league-champions-table'));
             }
         }
 

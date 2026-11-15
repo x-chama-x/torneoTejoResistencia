@@ -114,7 +114,47 @@ function conEscudo(nombre, opciones) {
         : `<span class="${clase}">${img}${texto}</span>`;
 }
 
+// Iguala el ancho de todos los "escudo + nombre" de cada columna de una
+// tabla al del mas ancho. Asi la columna se puede centrar como bloque, con
+// el titulo centrado encima, sin que los escudos queden en zigzag.
+//
+// Hace falta en las tablas de campeones: ahi el titulo ("Subcampeon") es
+// mas ancho que los nombres, y con CSS solo no hay forma de centrar el
+// bloque sin saber cuanto mide el nombre mas largo. En las de posiciones
+// no se usa: alcanza con el CSS (ver "Tablas con columna de jugador").
+//
+// El ancho va en em, asi acompaña cuando la letra cambia con el ancho de
+// pantalla, y se vuelve a medir al cambiar el tamaño (el escudo cambia de
+// tamaño en algunos cortes) y cuando terminan de cargar las fuentes.
+function igualarColumnasDeEscudos(tabla) {
+    if (!tabla) return;
+    const medir = () => {
+        const filas = [...tabla.querySelectorAll('tbody tr')];
+        const columnas = Math.max(0, ...filas.map(tr => tr.children.length));
+        for (let c = 0; c < columnas; c++) {
+            const spans = filas
+                .map(tr => tr.children[c] && tr.children[c].querySelector(':scope > .con-escudo'))
+                .filter(Boolean);
+            spans.forEach(s => { s.style.minWidth = ''; });
+            if (spans.length < 2) continue;              // una fila sola: nada que alinear
+            const px = Math.max(...spans.map(s => s.getBoundingClientRect().width));
+            if (!px) continue;                           // la tabla esta oculta
+            const letra = parseFloat(getComputedStyle(spans[0]).fontSize) || 16;
+            spans.forEach(s => { s.style.minWidth = (px / letra).toFixed(3) + 'em'; });
+        }
+    };
+    medir();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(medir);
+    let pendiente = false;
+    window.addEventListener('resize', () => {
+        if (pendiente) return;
+        pendiente = true;
+        requestAnimationFrame(() => { pendiente = false; medir(); });
+    });
+}
+
 if (typeof window !== 'undefined') {
+    window.igualarColumnasDeEscudos = igualarColumnasDeEscudos;
     window.rutaEscudo = rutaEscudo;
     window.tieneEscudoPropio = tieneEscudoPropio;
     window.escudoImg = escudoImg;
