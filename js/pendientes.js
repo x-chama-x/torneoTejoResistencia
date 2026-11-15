@@ -150,13 +150,15 @@ function tarjetaProbabilidad(cruce, titulo) {
         </div>`;
 }
 
-// Fila de tabla de Resultados para un cruce pendiente.
+// Fila de tabla de Resultados para un cruce pendiente. Va igual que las
+// de los partidos jugados (escudo al lado del medio, centrada), solo que
+// con la barra de probabilidad en vez del resultado.
 function filaProbabilidad(cruce) {
     return `
-        <tr class="fila-pendiente">
-            <td style="text-align: right;">${escaparTexto(cruce.j1)}</td>
+        <tr class="fila-pendiente fila-resultado">
+            <td style="text-align: center;">${conEscudo(escaparTexto(cruce.j1), { derecha: true })}</td>
             <td style="text-align: center; padding: 8px 10px;">${barraProbabilidad(cruce.j1, cruce.j2, true)}</td>
-            <td style="text-align: left;">${escaparTexto(cruce.j2)}</td>
+            <td style="text-align: center;">${conEscudo(escaparTexto(cruce.j2))}</td>
         </tr>`;
 }
 

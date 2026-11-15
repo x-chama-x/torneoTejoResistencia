@@ -82,15 +82,15 @@ function renderRepechajes(repechajes, eliminatorio) {
                     <div class="table-responsive">
                         <table class="ranking-table align-center large-table-font">
                             <thead>
-                                <tr><th style="text-align:right;">Local</th><th style="text-align:center;">Resultado</th><th style="text-align:left;">Visitante</th></tr>
+                                <tr><th style="text-align:center;">Local</th><th style="text-align:center;">Resultado</th><th style="text-align:center;">Visitante</th></tr>
                             </thead>
                             <tbody>
                                 ${delFase.map(m => {
                                     const g = m.marcador.split("-").map(Number);
                                     return `<tr class="fila-resultado">
-                                        <td style="text-align:right;">${conEscudo(m.j1, { derecha: true })}</td>
+                                        <td style="text-align:center;">${conEscudo(m.j1, { derecha: true })}</td>
                                         <td style="text-align:center; font-weight:bold; letter-spacing:2px;">${m.marcador}</td>
-                                        <td style="text-align:left;">${conEscudo(m.j2)}</td>
+                                        <td style="text-align:center;">${conEscudo(m.j2)}</td>
                                     </tr>`;
                                 }).join("")}
                             </tbody>
@@ -230,9 +230,9 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
         table.innerHTML = `
             <thead>
                 <tr>
-                    <th style="text-align: right;">Local</th>
+                    <th style="text-align: center;">Local</th>
                     <th style="text-align: center;">Resultado</th>
-                    <th style="text-align: left;">Visitante</th>
+                    <th style="text-align: center;">Visitante</th>
                 </tr>
             </thead>
             <tbody>
@@ -240,9 +240,9 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                     const g = m.marcador.split("-").map(Number);
                     return `
                     <tr class="fila-resultado">
-                        <td style="text-align: right;">${conEscudo(m.j1, { derecha: true })}</td>
+                        <td style="text-align: center;">${conEscudo(m.j1, { derecha: true })}</td>
                         <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${m.marcador}</td>
-                        <td style="text-align: left;">${conEscudo(m.j2)}</td>
+                        <td style="text-align: center;">${conEscudo(m.j2)}</td>
                     </tr>
                     `;
                 }).join("")}
@@ -358,9 +358,9 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                                 <table class="ranking-table align-center large-table-font">
                                     <thead>
                                         <tr>
-                                            <th style="text-align: right;">Local</th>
+                                            <th style="text-align: center;">Local</th>
                                             <th style="text-align: center;">Resultado</th>
-                                            <th style="text-align: left;">Visitante</th>
+                                            <th style="text-align: center;">Visitante</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -368,9 +368,9 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                     const g = m.marcador.split("-").map(Number);
                     return `
                                             <tr class="fila-resultado">
-                                                <td style="text-align: right;">${conEscudo(m.j1, { derecha: true })}</td>
+                                                <td style="text-align: center;">${conEscudo(m.j1, { derecha: true })}</td>
                                                 <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${m.marcador}</td>
-                                                <td style="text-align: left;">${conEscudo(m.j2)}</td>
+                                                <td style="text-align: center;">${conEscudo(m.j2)}</td>
                                             </tr>`;
                 }).join("")}
                                     </tbody>

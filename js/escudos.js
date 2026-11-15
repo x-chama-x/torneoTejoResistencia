@@ -118,39 +118,90 @@ function conEscudo(nombre, opciones) {
 // tabla al del mas ancho. Asi la columna se puede centrar como bloque, con
 // el titulo centrado encima, sin que los escudos queden en zigzag.
 //
-// Hace falta en las tablas de campeones: ahi el titulo ("Subcampeon") es
-// mas ancho que los nombres, y con CSS solo no hay forma de centrar el
-// bloque sin saber cuanto mide el nombre mas largo. En las de posiciones
-// no se usa: alcanza con el CSS (ver "Tablas con columna de jugador").
+// Con CSS solo no hay forma de centrar el bloque sin saber cuanto mide el
+// nombre mas largo, y hace falta en dos tipos de tabla:
+//   - Campeones: el titulo ("Subcampeon") es mas ancho que los nombres.
+//     Las llama js/index.js despues de pintarlas.
+//   - Resultados (Local / Resultado / Visitante): se igualan solas, ver
+//     igualarTablasDeResultados mas abajo.
+// En las de posiciones no se usa: alcanza con el CSS (ver "Tablas con
+// columna de jugador" en css/styles.css).
 //
 // El ancho va en em, asi acompaña cuando la letra cambia con el ancho de
-// pantalla, y se vuelve a medir al cambiar el tamaño (el escudo cambia de
-// tamaño en algunos cortes) y cuando terminan de cargar las fuentes.
+// pantalla. Se vuelve a medir cada vez que la tabla cambia de tamaño (un
+// ResizeObserver: eso tambien cubre la tabla que estaba oculta y aparece,
+// o a la que se le agregan filas), al cambiar el ancho de la ventana (el
+// escudo se achica o se esconde en algunos cortes) y cuando terminan de
+// cargar las fuentes.
+const tablasIgualadas = new WeakSet();
+let observadorDeTablas = null;
+
+function medirColumnasDeEscudos(tabla) {
+    const filas = [...tabla.querySelectorAll('tbody tr')];
+    const columnas = Math.max(0, ...filas.map(tr => tr.children.length));
+    for (let c = 0; c < columnas; c++) {
+        const spans = filas
+            .map(tr => tr.children[c] && tr.children[c].querySelector(':scope > .con-escudo'))
+            .filter(Boolean);
+        spans.forEach(s => { s.style.minWidth = ''; });
+        if (spans.length < 2) continue;              // una fila sola: nada que alinear
+        const px = Math.max(...spans.map(s => s.getBoundingClientRect().width));
+        if (!px) continue;                           // la tabla esta oculta
+        const letra = parseFloat(getComputedStyle(spans[0]).fontSize) || 16;
+        spans.forEach(s => { s.style.minWidth = (px / letra).toFixed(3) + 'em'; });
+    }
+}
+
 function igualarColumnasDeEscudos(tabla) {
-    if (!tabla) return;
-    const medir = () => {
-        const filas = [...tabla.querySelectorAll('tbody tr')];
-        const columnas = Math.max(0, ...filas.map(tr => tr.children.length));
-        for (let c = 0; c < columnas; c++) {
-            const spans = filas
-                .map(tr => tr.children[c] && tr.children[c].querySelector(':scope > .con-escudo'))
-                .filter(Boolean);
-            spans.forEach(s => { s.style.minWidth = ''; });
-            if (spans.length < 2) continue;              // una fila sola: nada que alinear
-            const px = Math.max(...spans.map(s => s.getBoundingClientRect().width));
-            if (!px) continue;                           // la tabla esta oculta
-            const letra = parseFloat(getComputedStyle(spans[0]).fontSize) || 16;
-            spans.forEach(s => { s.style.minWidth = (px / letra).toFixed(3) + 'em'; });
+    if (!tabla || tablasIgualadas.has(tabla)) return;
+    tablasIgualadas.add(tabla);
+    medirColumnasDeEscudos(tabla);
+    if (typeof ResizeObserver === 'function') {
+        if (!observadorDeTablas) {
+            observadorDeTablas = new ResizeObserver(cambios => cambios.forEach(c => {
+                if (c.target.isConnected) medirColumnasDeEscudos(c.target);
+                else observadorDeTablas.unobserve(c.target);  // la reemplazo otra tabla
+            }));
         }
-    };
-    medir();
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(medir);
-    let pendiente = false;
-    window.addEventListener('resize', () => {
-        if (pendiente) return;
-        pendiente = true;
-        requestAnimationFrame(() => { pendiente = false; medir(); });
+        observadorDeTablas.observe(tabla);
+    }
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => medirColumnasDeEscudos(tabla));
+    }
+}
+
+// Las tablas de Resultados se pintan en muchos lugares (index, torneos,
+// Nations League, simulador) y se vuelven a pintar con cada flecha o cada
+// simulacion. En vez de tener que acordarse de llamar a la funcion en cada
+// uno, un MutationObserver mira la pagina y cada tabla de Resultados que
+// aparece se iguala sola. Se reconocen igual que en el CSS: el Local lleva
+// el escudo a la derecha del nombre (.con-escudo-der).
+function igualarTablasDeResultados() {
+    document.querySelectorAll('table.ranking-table').forEach(t => {
+        if (!tablasIgualadas.has(t) && t.querySelector('.con-escudo-der')) {
+            igualarColumnasDeEscudos(t);
+        }
     });
+}
+
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+    let medicionPendiente = false;
+    window.addEventListener('resize', () => {
+        if (medicionPendiente) return;
+        medicionPendiente = true;
+        requestAnimationFrame(() => {
+            medicionPendiente = false;
+            document.querySelectorAll('table').forEach(t => {
+                if (tablasIgualadas.has(t)) medirColumnasDeEscudos(t);
+            });
+        });
+    });
+
+    if (typeof MutationObserver === 'function') {
+        new MutationObserver(igualarTablasDeResultados)
+            .observe(document.documentElement, { childList: true, subtree: true });
+    }
+    igualarTablasDeResultados();
 }
 
 if (typeof window !== 'undefined') {
