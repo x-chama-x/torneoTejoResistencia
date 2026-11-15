@@ -439,7 +439,7 @@ function _claveCache(grupos, numJugadores, campeon) {
     const roster = Object.values(grupos).flat().map(j => j.nombre).sort().join('|');
     // La k entra en la clave: el factor calibrado depende de la suavidad de la
     // sigmoide, así que si cambia PROB_K el caché viejo no sirve.
-    return `bicampeon:v4:${c.modo}:${c.oddsMultiplier}:${c.k}:${numJugadores}:${campeon}:${roster}`;
+    return `bicampeon:v5:${c.modo}:${c.oddsMultiplier}:${c.k}:${numJugadores}:${campeon}:${roster}`;
 }
 
 function _leerCache(clave) {
