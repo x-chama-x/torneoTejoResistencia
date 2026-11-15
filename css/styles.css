@@ -1641,7 +1641,17 @@ select:hover {
    1. Escudos en columna. Centrado, cada nombre arrancaba en otro lado
       segun lo largo que fuera, y los escudos quedaban en zigzag (hasta
       10px de diferencia). A la izquierda, todos arrancan en la misma
-      vertical, y el titulo "Jugador" con ellos.
+      vertical.
+      El titulo "Jugador" va CENTRADO sobre ese bloque, como los de las
+      otras columnas: a la izquierda quedaba pegado al borde del escudo y
+      se veia corrido. Para que el bloque y la columna sean lo mismo, la
+      columna mide lo que su fila mas ancha (width: 1%) y el espacio que
+      sobra se lo llevan las columnas de numeros.
+      Las de campeones no entran: ahi el titulo ("Subcampeon") es mas
+      ancho que los nombres, y con los nombres a la izquierda quedaba
+      20px corrido. Esas van centradas, y para que los escudos no queden
+      en zigzag, js/escudos.js iguala el ancho de todos los escudo+nombre
+      de la columna (igualarColumnasDeEscudos, la llama js/index.js).
    2. El nombre a la altura de los numeros. El escudo se apoyaba sobre la
       linea del texto como si fuera una letra, y eso subia el nombre 2-3px
       respecto de los numeros de la misma fila. Con vertical-align:
@@ -1655,11 +1665,15 @@ select:hover {
     vertical-align: middle;
 }
 
-.ranking-table:not(:has(.con-escudo-der)) td:has(> .con-escudo),
-.ranking-table:not(:has(.con-escudo-der)):has(tbody td:nth-child(1) > .con-escudo) thead th:nth-child(1),
-.ranking-table:not(:has(.con-escudo-der)):has(tbody td:nth-child(2) > .con-escudo) thead th:nth-child(2),
-.ranking-table:not(:has(.con-escudo-der)):has(tbody td:nth-child(3) > .con-escudo) thead th:nth-child(3) {
+/* (las de campeones son las que tienen escudo tambien en la 3ra columna) */
+.ranking-table:not(:has(.con-escudo-der)):not(:has(tbody td:nth-child(3) > .con-escudo)) td:has(> .con-escudo) {
     text-align: left;
+    width: 1%;              /* la columna mide lo que su fila mas ancha */
+}
+
+.ranking-table:not(:has(.con-escudo-der)):has(tbody td:nth-child(1) > .con-escudo) thead th:nth-child(1),
+.ranking-table:not(:has(.con-escudo-der)):has(tbody td:nth-child(2) > .con-escudo) thead th:nth-child(2) {
+    text-align: center;
 }
 
 /* el # solo existe en las tablas con el jugador en la 2da columna (las de
@@ -1688,6 +1702,8 @@ select:hover {
 @media (max-width: 389px) {
     #ranking-table .escudo { display: none; }
     #ranking-table .con-escudo { gap: 0; }
+    /* sin escudo no hay nada que alinear: el nombre centrado bajo el titulo */
+    #ranking-table td:has(> .con-escudo) { text-align: center; }
 }
 /* Entre 390 y 413px entra justo: a 2.2em (44px) se pasa por 8px, a
    1.8em (36px) entra. Arriba de 414 vuelve al tamaño de siempre. */
