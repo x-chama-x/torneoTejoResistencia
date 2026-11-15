@@ -35,9 +35,12 @@ const CON_ESCUDO = {
     'Facu':  'facu.png',
     'Marco': 'marco.png',
     'Lucas': 'lucas.png',
-    'Kovic': 'kovic.png'
-    // 'Tomy':  'tomy.png',
-    // ...
+    'Kovic': 'kovic.png',
+    'Tomy':  'tomy.png',
+    'Rafa':  'rafa.png',
+    'Hector': 'hector.png',
+    'Pedro': 'pedro.png'
+    // 'Nuevo': 'nuevo.png',
 };
 
 const ESCUDO_GENERICO = '_generico.svg';
