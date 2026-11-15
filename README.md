@@ -61,7 +61,10 @@ La aplicacion utiliza un sistema de probabilidades basado en una **funcion sigmo
 ### Simulador de Partido 1vs1 (`partido.html`)
 - Simula enfrentamientos directos entre dos jugadores
 - **Barra de probabilidad**: Muestra el porcentaje de victoria automaticamente
-- **Historial de enfrentamientos**: Victorias totales, goles y ultimos 5 partidos
+- **Historial de enfrentamientos**: Victorias totales y goles de cada uno, con su escudo
+- **Todos los partidos del cruce**, de a 5 con flechas (los mas recientes primero)
+- **Partidos historicos** al costado (debajo en celular): las palizas, ganadas por 5 goles o mas (7-2, 7-1, 7-0), y los peleados, definidos por un gol (7-6). En la lista de todos los partidos se marcan con un borde y una etiqueta
+- Con un solo jugador elegido: sus partidos por torneo o amistoso
 - Datos calculados desde `enfrentamientos_directos.txt`
 
 ---
@@ -204,7 +207,7 @@ El escudo mide `2.2em` (variable `--escudo-tam`), no un tamaño fijo. Todas las 
 
 2.2em suena mucho al lado de la letra, pero el escudo es alto y angosto: en la tabla de 10 columnas de un celular de 320px ocupa 25px de ancho, y subirlo de 1.35em a 2.2em le costo a esa tabla 9px de los 19 que le sobraban. Lo que crece es el alto de la fila, no el ancho.
 
-Se muestran en: ranking FIFA, invictos, goleadores, Estadisticas Generales, posiciones y estadisticas de la Nations League, posiciones de grupos, de liga y de repechajes, estadisticas del torneo, los Resultados de todas las paginas, el Simulador, el partido 1vs1 y la Copa de Campeones.
+Se muestran en: ranking FIFA, invictos, goleadores, Estadisticas Generales, posiciones y estadisticas de la Nations League, posiciones de grupos, de liga y de repechajes, estadisticas del torneo, los Resultados de todas las paginas, el Simulador, el partido 1vs1, la tarjeta del goleador del torneo y la Copa de Campeones.
 
 **Donde se achica o se esconde**, por ancho:
 
