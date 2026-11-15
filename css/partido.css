@@ -279,6 +279,21 @@
 .historial-player .victorias {
     font-size: 2.5em;
     font-weight: bold;
+    line-height: 1.1;
+}
+
+.historial-player .escudo {
+    display: block;
+    width: 3.4em;
+    height: 3.4em;
+    margin: 0 auto 10px;
+}
+
+.historial-player .victorias-texto {
+    font-size: 0.75em;
+    color: #8b949e;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 
 .historial-player .goles {
@@ -512,27 +527,33 @@
     transform: translateX(5px);
 }
 
+/* Grilla de tres: nombre | resultado | nombre. Las columnas de los
+   costados miden lo mismo, asi el resultado queda siempre en el medio sin
+   importar lo largo de cada nombre. El escudo va del lado del resultado,
+   como en las tablas de Resultados. */
 .partido-resultado {
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
-    gap: 15px;
+    gap: 12px;
     margin-bottom: 8px;
 }
 
+/* flex y no inline: el Local empieza con el nombre y el Visitante con el
+   escudo, y alineados por la base del texto quedaban 1,5px desparejos */
 .partido-resultado .jugador-nombre {
+    display: flex;
+    align-items: center;
     font-weight: 600;
     font-size: 1em;
-    min-width: 80px;
+    min-width: 0;
 }
 
-.partido-resultado .jugador-nombre:first-child {
-    text-align: right;
-}
+.partido-resultado .local { justify-self: end; }
+.partido-resultado .visitante { justify-self: start; }
 
-.partido-resultado .jugador-nombre:last-child {
-    text-align: left;
-}
+.partido-item .con-escudo { gap: 0.4em; }
+.partido-item .escudo { width: 1.8em; height: 1.8em; }
 
 .partido-resultado .marcador {
     font-size: 1.3em;
@@ -572,6 +593,155 @@
 .partido-info .fecha {
     color: #8b949e;
 }
+
+/* --- Partidos historicos: palizas (5 goles o mas) y peleados (7-6) ---
+   En la lista de todos los partidos se marcan con el borde y una
+   etiqueta; al costado van juntos en su propia columna. */
+.partido-item.paliza { border-left-color: #db6d28; }
+.partido-item.peleado { border-left-color: #d29922; }
+
+.etiqueta-historico {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: 600;
+}
+.etiqueta-historico.paliza {
+    color: #f0883e;
+    background: rgba(219, 109, 40, 0.15);
+    border: 1px solid rgba(219, 109, 40, 0.45);
+}
+.etiqueta-historico.peleado {
+    color: #e3b341;
+    background: rgba(210, 153, 34, 0.15);
+    border: 1px solid rgba(210, 153, 34, 0.45);
+}
+
+/* --- Cruce de dos jugadores: todos los partidos + historicos ---
+   Las dos columnas se deciden por el ancho del recuadro y no por el de la
+   pantalla (container query): en PC el recuadro mide 875px, pero entre
+   901 y 1100px de pantalla, con el menu al costado, queda mucho mas
+   angosto. Abajo de 720px los historicos van debajo. */
+.historial-container { container: historial / inline-size; }
+
+.cruce-cuerpo {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 2px solid #30363d;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.cruce-cuerpo h4 {
+    text-align: center;
+    color: #c9d1d9;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+@container historial (min-width: 720px) {
+    .cruce-cuerpo {
+        display: grid;
+        grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+        gap: 24px;
+        align-items: start;
+    }
+}
+
+/* Flechas de las tandas de a 5 (mismo estilo que Resultados por Fecha) */
+.tanda-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 12px;
+}
+
+.tanda-flecha,
+.tanda-flecha:hover {
+    background: none;
+    border: 1px solid #30363d;
+    color: #58a6ff;
+    border-radius: 6px;
+    padding: 0.3rem 0.75rem;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    transform: none;
+    box-shadow: none;
+}
+.tanda-flecha:hover:not(:disabled) { background: #21262d; }
+.tanda-flecha:disabled { color: #3d444d; cursor: default; }
+
+.tanda-rango {
+    color: #8b949e;
+    font-size: 0.9em;
+    font-weight: 600;
+    text-align: center;
+}
+
+.cruce-historicos {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.historicos-grupo + .historicos-grupo {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid #30363d;
+}
+
+.historicos-titulo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 1.05em;
+}
+.historicos-grupo.paliza .historicos-titulo span:first-child { color: #f0883e; }
+.historicos-grupo.peleado .historicos-titulo span:first-child { color: #e3b341; }
+
+.historicos-cantidad {
+    min-width: 1.9em;
+    padding: 1px 8px;
+    border-radius: 10px;
+    background: #21262d;
+    border: 1px solid #30363d;
+    color: #8b949e;
+    font-size: 0.8em;
+    text-align: center;
+}
+
+.historicos-desc {
+    font-size: 0.82em;
+    color: #8b949e;
+    margin: 2px 0 10px;
+}
+
+.historicos-vacio {
+    font-size: 0.88em;
+    color: #6e7681;
+    font-style: italic;
+    text-align: center;
+    padding: 6px 0;
+}
+
+.cruce-historicos .partidos-lista { gap: 8px; }
+
+.partido-item.compacta {
+    padding: 8px 10px;
+    font-size: 0.9em;
+}
+.partido-item.compacta .partido-resultado { gap: 8px; margin-bottom: 6px; }
+.partido-item.compacta .marcador {
+    font-size: 1.15em;
+    padding: 3px 10px;
+    min-width: 0;
+}
+.partido-item.compacta .partido-info { gap: 6px 10px; font-size: 0.8em; }
 
 /* Selector de eventos (vista individual de un jugador) */
 .individual-hint {
@@ -667,9 +837,31 @@
     }
 
     .partido-info {
-        flex-direction: column;
-        align-items: center;
-        gap: 5px;
+        gap: 5px 10px;
+    }
+
+    .historial-container {
+        padding: 18px 12px;
+    }
+
+    .partido-item {
+        padding: 10px 10px;
+    }
+
+    .partido-resultado {
+        gap: 8px;
+    }
+
+    .partido-resultado .marcador {
+        font-size: 1.15em;
+        padding: 4px 10px;
+        min-width: 0;
+    }
+
+    .historial-player .escudo {
+        width: 2.6em;
+        height: 2.6em;
+        margin-bottom: 6px;
     }
 
     /* Reducir tamaño de fuentes para el historial en móviles y mantenerlo horizontal */

@@ -1690,6 +1690,15 @@ select:hover {
     text-align: center;
 }
 
+/* La tarjeta amarilla del goleador del torneo (torneos y simulador): el
+   escudo va al lado del nombre, centrado con el renglon. Escudo y nombre
+   no se separan aunque la frase se parta en dos lineas. */
+.tarjeta-goleador .con-escudo {
+    vertical-align: middle;
+    gap: 0.25em;
+}
+.tarjeta-goleador .escudo { width: 1.6em; height: 1.6em; }
+
 /* --- Donde hay que achicarlo o esconderlo ---
    Tres excepciones, cada una por su propia razon de ancho. */
 

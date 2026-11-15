@@ -141,84 +141,198 @@ function obtenerHistorialEnfrentamiento(nombreJ1, nombreJ2) {
     return enfrentamientosDirectos[clave] || null;
 }
 
+// ---- Cómo se ve un partido (lo usan el cruce y la vista individual) ----
+
+const MESES_CORTOS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+// "2/8/2026" -> "2 Ago 2026", igual que los Resultados por Fecha del inicio
+function fechaCorta(fecha) {
+    const partes = String(fecha || '').split('/');
+    if (partes.length === 3) {
+        const d = parseInt(partes[0], 10);
+        const m = parseInt(partes[1], 10) - 1;
+        if (m >= 0 && m < 12) return `${d} ${MESES_CORTOS[m]} ${partes[2]}`;
+    }
+    return fecha;
+}
+
+// "Tercer torneo de hockey de mesa" -> "Torneo 3". Con el nombre entero la
+// línea de abajo de cada partido se partía en dos o tres. El resto
+// (amistosos, Copa) queda igual.
+const ORDINALES_TORNEO = ['primer', 'segundo', 'tercer', 'cuarto', 'quinto', 'sexto', 'séptimo', 'octavo', 'noveno', 'décimo'];
+function torneoCorto(torneo) {
+    const primera = String(torneo || '').split(' ')[0].toLowerCase();
+    const n = ORDINALES_TORNEO.indexOf(primera);
+    return n >= 0 && /torneo/i.test(torneo) ? `Torneo ${n + 1}` : torneo;
+}
+
+// Un partido es "histórico" si fue una paliza (5 goles o más de diferencia:
+// 7-2, 7-1, 7-0) o si se definió por un solo gol (7-6).
+const DIFERENCIA_PALIZA = 5;
+function tipoHistorico(p) {
+    const dif = Math.abs(p.goles1 - p.goles2);
+    if (dif >= DIFERENCIA_PALIZA) return 'paliza';
+    if (dif === 1) return 'peleado';
+    return null;
+}
+
+// Tarjeta de un partido. `izquierda` es el jugador que va a la izquierda: el
+// marcador se da vuelta para que sus goles queden de su lado. El escudo va
+// pegado al resultado, como en las tablas de Resultados.
+//   opciones.sinTorneo -> no muestra el torneo (la vista individual ya lo dice)
+//   opciones.compacta  -> versión chica, para la columna de históricos
+function tarjetaPartido(p, izquierda, opciones) {
+    const op = opciones || {};
+    const esJ1 = p.jugador1 === izquierda;
+    const derecha = esJ1 ? p.jugador2 : p.jugador1;
+    const golesIzq = esJ1 ? p.goles1 : p.goles2;
+    const golesDer = esJ1 ? p.goles2 : p.goles1;
+    const tipo = tipoHistorico(p);
+    const etiqueta = tipo === 'paliza' ? 'Paliza' : tipo === 'peleado' ? 'Peleado' : '';
+    const clases = ['partido-item', tipo, op.compacta ? 'compacta' : ''].filter(Boolean).join(' ');
+    const torneo = torneoCorto(p.torneo);
+    // En los amistosos la fase también dice "Amistoso": no hace falta dos veces
+    const fase = !op.sinTorneo && p.fase === p.torneo ? '' : p.fase;
+
+    return `
+        <div class="${clases}">
+            <div class="partido-resultado">
+                <span class="jugador-nombre local">${conEscudo(izquierda, { derecha: true })}</span>
+                <span class="marcador">${golesIzq}-${golesDer}</span>
+                <span class="jugador-nombre visitante">${conEscudo(derecha)}</span>
+            </div>
+            <div class="partido-info">
+                ${op.sinTorneo ? '' : `<span class="torneo">${torneo}</span>`}
+                ${fase ? `<span class="fase">${fase}</span>` : ''}
+                <span class="fecha">${fechaCorta(p.fecha)}</span>
+                ${etiqueta && !op.compacta ? `<span class="etiqueta-historico ${tipo}">${etiqueta}</span>` : ''}
+            </div>
+        </div>`;
+}
+
 // Función para mostrar el historial de enfrentamientos
+//
+// Arriba el resumen (victorias y goles de cada uno). Abajo, en dos columnas:
+// todos los partidos entre ellos, de a 5 con flechas, y al costado los
+// históricos (palizas y peleados). En celular la de históricos va debajo.
+const PARTIDOS_POR_TANDA = 5;
+
 function mostrarHistorial(nombreJ1, nombreJ2) {
     const historialContainer = document.getElementById('historialDirecto');
     const historialContent = document.getElementById('historialContent');
 
-    const historial = obtenerHistorialEnfrentamiento(nombreJ1, nombreJ2);
+    // En orden cronológico: el primero es el más viejo
     const partidos = obtenerPartidosEntreJugadores(nombreJ1, nombreJ2);
+    historialContainer.style.display = 'block';
 
-    // Tomar los últimos 5 partidos (los más recientes están al final del array)
-    const ultimosPartidos = partidos.slice(-5).reverse();
-
-    if (historial || partidos.length > 0) {
-        const victoriasJ1 = historial ? (historial.victorias[nombreJ1] || 0) : 0;
-        const victoriasJ2 = historial ? (historial.victorias[nombreJ2] || 0) : 0;
-        const golesJ1 = historial ? (historial.goles[nombreJ1] || 0) : 0;
-        const golesJ2 = historial ? (historial.goles[nombreJ2] || 0) : 0;
-        const totalPartidos = victoriasJ1 + victoriasJ2;
-
-        let partidosHTML = '';
-        if (ultimosPartidos.length > 0) {
-            partidosHTML = `
-                <div class="partidos-previos">
-                    <h4>Últimos ${ultimosPartidos.length} partido${ultimosPartidos.length > 1 ? 's' : ''}</h4>
-                    <div class="partidos-lista">
-                        ${ultimosPartidos.map(p => {
-                            // El marcador siempre del lado del primer jugador elegido
-                            const marcadorDisplay = p.jugador1 === nombreJ1 
-                                ? p.marcador 
-                                : `${p.goles2}-${p.goles1}`;
-                            
-                            return `
-                                <div class="partido-item">
-                                    <div class="partido-resultado">
-                                        <span class="jugador-nombre">${nombreJ1}</span>
-                                        <span class="marcador">${marcadorDisplay}</span>
-                                        <span class="jugador-nombre">${nombreJ2}</span>
-                                    </div>
-                                    <div class="partido-info">
-                                        <span class="torneo">${p.torneo}</span>
-                                        <span class="fase">${p.fase}</span>
-                                        <span class="fecha">${p.fecha}</span>
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        historialContent.innerHTML = `
-            <div class="historial-stats">
-                <div class="historial-player">
-                    <div class="nombre">${nombreJ1}</div>
-                    <div class="victorias">${victoriasJ1}</div>
-                    <div class="goles">${golesJ1} goles</div>
-                </div>
-                <div class="historial-middle">
-                    <div class="total-partidos">${totalPartidos}</div>
-                    <div class="subtitulo">partidos jugados</div>
-                </div>
-                <div class="historial-player">
-                    <div class="nombre">${nombreJ2}</div>
-                    <div class="victorias">${victoriasJ2}</div>
-                    <div class="goles">${golesJ2} goles</div>
-                </div>
-            </div>
-            ${partidosHTML}
-        `;
-        historialContainer.style.display = 'block';
-    } else {
+    if (partidos.length === 0) {
         historialContent.innerHTML = `
             <div class="no-historial">
                 No hay historial de enfrentamientos previos entre ${nombreJ1} y ${nombreJ2}
             </div>
         `;
-        historialContainer.style.display = 'block';
+        return;
     }
+
+    const historial = obtenerHistorialEnfrentamiento(nombreJ1, nombreJ2);
+    const victoriasJ1 = historial ? (historial.victorias[nombreJ1] || 0) : 0;
+    const victoriasJ2 = historial ? (historial.victorias[nombreJ2] || 0) : 0;
+    const golesJ1 = historial ? (historial.goles[nombreJ1] || 0) : 0;
+    const golesJ2 = historial ? (historial.goles[nombreJ2] || 0) : 0;
+    const total = partidos.length;
+
+    const resumenJugador = (nombre, victorias, goles) => `
+        <div class="historial-player">
+            ${escudoImg(nombre, 'escudo-cruce')}
+            <div class="nombre">${nombre}</div>
+            <div class="victorias">${victorias}</div>
+            <div class="victorias-texto">victoria${victorias === 1 ? '' : 's'}</div>
+            <div class="goles">${goles} goles</div>
+        </div>`;
+
+    // Históricos del cruce. Palizas: la más grande primero; a igual
+    // diferencia, la más reciente. Peleados: el más reciente primero.
+    const conOrden = partidos.map((p, i) => ({ p, i }));
+    const dif = x => Math.abs(x.p.goles1 - x.p.goles2);
+    const palizas = conOrden.filter(x => tipoHistorico(x.p) === 'paliza')
+        .sort((a, b) => dif(b) - dif(a) || b.i - a.i).map(x => x.p);
+    const peleados = conOrden.filter(x => tipoHistorico(x.p) === 'peleado')
+        .sort((a, b) => b.i - a.i).map(x => x.p);
+
+    const grupoHistorico = (tipo, titulo, descripcion, lista, vacio) => `
+        <div class="historicos-grupo ${tipo}">
+            <div class="historicos-titulo">
+                <span>${titulo}</span>
+                <span class="historicos-cantidad">${lista.length}</span>
+            </div>
+            <div class="historicos-desc">${descripcion}</div>
+            ${lista.length
+                ? `<div class="partidos-lista">${lista.map(p => tarjetaPartido(p, nombreJ1, { compacta: true })).join('')}</div>`
+                : `<div class="historicos-vacio">${vacio}</div>`}
+        </div>`;
+
+    historialContent.innerHTML = `
+        <div class="historial-stats">
+            ${resumenJugador(nombreJ1, victoriasJ1, golesJ1)}
+            <div class="historial-middle">
+                <div class="total-partidos">${total}</div>
+                <div class="subtitulo">partido${total === 1 ? '' : 's'} jugado${total === 1 ? '' : 's'}</div>
+            </div>
+            ${resumenJugador(nombreJ2, victoriasJ2, golesJ2)}
+        </div>
+        <div class="cruce-cuerpo">
+            <section class="cruce-todos">
+                <h4>Todos los partidos</h4>
+                <div id="cruceTandas"></div>
+            </section>
+            <aside class="cruce-historicos">
+                <h4>Partidos históricos</h4>
+                ${grupoHistorico('paliza', 'Palizas', `Ganados por ${DIFERENCIA_PALIZA} goles o más`, palizas, 'Ninguna entre ellos todavía')}
+                ${grupoHistorico('peleado', 'Peleados', 'Definidos por un solo gol (7-6)', peleados, 'Ninguno entre ellos todavía')}
+            </aside>
+        </div>
+    `;
+
+    // Tandas de a 5, la primera con los más recientes. La flecha izquierda
+    // va para atrás en el tiempo, como en los Resultados por Fecha del inicio.
+    const recientes = partidos.slice().reverse();
+    const tandas = Math.ceil(total / PARTIDOS_POR_TANDA);
+    const cont = document.getElementById('cruceTandas');
+    let tanda = 0;
+
+    function pintarTanda() {
+        const desde = tanda * PARTIDOS_POR_TANDA;
+        const lista = recientes.slice(desde, desde + PARTIDOS_POR_TANDA);
+        // Número de cada partido contando desde el primero que jugaron
+        const hasta = total - desde;
+        const primero = hasta - lista.length + 1;
+        const rango = primero === hasta
+            ? `Partido ${hasta} de ${total}`
+            : `Partidos ${primero} a ${hasta} de ${total}`;
+        const hayViejos = tanda < tandas - 1;
+        const hayNuevos = tanda > 0;
+
+        cont.innerHTML = `
+            ${tandas > 1 ? `
+            <div class="tanda-nav">
+                <button type="button" class="tanda-flecha" id="tandaViejos" ${hayViejos ? '' : 'disabled'}
+                        aria-label="Partidos anteriores">&#8592;</button>
+                <span class="tanda-rango">${rango}</span>
+                <button type="button" class="tanda-flecha" id="tandaNuevos" ${hayNuevos ? '' : 'disabled'}
+                        aria-label="Partidos más recientes">&#8594;</button>
+            </div>` : ''}
+            <div class="partidos-lista">
+                ${lista.map(p => tarjetaPartido(p, nombreJ1)).join('')}
+            </div>
+        `;
+
+        const viejos = document.getElementById('tandaViejos');
+        const nuevos = document.getElementById('tandaNuevos');
+        if (viejos) viejos.addEventListener('click', () => { if (tanda < tandas - 1) { tanda++; pintarTanda(); } });
+        if (nuevos) nuevos.addEventListener('click', () => { if (tanda > 0) { tanda--; pintarTanda(); } });
+    }
+
+    pintarTanda();
 }
 
 // ---- Vista individual: partidos de un solo jugador filtrados por evento (torneo/amistoso) ----
@@ -281,25 +395,7 @@ function mostrarPartidosIndividuales(nombreJugador, evento) {
         <div class="partidos-previos">
             <h4>Partidos en ${evento}</h4>
             <div class="partidos-lista">
-                ${partidos.map(p => {
-                    const esJugador1 = p.jugador1 === nombreJugador;
-                    const oponente = esJugador1 ? p.jugador2 : p.jugador1;
-                    const marcadorDisplay = esJugador1 ? p.marcador : `${p.goles2}-${p.goles1}`;
-
-                    return `
-                        <div class="partido-item">
-                            <div class="partido-resultado">
-                                <span class="jugador-nombre">${nombreJugador}</span>
-                                <span class="marcador">${marcadorDisplay}</span>
-                                <span class="jugador-nombre">${oponente}</span>
-                            </div>
-                            <div class="partido-info">
-                                <span class="fase">${p.fase}</span>
-                                <span class="fecha">${p.fecha}</span>
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
+                ${partidos.map(p => tarjetaPartido(p, nombreJugador, { sinTorneo: true })).join('')}
             </div>
         </div>
     `;
