@@ -1,7 +1,7 @@
 {
   "name": "Tejo - Cargar Partidos",
   "short_name": "Tejo Cargar",
-  "description": "App personal para cargar partidos amistosos de la Tejo Nations League",
+  "description": "App personal para cargar partidos de La Resistencia: Tejo Nations League y Metegol (con ?deporte=metegol)",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

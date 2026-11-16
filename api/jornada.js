@@ -1,5 +1,5 @@
 // =====================================================
-// API: Jornadas de la Tejo Nations League
+// API: Jornadas de la Nations League (de cada deporte)
 // =====================================================
 // Una jornada es un día que el grupo se junta a jugar amistosos. Este
 // endpoint guarda las que están abiertas, o sea las que todavía tienen
@@ -22,6 +22,9 @@
 // como sí pasa con los torneos. El sitio es estático y no puede listar
 // una carpeta, así que un único archivo también es lo más fácil de leer
 // desde la página.
+//
+// Cada deporte tiene su archivo (?deporte=<id>, default tejo): ver
+// archivoJornadas en lib/deportes.js.
 // =====================================================
 
 import {
@@ -30,8 +33,7 @@ import {
     commitearArchivo,
     errorHttp
 } from '../lib/github.js';
-
-const ARCHIVO = 'jornadas/index.json';
+import { deporteDelPedido, prefijoCommit } from '../lib/deportes.js';
 
 function parsearLista(contenido) {
     if (!contenido) return [];
@@ -81,6 +83,10 @@ export default async function handler(req, res) {
     }
 
     try {
+        const deporte = deporteDelPedido(req);
+        const ARCHIVO = deporte.archivoJornadas;
+        const prefijo = prefijoCommit(deporte);
+
         if (req.method === 'GET') {
             const { contenido } = await obtenerArchivoActual(config, ARCHIVO);
             return res.status(200).json({ jornadas: parsearLista(contenido) });
@@ -101,9 +107,9 @@ export default async function handler(req, res) {
                 config,
                 JSON.stringify(lista, null, 2) + '\n',
                 sha,
-                existia
+                prefijo + (existia
                     ? `Actualizar jornada del ${fecha}`
-                    : `Abrir jornada del ${fecha} (${jugadores.length} jugadores)`,
+                    : `Abrir jornada del ${fecha} (${jugadores.length} jugadores)`),
                 ARCHIVO
             );
             return res.status(200).json({ success: true, fecha, jugadores, creada: !existia });
@@ -122,7 +128,7 @@ export default async function handler(req, res) {
                 config,
                 JSON.stringify(lista.filter(j => j && j.fecha !== fecha), null, 2) + '\n',
                 sha,
-                `Cerrar jornada del ${fecha}`,
+                `${prefijo}Cerrar jornada del ${fecha}`,
                 ARCHIVO
             );
             return res.status(200).json({ success: true, fecha });

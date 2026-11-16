@@ -40,7 +40,7 @@ function parseFechaOrdenCopa(fechaStr) {
 // ================================================
 
 function cargarCopaCampeones(nombreTorneo) {
-    fetch("enfrentamientos_directos.txt")
+    fetch(DEPORTE.archivoPartidos)
         .then(res => res.text())
         .then(texto => {
             const matches = parsearLineasPartidos(texto).filter(m => m.torneo === nombreTorneo);
@@ -315,7 +315,8 @@ function crearTarjetaClasificado(slot, nombre, datos) {
     const { titulos, stats, racha, rankingPos, rankingPts } = datos;
 
     const titulosHtml = titulos.map(t => {
-        const nombreCorto = t.torneo.replace(" de hockey de mesa", "");
+        // "Primer torneo de hockey de mesa" -> "Primer torneo"
+        const nombreCorto = t.torneo.replace(" " + DEPORTE.sufijoTorneo.replace(/^torneo\s+/i, ""), "");
         return `<span class="titulo-chip">🏆 ${nombreCorto} <em>(${t.fecha})</em></span>`;
     }).join("");
 
@@ -396,7 +397,7 @@ function crearTablaH2H(matches, clasificados) {
 }
 
 function cargarClasificadosCopa() {
-    fetch("enfrentamientos_directos.txt")
+    fetch(DEPORTE.archivoPartidos)
         .then(res => res.text())
         .then(texto => {
             const matches = parsearLineasPartidos(texto);

@@ -11,6 +11,8 @@
 // Para listar, editar o borrar partidos, ver api/partidos.js.
 //
 // La lógica de GitHub y el formato del archivo viven en lib/github.js.
+// El deporte viene en ?deporte= (default: tejo) y decide a qué archivo
+// va el partido (ver lib/deportes.js).
 // =====================================================
 
 import {
@@ -20,6 +22,7 @@ import {
     validarPartido,
     limpiarCampo
 } from '../lib/github.js';
+import { deporteDelPedido, prefijoCommit } from '../lib/deportes.js';
 
 // Agrega la nueva línea al final del contenido actual del archivo,
 // respetando que termine con un solo salto de línea.
@@ -29,7 +32,7 @@ function agregarLineaAlFinal(contenidoActual, nuevaLinea) {
 
 // Arma el mensaje del commit. Para amistosos queda más lindo mencionar
 // la Nations League, que es donde se cuentan.
-function armarMensajeCommit(body) {
+function armarMensajeCommit(body, deporte) {
     const j1 = limpiarCampo(body.jugador1);
     const j2 = limpiarCampo(body.jugador2);
     const marcador = limpiarCampo(body.marcador);
@@ -38,9 +41,9 @@ function armarMensajeCommit(body) {
     const fecha = limpiarCampo(body.fecha);
 
     if (torneo.toLowerCase() === 'amistoso') {
-        return `Amistoso ${fecha}: ${j1} ${marcador} ${j2} (Tejo Nations League)`;
+        return `${prefijoCommit(deporte)}Amistoso ${fecha}: ${j1} ${marcador} ${j2} (${deporte.nombreLiga})`;
     }
-    return `Partido: ${j1} ${marcador} ${j2} (${torneo} - ${fase})`;
+    return `${prefijoCommit(deporte)}Partido: ${j1} ${marcador} ${j2} (${torneo} - ${fase})`;
 }
 
 export default async function handler(req, res) {
@@ -48,7 +51,14 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Método no permitido' });
     }
 
-    const config = getConfig();
+    let deporte;
+    try {
+        deporte = deporteDelPedido(req);
+    } catch (err) {
+        return res.status(err.statusCode || 400).json({ error: err.message });
+    }
+
+    const config = { ...getConfig(), archivoPartidos: deporte.archivoPartidos };
     if (!config.token) {
         return res.status(500).json({
             error: 'Falta configurar la variable de entorno GITHUB_TOKEN en Vercel'
@@ -70,7 +80,7 @@ export default async function handler(req, res) {
                 contenidoNuevo: agregarLineaAlFinal(contenido, nuevaLinea),
                 meta: null
             }),
-            () => armarMensajeCommit(body)
+            () => armarMensajeCommit(body, deporte)
         );
 
         return res.status(200).json({

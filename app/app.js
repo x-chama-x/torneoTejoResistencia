@@ -9,6 +9,12 @@
 // archivo). Por eso solo hay que elegir ganador, perdedor y los
 // goles del perdedor (0 a 6): 3 toques por partido.
 //
+// Sirve para cualquier deporte de js/deportes.js: el de la URL
+// (?deporte=metegol) decide a cuántos goles se juega (GOLES), a qué
+// archivo van los partidos (la API recibe el mismo ?deporte=) y las
+// claves de localStorage, así la tanda del tejo y la del metegol no
+// se mezclan. Sin parámetro es el tejo, como siempre.
+//
 // Dos modos de carga:
 //   - Uno por uno: carga y commitea al toque.
 //   - Tanda: vas armando la lista de la jornada y después se suben
@@ -26,11 +32,23 @@
 // app (o se corta la señal) la tanda no se pierde.
 // =====================================================
 
-const API_URL = '/api/cargar-partido';
-const API_PARTIDOS = '/api/partidos';
-const TXT_URL = '/enfrentamientos_directos.txt';
-const STORAGE_TANDA = 'tejo-cargar-tanda';
-const STORAGE_JUGADORES = 'tejo-cargar-jugadores-extra';
+// Las URLs de la API ya llevan el ?deporte= (en el tejo no agregan nada).
+// Para sumarles parámetros usar apiUrl(API_PARTIDOS, { limit: 200 }).
+const API_URL = urlDeporte('/api/cargar-partido');
+const API_PARTIDOS = urlDeporte('/api/partidos');
+const TXT_URL = '/' + DEPORTE.archivoPartidos;
+const STORAGE_TANDA = `${DEPORTE.prefijoStorage}-cargar-tanda`;
+const STORAGE_JUGADORES = `${DEPORTE.prefijoStorage}-cargar-jugadores-extra`;
+
+// Goles con los que gana siempre el ganador (7 en el tejo).
+const GOLES = DEPORTE.golesParaGanar;
+
+// Suma parámetros a una URL que puede tener ya un "?" (el del deporte).
+function apiUrl(base, params) {
+    const qs = new URLSearchParams(params).toString();
+    if (!qs) return base;
+    return base + (base.includes('?') ? '&' : '?') + qs;
+}
 
 // Para los amistosos de la Nations League estos dos campos son fijos.
 const TORNEO = 'Amistoso';
@@ -57,6 +75,7 @@ const estado = {
 
 document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('fecha').value = hoyISO();
+    renderCambioDeporte();
 
     estado.tanda = leerStorage(STORAGE_TANDA, []);
     // Los que quedaron a medio subir vuelven a "pendiente" al reabrir la app
@@ -72,6 +91,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     registrarServiceWorker();
 });
+
+// Título de la pestaña y link para pasar al otro deporte (arriba a la derecha).
+function renderCambioDeporte() {
+    document.title = `${DEPORTE.nombre} - Cargar Partidos`;
+    actualizarSubtitulo();
+    const link = document.getElementById('cambiar-deporte');
+    if (!link) return;
+    const otro = Object.values(DEPORTES).find(d => d.id !== DEPORTE.id);
+    if (!otro) { link.remove(); return; }
+    link.href = urlDeporte('./', otro.id);
+    link.textContent = `⇄ ${otro.nombre}`;
+    link.title = `Cargar partidos de ${otro.nombre}`;
+}
 
 function registrarServiceWorker() {
     if ('serviceWorker' in navigator) {
@@ -119,6 +151,22 @@ async function cargarJugadores() {
                     fase: p[6].trim()
                 };
             });
+
+        // Jugadores de otro deporte del mismo grupo (el metegol ofrece a los
+        // del tejo). Solo los nombres: el historial es el de este deporte.
+        if (DEPORTE.compartirJugadoresCon && DEPORTES[DEPORTE.compartirJugadoresCon]) {
+            try {
+                const r = await fetch('/' + DEPORTES[DEPORTE.compartirJugadoresCon].archivoPartidos, { cache: 'no-store' });
+                if (r.ok) {
+                    (await r.text()).split('\n')
+                        .map(l => l.trim())
+                        .filter(l => l && !l.startsWith('#'))
+                        .map(l => l.split(','))
+                        .filter(p => p.length >= 7)
+                        .forEach(p => { if (p[0].trim()) set.add(p[0].trim()); if (p[1].trim()) set.add(p[1].trim()); });
+                }
+            } catch { /* si falla, quedan los propios */ }
+        }
 
         extra.forEach(n => set.add(n));
         return [...set].sort((a, b) => a.localeCompare(b, 'es'));
@@ -197,7 +245,9 @@ function agregarJugadorNuevo() {
 
 function renderGolesGrid() {
     const cont = document.getElementById('goles-grid');
-    cont.innerHTML = [0, 1, 2, 3, 4, 5, 6].map(n =>
+    // Del 0 a GOLES-1: los goles posibles del perdedor (0 a 6 en el tejo).
+    cont.style.gridTemplateColumns = `repeat(${GOLES}, 1fr)`;
+    cont.innerHTML = Array.from({ length: GOLES }, (_, n) => n).map(n =>
         `<button class="gol-btn" data-goles="${n}">${n}</button>`
     ).join('');
 
@@ -247,7 +297,7 @@ function actualizarUI() {
     // Preview del marcador
     const preview = document.getElementById('marcador-preview');
     if (ganador && perdedor && golesPerdedor !== null) {
-        preview.innerHTML = `<span class="ganador">${escaparHtml(ganador)} 7</span> - ${golesPerdedor} ${escaparHtml(perdedor)}`;
+        preview.innerHTML = `<span class="ganador">${escaparHtml(ganador)} ${GOLES}</span> - ${golesPerdedor} ${escaparHtml(perdedor)}`;
     } else {
         preview.innerHTML = '<span class="vacio">Elegí los jugadores y los goles</span>';
     }
@@ -314,10 +364,10 @@ function actualizarSubtitulo(texto) {
     }
 
     const porModo = {
-        directo: 'Amistosos · Tejo Nations League',
-        tanda: 'Amistosos · Tejo Nations League',
+        directo: `Amistosos · ${DEPORTE.nombreLiga}`,
+        tanda: `Amistosos · ${DEPORTE.nombreLiga}`,
         historial: 'Historial de partidos cargados',
-        jornada: 'Jornada · Tejo Nations League',
+        jornada: `Jornada · ${DEPORTE.nombreLiga}`,
         torneo: 'Torneos oficiales'
     };
     el.textContent = porModo[estado.modo] || porModo.directo;
@@ -353,7 +403,7 @@ function renderTanda() {
             <div class="lista-item ${clase}">
                 <span class="estado">${iconos[p.estado] || '•'}</span>
                 <span class="texto">
-                    ${escaparHtml(p.ganador)} <span class="marcador">7-${p.golesPerdedor}</span> ${escaparHtml(p.perdedor)}
+                    ${escaparHtml(p.ganador)} <span class="marcador">${GOLES}-${p.golesPerdedor}</span> ${escaparHtml(p.perdedor)}
                     <br><span style="color: var(--text-dim); font-size: 0.78rem;">${escaparHtml(p.fecha)}</span>
                 </span>
                 ${p.estado !== 'ok' ? `<button class="borrar" data-borrar="${p.id}">×</button>` : ''}
@@ -449,7 +499,7 @@ async function cargarHistorial() {
     if (estado.filtroHistorial === 'amistosos') params.set('torneo', TORNEO);
 
     try {
-        const res = await fetch(`${API_PARTIDOS}?${params}`, { cache: 'no-store' });
+        const res = await fetch(apiUrl(API_PARTIDOS, params), { cache: 'no-store' });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
 
@@ -487,7 +537,7 @@ function renderHistorial() {
         return `
             <div class="hist-item ${editandoEste ? 'editando' : ''}">
                 <span class="hist-texto">
-                    ${escaparHtml(ganador)} <span class="mk">7-${golesPerdedor}</span> ${escaparHtml(perdedor)}
+                    ${escaparHtml(ganador)} <span class="mk">${GOLES}-${golesPerdedor}</span> ${escaparHtml(perdedor)}
                     <span class="hist-meta">${escaparHtml(p.fecha)} ${badge}</span>
                 </span>
                 <span class="hist-acciones">
@@ -519,7 +569,7 @@ async function borrarPartido(indice) {
         ? ''
         : `\n\n⚠️ OJO: este partido NO es un amistoso, es de "${p.torneo}".`;
 
-    if (!confirm(`¿Borrar este partido?\n\n${ganador} ${p.marcador.includes('-') ? `7-${Math.min(g1, g2)}` : p.marcador} ${perdedor}\n${p.fecha}${aviso}`)) {
+    if (!confirm(`¿Borrar este partido?\n\n${ganador} ${p.marcador.includes('-') ? `${GOLES}-${Math.min(g1, g2)}` : p.marcador} ${perdedor}\n${p.fecha}${aviso}`)) {
         return;
     }
 
@@ -555,7 +605,7 @@ function empezarEdicion(indice) {
         lineaEsperada: p.linea,
         torneo: p.torneo,
         fase: p.fase,
-        resumen: `${ganador} 7-${Math.min(g1, g2)} ${perdedor} · ${p.fecha}`
+        resumen: `${ganador} ${GOLES}-${Math.min(g1, g2)} ${perdedor} · ${p.fecha}`
     };
 
     estado.ganador = ganador;
@@ -611,7 +661,7 @@ async function guardarEdicion() {
                     jugador1: estado.ganador,
                     jugador2: estado.perdedor,
                     resultado: 'G',
-                    marcador: `7-${estado.golesPerdedor}`,
+                    marcador: `${GOLES}-${estado.golesPerdedor}`,
                     torneo,
                     fase,
                     fecha: fechaFormateada()
@@ -657,7 +707,7 @@ async function enviarPartido({ ganador, perdedor, golesPerdedor, fecha }, torneo
             jugador1: ganador,
             jugador2: perdedor,
             resultado: 'G',            // jugador1 siempre es el ganador
-            marcador: `7-${golesPerdedor}`,
+            marcador: `${GOLES}-${golesPerdedor}`,
             torneo: torneoNombre,
             fecha,
             fase: faseNombre
@@ -685,7 +735,7 @@ async function cargarDirecto() {
 
     try {
         await enviarPartido(partido);
-        mostrarToast(`✅ ${partido.ganador} 7-${partido.golesPerdedor} ${partido.perdedor}`, 'ok');
+        mostrarToast(`✅ ${partido.ganador} ${GOLES}-${partido.golesPerdedor} ${partido.perdedor}`, 'ok');
         limpiarFormulario();
     } catch (err) {
         mostrarToast(`No se pudo cargar: ${err.message}`, 'error');

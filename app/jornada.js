@@ -25,7 +25,7 @@
 // así nadie juega dos partidos seguidos.
 // =====================================================
 
-const API_JORNADA = '/api/jornada';
+const API_JORNADA = urlDeporte('/api/jornada'); // con ?deporte= (ver app.js)
 
 const jornada = {
     abierta: null,      // la que se está mirando ahora: { fecha, jugadores }

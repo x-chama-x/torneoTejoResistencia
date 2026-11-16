@@ -11,17 +11,10 @@
 // 3. Puntos base reducidos para partidos Amistosos.
 // =====================================================
 
-// Base histórica tras el Torneo 1 (sus partidos ya están reflejados acá,
-// por lo que se omiten al procesar el historial).
-const POST_TORNEO_1_BASE = {
-    Chama: 100.0,
-    Rafa: 80.0,
-    Tomy: 60.0,
-    Marco: 50.0,
-    Facu: 40.0,
-    Santi: 30.0,
-    Hector: 20.0
-};
+// Base histórica con la que arranca el ranking de cada deporte (en el
+// tejo, la que quedó tras el Torneo 1: sus partidos ya están reflejados
+// ahí, por lo que se omiten al procesar el historial). Vive en
+// js/deportes.js: rankingBase y torneoIncluidoEnBase.
 
 const NUEVO_JUGADOR_PUNTOS = 15.0; // Puntos con los que ingresa un nuevo jugador
 const PISO_MINIMO_PUNTOS = 5.0;    // Protección contra puntos negativos / demasiado bajos
@@ -53,7 +46,7 @@ function parsearPartidosParaRanking(texto) {
 
         const [j1, j2, resJ1, , torneo, fecha, fase] = partes.map(p => p.trim());
 
-        if (torneo.toLowerCase() === 'primer torneo de hockey de mesa') {
+        if (DEPORTE.torneoIncluidoEnBase && torneo.toLowerCase() === DEPORTE.torneoIncluidoEnBase) {
             continue;
         }
 
@@ -71,7 +64,7 @@ function parsearPartidosParaRanking(texto) {
 // Devuelve un array [{nombre, ranking}] ordenado de mayor a menor.
 function calcularRankingDesdeTexto(texto) {
     const partidos = parsearPartidosParaRanking(texto);
-    const ranking = Object.assign({}, POST_TORNEO_1_BASE);
+    const ranking = Object.assign({}, DEPORTE.rankingBase);
 
     for (const partido of partidos) {
         const { j1, j2, resJ1, torneo, fase } = partido;
@@ -124,9 +117,9 @@ function calcularRankingDesdeTexto(texto) {
 // Fetch + cálculo en un solo paso, para las páginas que solo necesitan el ranking
 // (no el historial detallado de partidos).
 async function cargarRankingCalculado() {
-    const response = await fetch('enfrentamientos_directos.txt');
+    const response = await fetch(DEPORTE.archivoPartidos);
     if (!response.ok) {
-        throw new Error('No se pudo cargar el archivo enfrentamientos_directos.txt');
+        throw new Error(`No se pudo cargar el archivo ${DEPORTE.archivoPartidos}`);
     }
     const texto = await response.text();
     return calcularRankingDesdeTexto(texto);

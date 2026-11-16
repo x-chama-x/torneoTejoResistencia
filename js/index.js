@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     Promise.all([
-        fetch('enfrentamientos_directos.txt').then(r => r.text())
+        fetch(DEPORTE.archivoPartidos).then(r => r.text())
     ]).then(([matchesData]) => {
         // --- Procesar Ranking (calculado desde el historial de partidos) ---
         const mapRanking = {};

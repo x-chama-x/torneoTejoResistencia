@@ -20,7 +20,7 @@ const sorteosPorTorneo = {};
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        const texto = await fetch('enfrentamientos_directos.txt', { cache: 'no-store' }).then(r => r.text());
+        const texto = await fetch(DEPORTE.archivoPartidos, { cache: 'no-store' }).then(r => r.text());
 
         // Deja listo el cálculo de probabilidades para los partidos pendientes
         prepararProbabilidades(texto);
@@ -83,10 +83,13 @@ function renderSelector(texto, torneos, seleccionado) {
     });
 }
 
-// "Primer torneo de hockey de mesa" -> "Primer". Si el nombre no sigue ese
-// patrón, se muestra entero (recortado si es muy largo).
+// "Primer torneo de hockey de mesa" -> "Primer" (o "Primer torneo de
+// metegol" en el metegol). Si el nombre no sigue ese patrón, se muestra
+// entero (recortado si es muy largo).
 function etiquetaCorta(nombre) {
-    const corto = nombre.replace(/\s*torneo de hockey de mesa\s*/i, '').trim();
+    const corto = nombre.toLowerCase().includes(DEPORTE.sufijoTorneo.toLowerCase())
+        ? nombre.slice(0, nombre.toLowerCase().indexOf(DEPORTE.sufijoTorneo.toLowerCase())).trim()
+        : '';
     if (corto && corto.length < nombre.length) return corto;
     return nombre.length > 18 ? nombre.slice(0, 17) + '…' : nombre;
 }

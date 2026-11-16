@@ -1,5 +1,5 @@
 function cargarTorneo(nombreTorneo) {
-    return fetch("enfrentamientos_directos.txt")
+    return fetch(DEPORTE.archivoPartidos)
         .then(res => res.text())
         .then(data => {
             const matches = data.split("\n")

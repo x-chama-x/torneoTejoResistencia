@@ -10,12 +10,14 @@
 // reintentarlo cuando vuelva la señal.
 // =====================================================
 
-const CACHE = 'tejo-cargar-v3';
+const CACHE = 'tejo-cargar-v4';
 const SHELL = [
     './',
     './index.html',
     './app.js',
     './torneo.js',
+    './jornada.js',
+    '../js/deportes.js',
     '../js/historial_torneos.js',
     '../lib/torneo-formatos.js',
     './manifest.json',
@@ -43,8 +45,9 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
-    // El endpoint de carga y la lista de partidos siempre van a la red.
-    if (url.pathname.startsWith('/api/') || url.pathname.endsWith('enfrentamientos_directos.txt')) {
+    // El endpoint de carga y los archivos de partidos (uno por deporte:
+    // enfrentamientos_directos.txt, metegol/partidos.txt) siempre van a la red.
+    if (url.pathname.startsWith('/api/') || url.pathname.endsWith('.txt')) {
         return;
     }
 

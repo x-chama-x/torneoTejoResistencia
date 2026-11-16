@@ -6,9 +6,9 @@
 // Función para cargar partidos y calcular estadísticas automáticamente
 async function cargarHistorialCompleto() {
     try {
-        const response = await fetch('enfrentamientos_directos.txt');
+        const response = await fetch(DEPORTE.archivoPartidos);
         if (!response.ok) {
-            throw new Error('No se pudo cargar el archivo enfrentamientos_directos.txt');
+            throw new Error(`No se pudo cargar el archivo ${DEPORTE.archivoPartidos}`);
         }
         const texto = await response.text();
         const lineas = texto.split('\n');
@@ -196,9 +196,10 @@ function etiquetaTorneo(p) {
     return esAmistoso(p) ? `Nations League ${anioDelPartido(p)}` : torneoCorto(p.torneo);
 }
 
-// Un partido es "histórico" si fue una paliza (5 goles o más de diferencia:
-// 7-2, 7-1, 7-0) o si se definió por un solo gol (7-6).
-const DIFERENCIA_PALIZA = 5;
+// Un partido es "histórico" si fue una paliza (en el tejo, 5 goles o más
+// de diferencia: 7-2, 7-1, 7-0) o si se definió por un solo gol (7-6).
+// La diferencia de una paliza depende del deporte (js/deportes.js).
+const DIFERENCIA_PALIZA = DEPORTE.diferenciaPaliza;
 function tipoHistorico(p) {
     const dif = Math.abs(p.goles1 - p.goles2);
     if (dif >= DIFERENCIA_PALIZA) return 'paliza';
@@ -366,7 +367,7 @@ function mostrarHistorial(nombreJ1, nombreJ2) {
             <aside class="cruce-historicos">
                 <h4>Partidos históricos</h4>
                 ${grupoHistorico('paliza', 'Palizas', `Ganados por ${DIFERENCIA_PALIZA} goles o más`, palizas, 'Ninguna entre ellos todavía')}
-                ${grupoHistorico('peleado', 'Peleados', 'Definidos por un solo gol (7-6)', peleados, 'Ninguno entre ellos todavía')}
+                ${grupoHistorico('peleado', 'Peleados', `Definidos por un solo gol (${DEPORTE.golesParaGanar}-${DEPORTE.golesParaGanar - 1})`, peleados, 'Ninguno entre ellos todavía')}
             </aside>
         </div>
     `;

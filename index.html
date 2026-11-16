@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tejo Hockey - Resistencia de Jugones</title>
+    <title data-dtexto="{nombreLargo} - Resistencia de Jugones">Tejo Hockey - Resistencia de Jugones</title>
     <link rel="icon" type="image/png" href="img/favicon.png">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div class="container">
-        <h1><img src="img/favicon.png" alt="logo" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 5px;"> Tejo Hockey - Resistencia de Jugones</h1>
+        <h1><img src="img/favicon.png" alt="logo" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 5px;"> <span data-dtexto="{nombreLargo} - Resistencia de Jugones">Tejo Hockey - Resistencia de Jugones</span></h1>
 
         <div class="index-layout">
             <div class="home-container">
@@ -17,7 +17,7 @@
             <div id="ranking-col">
                 <div id="ranking-fifa-block">
                     <div style="text-align: center; margin-bottom: 1.5rem;">
-                        <h2 style="margin-bottom: 0.3rem;">Ranking FIFA Air Hockey</h2>
+                        <h2 style="margin-bottom: 0.3rem;" data-dtexto="Ranking FIFA {nombreFifa}">Ranking FIFA Air Hockey</h2>
                         <span id="last-updated" style="color: #8b949e; font-size: 0.95em; font-style: italic;"></span>
                     </div>
                     <div class="table-responsive">
@@ -100,7 +100,7 @@
                     </div>
                 </div>
                 <div class="campeones-block">
-                    <h2 style="margin-top: 2rem;">Historial de ganadores - Tejo Nations League</h2>
+                    <h2 style="margin-top: 2rem;" data-dtexto="Historial de ganadores - {nombreLiga}">Historial de ganadores - Tejo Nations League</h2>
                     <div class="table-responsive">
                         <table class="ranking-table large-table-font" id="nations-league-champions-table">
                             <thead>
@@ -152,6 +152,7 @@
         </div>
     </div>
     <!-- Scripts -->
+    <script src="js/deportes.js"></script>
     <script src="js/menu.js"></script>
     <script src="js/rankingCalculator.js"></script>
     <script src="js/escudos.js"></script>

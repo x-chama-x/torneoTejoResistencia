@@ -20,7 +20,7 @@
 // baja el sorteo y el .txt y aparece exactamente donde estabas.
 // =====================================================
 
-const API_TORNEO_ESTADO = '/api/torneo-estado';
+const API_TORNEO_ESTADO = urlDeporte('/api/torneo-estado'); // con ?deporte= (ver app.js)
 
 const torneo = {
     estado: null,        // { nombre, formato, fecha, grupos }
@@ -57,7 +57,7 @@ async function entrarModoTorneo() {
         const guardados = data.torneos || [];
         if (guardados.length > 0) {
             const ultima = guardados[guardados.length - 1].ruta;
-            const r2 = await fetch(`${API_TORNEO_ESTADO}?ruta=${encodeURIComponent(ultima)}`, { cache: 'no-store' });
+            const r2 = await fetch(apiUrl(API_TORNEO_ESTADO, { ruta: ultima }), { cache: 'no-store' });
             const d2 = await r2.json().catch(() => ({}));
             if (r2.ok && d2.estado) {
                 torneo.estado = d2.estado;
@@ -75,7 +75,7 @@ async function entrarModoTorneo() {
 
 // Trae del .txt los partidos ya jugados de este torneo.
 async function refrescarJugados() {
-    const res = await fetch(`${API_PARTIDOS}?limit=200`, { cache: 'no-store' });
+    const res = await fetch(apiUrl(API_PARTIDOS, { limit: 200 }), { cache: 'no-store' });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
 
@@ -703,7 +703,7 @@ async function guardarResultadoFixture() {
             fecha: fechaFormateada()
         }, nombreTorneo, cruce.fase);
 
-        mostrarToast(`✅ ${estado.ganador} 7-${estado.golesPerdedor} ${estado.perdedor}`, 'ok');
+        mostrarToast(`✅ ${estado.ganador} ${GOLES}-${estado.golesPerdedor} ${estado.perdedor}`, 'ok');
         cerrarCargaDeFixture();
 
         // Refresca el historial completo (lo usan los partidos pendientes

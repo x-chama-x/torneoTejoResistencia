@@ -18,7 +18,7 @@
 // La probabilidad sale de js/probabilidades.js.
 // =====================================================
 
-const RUTA_INDICE_TORNEOS = 'torneos/index.json';
+const RUTA_INDICE_TORNEOS = `${DEPORTE.carpetaTorneos}/index.json`;
 
 // Trae el índice de torneos sorteados (lo mantiene api/torneo-estado.js).
 // Si no existe todavía, no es un error: simplemente no hay ninguno.
