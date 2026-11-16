@@ -15,9 +15,10 @@
 // =====================================================
 
 // Las jornadas abiertas (las que todavía tienen partidos por jugar) las
-// mantiene la app en jornadas/index.json, vía api/jornada.js. Si el archivo
-// no existe todavía no es un error: simplemente no hay ninguna abierta.
-const RUTA_JORNADAS = 'jornadas/index.json';
+// mantiene la app en jornadas/index.json (cada deporte en el suyo, ver
+// js/deportes.js), vía api/jornada.js. Si el archivo no existe todavía
+// no es un error: simplemente no hay ninguna abierta.
+const RUTA_JORNADAS = DEPORTE.archivoJornadas;
 
 async function cargarJornadasAbiertas() {
     try {
@@ -32,7 +33,7 @@ async function cargarJornadasAbiertas() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        const res = await fetch('enfrentamientos_directos.txt');
+        const res = await fetch(DEPORTE.archivoPartidos);
         const data = await res.text();
         const partidos = parsearAmistosos(data);
         const abiertas = await cargarJornadasAbiertas();
@@ -66,7 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderSelectorAnios(anios, anioInicial, pintar);
         pintar(anioInicial);
     } catch (err) {
-        console.error('Error cargando Tejo Nations League:', err);
+        console.error(`Error cargando ${DEPORTE.nombreLiga}:`, err);
     }
 });
 

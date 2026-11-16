@@ -138,8 +138,8 @@ window.CAMPEON.rutaFormato = {
 // El campeón es el ganador de la última línea cuya fase sea "Final".
 async function detectarUltimoCampeon() {
     try {
-        const resp = await fetch('enfrentamientos_directos.txt');
-        if (!resp.ok) throw new Error('No se pudo cargar enfrentamientos_directos.txt');
+        const resp = await fetch(DEPORTE.archivoPartidos);
+        if (!resp.ok) throw new Error(`No se pudo cargar ${DEPORTE.archivoPartidos}`);
         const texto = await resp.text();
         const lineas = texto.split('\n');
 

@@ -16,9 +16,12 @@ async function cargarJugadoresDesdeArchivo() {
     try {
         const rankingCalculado = await cargarRankingCalculado();
 
-        // Validar que se hayan calculado jugadores
+        // Sin partidos todavía (un deporte recién agregado, como el metegol):
+        // no es un error, solo no hay a quién simular. Se avisa en la página
+        // en vez de con un alert.
         if (rankingCalculado.length === 0) {
-            throw new Error('No hay partidos en enfrentamientos_directos.txt para calcular el ranking');
+            avisarSinPartidos();
+            return false;
         }
 
         const jugadores = rankingCalculado.map(r => ({
@@ -33,13 +36,26 @@ async function cargarJugadoresDesdeArchivo() {
         nuevosJugadores = jugadores.slice(8);
         jugadoresDisponibles = [...jugadores];
 
-        console.log('✅ Ranking FIFA calculado desde enfrentamientos_directos.txt:', jugadoresDisponibles);
+        console.log(`✅ Ranking FIFA calculado desde ${DEPORTE.archivoPartidos}:`, jugadoresDisponibles);
         return true;
     } catch (error) {
         console.error('❌ Error al calcular el ranking FIFA:', error);
-        alert('Error: No se pudo calcular el ranking FIFA desde enfrentamientos_directos.txt. Verificá que el archivo exista y tenga el formato correcto.');
+        alert(`Error: No se pudo calcular el ranking FIFA desde ${DEPORTE.archivoPartidos}. Verificá que el archivo exista y tenga el formato correcto.`);
         return false;
     }
+}
+
+// Cartel arriba de la página cuando el deporte todavía no tiene partidos.
+function avisarSinPartidos() {
+    if (document.getElementById('aviso-sin-partidos')) return;
+    const cont = document.querySelector('.container') || document.body;
+    const titulo = cont.querySelector('h1');
+    const aviso = document.createElement('p');
+    aviso.id = 'aviso-sin-partidos';
+    aviso.style.cssText = 'text-align:center;color:#8b949e;font-style:italic;margin:0.5rem 0 1.5rem;';
+    aviso.textContent = `Todavía no hay partidos de ${DEPORTE.nombre} cargados: cuando se cargue el primero, acá aparecen los jugadores.`;
+    if (titulo) titulo.insertAdjacentElement('afterend', aviso);
+    else cont.prepend(aviso);
 }
 
 // Hacer la función disponible globalmente
@@ -68,9 +84,9 @@ function elegirAleatorioNombres(cantidad) {
 // Función para cargar partidos y calcular estadísticas automáticamente
 async function cargarHistorialCompleto() {
     try {
-        const response = await fetch('enfrentamientos_directos.txt');
+        const response = await fetch(DEPORTE.archivoPartidos);
         if (!response.ok) {
-            throw new Error('No se pudo cargar el archivo enfrentamientos_directos.txt');
+            throw new Error(`No se pudo cargar el archivo ${DEPORTE.archivoPartidos}`);
         }
         const texto = await response.text();
         const lineas = texto.split('\n');
@@ -225,16 +241,20 @@ function simularPartido(jugador1, jugador2) {
     // Convertimos a un bonus de 0 a 2 para la diferencia
     const bonusDiff = Math.max(0, Math.min(2, diffPromedio));
 
-    // Diferencia base aleatoria (1-4) + bonus por diferencia de nivel
+    // Diferencia base aleatoria (1-4) + bonus por diferencia de nivel.
+    // Está pensada para partidos a 7 (el tejo); en otro deporte se escala
+    // a sus goles para ganar (a 5: va de 1 a 5), sin bajar nunca de 1.
+    const META = DEPORTE.golesParaGanar;
     const diffBase = Math.floor(Math.random() * 4) + 1;
-    const diffFinal = Math.min(7, Math.round(diffBase + bonusDiff));
+    const diffA7 = Math.min(7, Math.round(diffBase + bonusDiff));
+    const diffFinal = Math.max(1, Math.min(META, Math.round(diffA7 * META / 7)));
 
     if (gana1) {
-        goles1 = 7;
-        goles2 = Math.max(0, 7 - diffFinal);
+        goles1 = META;
+        goles2 = Math.max(0, META - diffFinal);
     } else {
-        goles2 = 7;
-        goles1 = Math.max(0, 7 - diffFinal);
+        goles2 = META;
+        goles1 = Math.max(0, META - diffFinal);
     }
 
     return {

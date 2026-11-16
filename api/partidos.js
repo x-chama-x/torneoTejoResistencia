@@ -15,6 +15,8 @@
 // identificar por contenido solo sería ambiguo. Por eso se manda índice
 // + contenido esperado: el índice dice cuál, y el contenido confirma que
 // el archivo no cambió en el medio.
+//
+// Todos aceptan ?deporte=<id> (default: tejo) para elegir el archivo.
 // =====================================================
 
 import {
@@ -29,6 +31,7 @@ import {
     errorHttp,
     limpiarCampo
 } from '../lib/github.js';
+import { deporteDelPedido, prefijoCommit } from '../lib/deportes.js';
 
 const LIMITE_DEFAULT = 25;
 const LIMITE_MAX = 200;
@@ -83,7 +86,7 @@ async function manejarDelete(req, res, config) {
                 meta: { borrada }
             };
         },
-        (meta) => `Borrar partido: ${resumen(meta.borrada)}`
+        (meta) => `${prefijoCommit(config.deporte)}Borrar partido: ${resumen(meta.borrada)}`
     );
 
     return res.status(200).json({ success: true, borrada: meta.borrada });
@@ -95,7 +98,7 @@ async function manejarDeleteTorneo(res, config, nombreTorneo) {
     if (!nombre) {
         throw errorHttp(400, 'Falta el nombre del torneo');
     }
-    // Los amistosos son la Tejo Nations League entera: nunca se borran en masa.
+    // Los amistosos son la Nations League entera: nunca se borran en masa.
     if (nombre.toLowerCase() === 'amistoso') {
         throw errorHttp(400, 'No se pueden borrar los amistosos en masa');
     }
@@ -125,7 +128,7 @@ async function manejarDeleteTorneo(res, config, nombreTorneo) {
                 meta: { borrados, nombre }
             };
         },
-        (meta) => `Borrar torneo "${meta.nombre}": ${meta.borrados} partidos`
+        (meta) => `${prefijoCommit(config.deporte)}Borrar torneo "${meta.nombre}": ${meta.borrados} partidos`
     );
 
     return res.status(200).json({ success: true, borrados: meta.borrados });
@@ -162,7 +165,7 @@ async function manejarPut(req, res, config) {
                 meta: { anterior, nueva: lineaNueva }
             };
         },
-        (meta) => `Editar partido: ${resumen(meta.anterior)} -> ${resumen(meta.nueva)}`
+        (meta) => `${prefijoCommit(config.deporte)}Editar partido: ${resumen(meta.anterior)} -> ${resumen(meta.nueva)}`
     );
 
     return res.status(200).json({ success: true, anterior: meta.anterior, nueva: meta.nueva });
@@ -189,6 +192,9 @@ export default async function handler(req, res) {
     }
 
     try {
+        config.deporte = deporteDelPedido(req);
+        config.archivoPartidos = config.deporte.archivoPartidos;
+
         switch (req.method) {
             case 'GET':
                 return await manejarGet(req, res, config);

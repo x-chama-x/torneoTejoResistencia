@@ -1,7 +1,9 @@
 // =====================================================
 // API: Estado del torneo
 // =====================================================
-// Guarda y lee el JSON de un torneo en curso, en torneos/<slug>.json.
+// Guarda y lee el JSON de un torneo en curso, en torneos/<slug>.json
+// (o en la carpeta de torneos de otro deporte: ?deporte=<id>, ver
+// carpetaTorneos en lib/deportes.js; sin el parámetro es el tejo).
 //
 //   GET    /api/torneo-estado            -> lista los torneos guardados
 //   GET    /api/torneo-estado?ruta=...   -> devuelve ese torneo
@@ -27,9 +29,8 @@ import {
     borrarArchivo,
     errorHttp
 } from '../lib/github.js';
+import { deporteDelPedido, prefijoCommit } from '../lib/deportes.js';
 
-const CARPETA = 'torneos';
-const INDICE = 'torneos/index.json';
 const GITHUB_API = 'https://api.github.com';
 
 // El sitio es estático: desde el navegador no se puede listar la carpeta
@@ -42,6 +43,7 @@ const GITHUB_API = 'https://api.github.com';
 // saber que existe. Si la escritura del índice falla, el torneo igual
 // queda creado: el índice es una comodidad para el sitio, no la verdad.
 async function actualizarIndice(config, cambio) {
+    const INDICE = `${config.deporte.carpetaTorneos}/index.json`;
     try {
         const { contenido, sha } = await obtenerArchivoActual(config, INDICE);
 
@@ -64,9 +66,9 @@ async function actualizarIndice(config, cambio) {
             config,
             JSON.stringify(lista, null, 2) + '\n',
             sha,
-            cambio.accion === 'agregar'
+            prefijoCommit(config.deporte) + (cambio.accion === 'agregar'
                 ? `Indexar torneo: ${cambio.nombre}`
-                : `Sacar del índice: ${cambio.ruta}`,
+                : `Sacar del índice: ${cambio.ruta}`),
             INDICE
         );
     } catch (err) {
@@ -74,11 +76,15 @@ async function actualizarIndice(config, cambio) {
     }
 }
 
-// Solo dejamos escribir dentro de torneos/ y con nombre de archivo sano,
-// para que un ruta: "../../algo" no pueda pisar otro archivo del repo.
-function validarRuta(ruta) {
-    if (typeof ruta !== 'string' || !/^torneos\/[a-z0-9-]+\.json$/.test(ruta)) {
-        throw errorHttp(400, 'Ruta inválida: tiene que ser torneos/<nombre>.json');
+// Solo dejamos escribir dentro de la carpeta de torneos del deporte y con
+// nombre de archivo sano, para que un ruta: "../../algo" no pueda pisar
+// otro archivo del repo (ni un torneo de otro deporte).
+function validarRuta(ruta, carpeta) {
+    const valida = typeof ruta === 'string'
+        && ruta.startsWith(`${carpeta}/`)
+        && /^[a-z0-9-]+\.json$/.test(ruta.slice(carpeta.length + 1));
+    if (!valida) {
+        throw errorHttp(400, `Ruta inválida: tiene que ser ${carpeta}/<nombre>.json`);
     }
     return ruta;
 }
@@ -106,7 +112,8 @@ function validarEstado(estado) {
     return null;
 }
 
-async function listarTorneosGuardados({ token, owner, repo, branch }) {
+async function listarTorneosGuardados({ token, owner, repo, branch, deporte }) {
+    const CARPETA = deporte.carpetaTorneos;
     const url = `${GITHUB_API}/repos/${owner}/${repo}/contents/${CARPETA}?ref=${encodeURIComponent(branch)}`;
     const res = await fetch(url, {
         headers: {
@@ -139,6 +146,10 @@ export default async function handler(req, res) {
     }
 
     try {
+        config.deporte = deporteDelPedido(req);
+        const carpeta = config.deporte.carpetaTorneos;
+        const prefijo = prefijoCommit(config.deporte);
+
         if (req.method === 'GET') {
             const ruta = req.query?.ruta;
 
@@ -147,7 +158,7 @@ export default async function handler(req, res) {
                 return res.status(200).json({ torneos });
             }
 
-            validarRuta(ruta);
+            validarRuta(ruta, carpeta);
             const { contenido, existe } = await obtenerArchivoActual(config, ruta);
             if (!existe) {
                 return res.status(404).json({ error: 'Ese torneo no está guardado' });
@@ -164,16 +175,16 @@ export default async function handler(req, res) {
 
         if (req.method === 'PUT') {
             const { ruta, estado } = req.body || {};
-            validarRuta(ruta);
+            validarRuta(ruta, carpeta);
 
             const errorValidacion = validarEstado(estado);
             if (errorValidacion) throw errorHttp(400, errorValidacion);
 
             const { sha, existe } = await obtenerArchivoActual(config, ruta);
             const contenidoNuevo = JSON.stringify(estado, null, 2) + '\n';
-            const mensaje = existe
+            const mensaje = prefijo + (existe
                 ? `Actualizar torneo: ${estado.nombre}`
-                : `Crear torneo: ${estado.nombre} (${estado.formato} jugadores)`;
+                : `Crear torneo: ${estado.nombre} (${estado.formato} jugadores)`);
 
             await commitearArchivo(config, contenidoNuevo, sha, mensaje, ruta);
             await actualizarIndice(config, {
@@ -187,14 +198,14 @@ export default async function handler(req, res) {
 
         if (req.method === 'DELETE') {
             const { ruta } = req.body || {};
-            validarRuta(ruta);
+            validarRuta(ruta, carpeta);
 
             const { sha, existe } = await obtenerArchivoActual(config, ruta);
             if (!existe) {
                 return res.status(404).json({ error: 'Ese torneo no está guardado' });
             }
 
-            await borrarArchivo(config, ruta, sha);
+            await borrarArchivo(config, ruta, sha, `${prefijo}Borrar ${ruta}`);
             await actualizarIndice(config, { accion: 'sacar', ruta });
             return res.status(200).json({ success: true, ruta });
         }

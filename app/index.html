@@ -57,6 +57,17 @@
             margin-bottom: 18px;
         }
         header img { width: 34px; height: 34px; border-radius: 8px; }
+        /* Pasar al otro deporte (tejo <-> metegol) */
+        header .cambiar-deporte {
+            margin-left: auto;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-decoration: none;
+            border: 1px solid currentColor;
+            border-radius: 999px;
+            padding: 4px 10px;
+            white-space: nowrap;
+        }
         header h1 {
             font-size: 1.15rem;
             margin: 0;
@@ -413,6 +424,7 @@
             Cargar Partidos
             <span class="sub" id="subtitulo">Amistosos · Tejo Nations League</span>
         </h1>
+        <a id="cambiar-deporte" class="cambiar-deporte" href="./?deporte=metegol">⇄ Metegol</a>
     </header>
 
     <div class="modo-switch">
@@ -535,6 +547,7 @@
 
     <!-- processStandings sale del mismo archivo que usa el sitio, para que la
          tabla de la app y la de la web nunca den distinto -->
+    <script src="../js/deportes.js"></script>
     <script src="../js/historial_torneos.js"></script>
     <script src="../lib/torneo-formatos.js"></script>
     <script src="app.js"></script>

@@ -994,6 +994,19 @@ select:hover {
     border-left-color: #58a6ff;
 }
 
+/* Link para pasar al otro deporte (tejo <-> metegol), abajo de las páginas */
+.sidebar a.cambiar-deporte {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #30363d;
+    color: #8b949e;
+    font-weight: 600;
+}
+
+.sidebar a.cambiar-deporte:hover {
+    color: #ffffff;
+}
+
 .sidebar-footer {
     margin-top: 24px;
     text-align: center;

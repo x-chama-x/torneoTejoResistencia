@@ -36,6 +36,33 @@ La aplicacion utiliza un sistema de probabilidades basado en una **funcion sigmo
 
 ---
 
+## Varios deportes: Tejo y Metegol
+
+El mismo sitio sirve para mas de un deporte, con las mismas paginas, los mismos jugadores y los mismos escudos. Cual se muestra lo decide el parametro `?deporte=` de la URL:
+
+| URL | Deporte |
+|-----|---------|
+| `index.html` (sin parametro) | Tejo, como siempre: los links viejos siguen andando |
+| `index.html?deporte=metegol` | Metegol |
+| `app/?deporte=metegol` | App de carga para el Metegol |
+
+El menu arrastra el parametro al navegar y abajo de todo tiene un link para pasar al otro deporte (en la app, arriba a la derecha). Air Hockey y Saber Mas son solo del tejo.
+
+**Todo lo que cambia entre deportes esta en `js/deportes.js`**, una configuracion por deporte:
+
+- `archivoPartidos`, `carpetaTorneos`, `archivoJornadas`: donde viven sus datos. El tejo sigue en `enfrentamientos_directos.txt`, `torneos/` y `jornadas/`; el metegol en `metegol/partidos.txt`, `metegol/torneos/` y `metegol/jornadas/`. El archivo de partidos tiene el mismo formato en los dos.
+- `golesParaGanar` (7 en el tejo, 5 en el metegol): la app arma el marcador con eso (el ganador siempre hace esa cantidad), el simulador escala los resultados y Partido 1vs1 arma la etiqueta de los "peleados".
+- `diferenciaPaliza`: desde cuantos goles de diferencia un partido es una "paliza".
+- `nombre`, `nombreLargo`, `nombreFifa`, `nombreLiga`, `sufijoTorneo`: los textos y titulos. En el HTML, un elemento con `data-dtexto="Ranking FIFA {nombreFifa}"` se reescribe con los valores del deporte; el texto escrito en el HTML es el del tejo.
+- `rankingBase` / `torneoIncluidoEnBase`: con que puntos arranca el Ranking FIFA (el tejo, con la base posterior al Torneo 1; el metegol, de cero).
+- `compartirJugadoresCon`: el metegol ofrece en la app a los jugadores del tejo, porque es el mismo grupo.
+
+La API (`/api/*`) recibe el mismo `?deporte=` y escribe en los archivos de ese deporte; sin parametro es el tejo. Sus rutas estan repetidas en `lib/deportes.js` (el navegador no puede importar un modulo de Node): si sumas un deporte o cambias una ruta, cambialo en los dos. Los commits que no son del tejo llevan un prefijo, ej. `[metegol] Amistoso 15/11/2026: ...`.
+
+> **Reglas del metegol**: provisorias. 1 contra 1 a 5 goles y a un solo partido, como los partidos del reglamento ITSF. El ITSF juega ademas al mejor de 3 o de 5 partidos y en el decisivo hay que ganar por 2 (tope 8); si se adopta, el ganador ya no hace siempre la misma cantidad de goles y la app tiene que dejar de asumirlo.
+
+---
+
 ## Caracteristicas Principales
 
 ### Pagina de Inicio (`index.html`)

@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Torneo Air Hockey</title>
+    <title data-dtexto="Simulador Torneo {nombreFifa}">Simulador Torneo Air Hockey</title>
     <link rel="icon" type="image/png" href="img/favicon.png">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/copa_ida_vuelta.css">
 </head>
 <body>
     <div class="container">
-        <h1><img src="img/favicon.png" alt="logo" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 5px;"> Simulador de Torneo Air Hockey</h1>
+        <h1><img src="img/favicon.png" alt="logo" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 5px;"> <span data-dtexto="Simulador de Torneo {nombreFifa}">Simulador de Torneo Air Hockey</span></h1>
 
         <div class="controls">
             <label for="numPlayers" style="align-self:center; font-weight:600; color:#e0e0e0; margin-right:6px;">Formato:</label>
@@ -44,6 +44,7 @@
         <div id="resultado"></div>
     </div>
 
+    <script src="js/deportes.js"></script>
     <script src="js/menu.js"></script>
     <script src="js/rankingCalculator.js"></script>
     <script src="js/escudos.js"></script>
