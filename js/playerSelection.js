@@ -16,11 +16,14 @@ function inicializarSelectorJugadores(numJugadores, cbCambio) {
         <p class="selection-instruccion">Seleccioná exactamente <strong>${numJugadores}</strong> jugadores${numJugadores === 2 ? ' para el partido' : ''}:</p>
         <div class="player-list">`;
 
+    // Cada jugador con su escudo al lado del nombre (js/escudos.js)
+    const conSuEscudo = nombre => typeof conEscudo === 'function' ? conEscudo(nombre) : nombre;
+
     if (typeof jugadoresDisponibles !== 'undefined') {
         jugadoresDisponibles.forEach(j => {
             html += `<label class="player-label">
                 <input type="checkbox" class="player-checkbox" data-nombre="${j.nombre}" />
-                <span class="player-name-text">${j.nombre}</span>
+                <span class="player-name-text">${conSuEscudo(j.nombre)}</span>
             </label>`;
         });
     }
