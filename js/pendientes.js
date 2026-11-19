@@ -9,7 +9,9 @@
 //   - Semifinales, final y tercer puesto -> la tarjeta del bracket, con
 //     la barra en lugar del resultado (mismo estilo que la página de
 //     Playoffs).
-//   - Repechajes y eliminatorio (formato de 9) -> igual que la liga.
+//   - Repechajes (formato de 9) -> igual que la liga.
+//   - Partido eliminatorio (formato de 9) -> la tarjeta "Pre-Playoffs" del
+//     cuadro, al lado del tercer puesto.
 //
 // Cuando el partido se juega, la fila o la tarjeta pasan a mostrar el
 // resultado real y el pendiente desaparece solo, porque todo se vuelve a
@@ -308,6 +310,17 @@ function inyectarPendientes(pendientes, semisDelTorneo, partidosDelTorneo) {
         }
     }
 
+    // Formato de 9: el partido eliminatorio va en el cuadro, al lado del
+    // tercer puesto (ver renderPlayoffs en js/historial_torneos.js)
+    const eliminatorio = (porFase[FASE_ELIMINATORIO] || [])[0];
+    if (eliminatorio && typeof armarLugarPrePlayoff === 'function') {
+        armarLugarPrePlayoff(true);
+        const ppc = document.getElementById('pre-playoff-container');
+        if (ppc && !ppc.querySelector('.match-card')) {
+            ppc.innerHTML = htmlPrePlayoff(tarjetaProbabilidad(eliminatorio, 'Partido Eliminatorio'));
+        }
+    }
+
     // Las líneas del bracket se miden sobre las tarjetas: hay que redibujarlas
     if (typeof drawBracketLines === 'function') {
         requestAnimationFrame(() => drawBracketLines());
@@ -315,7 +328,7 @@ function inyectarPendientes(pendientes, semisDelTorneo, partidosDelTorneo) {
 
     // --- Tablas de resultados: liga, grupos y repechajes ---
     Object.keys(porFase).forEach(fase => {
-        if (['Semifinal', 'Final', 'Tercer Puesto'].includes(fase)) return;
+        if (['Semifinal', 'Final', 'Tercer Puesto', FASE_ELIMINATORIO].includes(fase)) return;
         agregarFilasPendientes(fase, porFase[fase]);
     });
 }
