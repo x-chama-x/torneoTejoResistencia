@@ -571,32 +571,34 @@ function renderTournamentStats(allMatches, nombreTorneo) {
         ? `<strong style="color: #1a56db;">${conEscudo(goleadores[0].nombre)}</strong> es el goleador del torneo con un promedio de <strong style="color: #1a56db;">${goleadores[0].promedioStr}</strong> goles por partido`
         : `${goleadores.map(g => `<strong style="color: #1a56db;">${conEscudo(g.nombre)}</strong>`).join(", ").replace(/,([^,]*)$/, " y$1")} son los goleadores del torneo con un promedio de <strong style="color: #1a56db;">${goleadores[0].promedioStr}</strong> goles por partido`;
 
+    // Columnas: primero los partidos (PJ, PG, PP), después los goles y al
+    // final el promedio. El simulador usa el mismo orden (renderEstadisticasHTML).
     statsContainer.innerHTML = `
         <h2>ESTADÍSTICAS DEL TORNEO</h2>
         <div class="table-responsive"><table class="ranking-table densa-max">
             <thead><tr>
                 <th>Jugador</th>
+                <th>PJ</th>
+                <th>PG</th>
+                <th>PP</th>
                 <th>${groupLabel}</th>
                 <th>G(PO)</th>
                 <th>TG</th>
                 <th>GC</th>
                 <th>DIF</th>
-                <th>PJ</th>
-                <th>PG</th>
-                <th>PP</th>
                 <th>Prom TG/PJ</th>
             </tr></thead>
             <tbody>${statsArray.map(s => `
                 <tr>
                     <td>${conEscudo(s.nombre, { negrita: true })}</td>
+                    <td>${s.partidos}</td>
+                    <td>${s.pg}</td>
+                    <td>${s.pp}</td>
                     <td>${s.golesGrupo}</td>
                     <td>${s.golesFinal}</td>
                     <td><strong>${s.totalGoles}</strong></td>
                     <td>${s.gc}</td>
                     <td>${s.dif}</td>
-                    <td>${s.partidos}</td>
-                    <td>${s.pg}</td>
-                    <td>${s.pp}</td>
                     <td><strong>${s.promedioStr}</strong></td>
                 </tr>
             `).join("")}</tbody>

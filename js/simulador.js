@@ -605,18 +605,20 @@ function renderEstadisticasHTML(estadisticasJugadores, numJugadores, soloFaseFin
     let htmlStats = soloFaseFinal ? '<h2>ESTADÍSTICAS DEL TORNEO</h2><br>' : '<h2>ESTADÍSTICAS DEL TORNEO</h2>';
     htmlStats += '<div class="table-responsive"><table class="ranking-table densa-max">';
     const groupLabel = (numJugadores === 7 || numJugadores === 6) ? "G(FL)" : "G(FG)";
+    // Columnas: primero los partidos (PJ, PG, PP), después los goles y al
+    // final el promedio. Mismo orden que en la página de torneos.
     htmlStats += `
         <thead>
             <tr>
                 <th>Jugador</th>
+                <th>PJ</th>
+                <th>PG</th>
+                <th>PP</th>
                 ${soloFaseFinal ? '' : `<th>${groupLabel}</th>`}
                 <th>${soloFaseFinal ? 'Goles' : 'G(PO)'}</th>
                 <th>TG</th>
                 <th>GC</th>
                 <th>DIF</th>
-                <th>PJ</th>
-                <th>PG</th>
-                <th>PP</th>
                 <th>Prom TG/PJ</th>
             </tr>
         </thead>
@@ -644,14 +646,14 @@ function renderEstadisticasHTML(estadisticasJugadores, numJugadores, soloFaseFin
         htmlStats += `
             <tr>
                 <td>${conEscudo(stat.nombre, { negrita: true })}</td>
+                <td>${stat.partidosJugados}</td>
+                <td>${stat.pg}</td>
+                <td>${stat.pp}</td>
                 ${soloFaseFinal ? '' : `<td>${stat.golesLiga}</td>`}
                 <td>${stat.golesFaseFinal}</td>
                 <td><strong>${stat.totalGoles}</strong></td>
                 <td>${stat.gc}</td>
                 <td>${stat.dif > 0 ? '+' : ''}${stat.dif}</td>
-                <td>${stat.partidosJugados}</td>
-                <td>${stat.pg}</td>
-                <td>${stat.pp}</td>
                 <td><strong>${stat.promedioStr}</strong></td>
             </tr>`;
     });
