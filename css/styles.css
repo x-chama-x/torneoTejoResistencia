@@ -918,6 +918,10 @@ select:hover {
     font-size: 0.95em;
 }
 
+/* El escudo al lado del nombre: chico, para que el recuadro de cada
+   jugador no crezca de alto */
+.player-name-text { --escudo-tam: 1.8em; }
+
 .player-pts-text {
     font-size: 0.78em;
     color: #8b949e;
