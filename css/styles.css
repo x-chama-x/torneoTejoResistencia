@@ -531,8 +531,7 @@ select:hover {
 
     .bracket-col-semis .round-title,
     .bracket-col-final .round-title,
-    #tercer-puesto-container h3,
-    .extra-matches-container #pre-playoff-container h3 {
+    #tercer-puesto-container h3 {
         font-size: 11px !important;
         margin-bottom: 6px !important;
     }
@@ -544,7 +543,7 @@ select:hover {
         border-radius: 8px;
     }
 
-    /* Solo cuando tercer puesto está solo (otros formatos) */
+    /* Tercer puesto, solo debajo del bracket */
     #tercer-puesto-container .match-card {
         padding: 8px;
         width: calc(50% - 15px);
@@ -552,54 +551,39 @@ select:hover {
         border-radius: 8px;
     }
 
-    /* Cuando están dentro del extra-matches-container (formato 9 jugadores) */
-    .extra-matches-container #tercer-puesto-container .match-card,
-    .extra-matches-container #pre-playoff-container .match-card {
-        padding: 8px;
-        width: 100%;
-        max-width: none;
-        border-radius: 8px;
-    }
-
     .bracket-fixture .match-number,
-    #tercer-puesto-container .match-number,
-    .extra-matches-container #pre-playoff-container .match-number {
+    #tercer-puesto-container .match-number {
         font-size: 9px;
         margin-bottom: 6px;
     }
 
     .bracket-fixture .match-players,
-    #tercer-puesto-container .match-players,
-    .extra-matches-container #pre-playoff-container .match-players {
+    #tercer-puesto-container .match-players {
         flex-direction: row; /* Forzar que queden horizontales incluso en pantallas chicas */
         margin: 6px 0;
         gap: 3px;
     }
 
     .bracket-fixture .player,
-    #tercer-puesto-container .player,
-    .extra-matches-container #pre-playoff-container .player {
+    #tercer-puesto-container .player {
         font-size: 11px;
         min-width: 0;
     }
 
     .bracket-fixture .vs,
-    #tercer-puesto-container .vs,
-    .extra-matches-container #pre-playoff-container .vs {
+    #tercer-puesto-container .vs {
         padding: 0 4px;
         font-size: 11px;
     }
 
     .bracket-fixture .vs.marcador-vs,
-    #tercer-puesto-container .vs.marcador-vs,
-    .extra-matches-container #pre-playoff-container .vs.marcador-vs {
+    #tercer-puesto-container .vs.marcador-vs {
         font-size: 15px;
         padding: 0 4px;
     }
 
     .bracket-fixture .winner-badge,
-    #tercer-puesto-container .winner-badge,
-    .extra-matches-container #pre-playoff-container .winner-badge {
+    #tercer-puesto-container .winner-badge {
         font-size: 9px;
         padding: 3px 6px;
         border-radius: 12px;
@@ -680,8 +664,7 @@ select:hover {
        los espacios de "7 - 4" se achican para no quitarle ancho a los
        nombres. */
     .bracket-fixture .vs.marcador-vs,
-    #tercer-puesto-container .vs.marcador-vs,
-    .extra-matches-container #pre-playoff-container .vs.marcador-vs {
+    #tercer-puesto-container .vs.marcador-vs {
         font-size: 14px;
         padding: 0 2px;
         word-spacing: -0.12em;
@@ -721,8 +704,7 @@ select:hover {
    poco mas y casi sin espacios ("7-4"), para que entren los nombres. */
 @media (max-width: 359px) {
     .bracket-fixture .vs.marcador-vs,
-    #tercer-puesto-container .vs.marcador-vs,
-    .extra-matches-container #pre-playoff-container .vs.marcador-vs {
+    #tercer-puesto-container .vs.marcador-vs {
         font-size: 12.5px;
         padding: 0 1px;
         word-spacing: -0.2em;
@@ -1107,6 +1089,16 @@ select:hover {
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
+}
+
+/* Fase de liga de torneos.html y del simulador: Posiciones arriba a la
+   izquierda, Resultados a la derecha ocupando las dos filas y las
+   Estadisticas debajo de Posiciones. En una sola columna (hasta 1199px)
+   quedan en el orden del HTML: Posiciones, Resultados, Estadisticas. */
+@media (min-width: 1200px) {
+    #col-posiciones { grid-column: 1; grid-row: 1; }
+    #col-resultados { grid-column: 2; grid-row: 1 / span 2; }
+    #col-stats { grid-column: 1; grid-row: 2; }
 }
 
 @media (max-width: 900px) {

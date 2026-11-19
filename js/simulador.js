@@ -358,10 +358,14 @@ function simularGrupo(jugadoresGrupo, nombreGrupo, matchNumberInicial, estadisti
 
     // Mismo orden y desempate que las tablas reales (lib/torneo-formatos.js):
     // puntos, diferencia, y el enfrentamiento directo si quedan dos iguales
-    const rankingGrupo = ordenarPosiciones(
+    const ordenada = ordenarPosiciones(
         Object.entries(estadisticas).map(([nombre, s]) => ({ nombre, ...s })),
         partidos.map(p => ({ j1: p.azul, j2: p.rojo, g1: p.golesAzul, g2: p.golesRojo }))
-    ).map((fila, index) => ({ pos: index + 1, ...fila }));
+    );
+    const rankingGrupo = ordenada.map((fila, index) => ({ pos: index + 1, ...fila }));
+    // El .map() no copia lo que ordenarPosiciones le cuelga a la tabla: los
+    // empates de 3 o más, para el aviso de abajo de la tabla
+    rankingGrupo.empatesSinResolver = ordenada.empatesSinResolver;
 
     return { partidos, rankingGrupo, matchNumber };
 }
@@ -390,6 +394,9 @@ function construirCandidatos(filasRanking, jugadores) {
 }
 
 // Mini-liga (todos contra todos) usada en los repechajes de 2° y 3° puestos.
+// En las estadísticas del torneo sus goles cuentan como G(PO), no como de la
+// fase de grupos: igual que en la página de torneos, que pone en G(FG) solo
+// los partidos de "Fase de Grupos".
 function simularMiniLiga(candidatos, estadisticasGlobales = null) {
     const stats = {};
     candidatos.forEach(c => {
@@ -420,14 +427,14 @@ function simularMiniLiga(candidatos, estadisticasGlobales = null) {
 
             if (estadisticasGlobales) {
                 if (estadisticasGlobales[j1.nombre]) {
-                    estadisticasGlobales[j1.nombre].golesLiga += resultadoMini.goles1;
+                    estadisticasGlobales[j1.nombre].golesFaseFinal += resultadoMini.goles1;
                     estadisticasGlobales[j1.nombre].gc += resultadoMini.goles2;
                     estadisticasGlobales[j1.nombre].partidosJugados++;
                     if (resultadoMini.ganador === j1.nombre) estadisticasGlobales[j1.nombre].pg++;
                     else estadisticasGlobales[j1.nombre].pp++;
                 }
                 if (estadisticasGlobales[j2.nombre]) {
-                    estadisticasGlobales[j2.nombre].golesLiga += resultadoMini.goles2;
+                    estadisticasGlobales[j2.nombre].golesFaseFinal += resultadoMini.goles2;
                     estadisticasGlobales[j2.nombre].gc += resultadoMini.goles1;
                     estadisticasGlobales[j2.nombre].partidosJugados++;
                     if (resultadoMini.ganador === j2.nombre) estadisticasGlobales[j2.nombre].pg++;
@@ -546,13 +553,15 @@ function simularPlayoffs(clasificados, jugadores, estadisticasJugadores) {
     return { semifinalistas, sf1, sf2, tercerPuesto, perdedorSF1, perdedorSF2, final };
 }
 
-// Genera el HTML del bracket de playoffs (idéntico para simulación única y Monte Carlo)
-function renderPlayoffsHTML(playoffs, numJugadores, repechajePreMatch) {
+// Genera el HTML del bracket de playoffs (idéntico para simulación única y
+// Monte Carlo). Igual que el de torneos.html: el partido eliminatorio del
+// formato de 9 no va acá sino con los repechajes (ver renderFaseRegularHTML).
+function renderPlayoffsHTML(playoffs) {
     const { semifinalistas, sf1, sf2, tercerPuesto, perdedorSF1, perdedorSF2, final } = playoffs;
 
     let html = `
         <div class="panel playoffs-section" style="margin-bottom: 2rem;">
-            <h2>Playoffs</h2><br>
+            <h2>Playoffs</h2>
             <div class="playoff-bracket" id="sim-playoff-bracket">
                 <div class="bracket-fixture">
                     <div class="bracket-col-semis">
@@ -576,29 +585,11 @@ function renderPlayoffsHTML(playoffs, numJugadores, repechajePreMatch) {
                 </div>
             </div>`;
 
-    if (numJugadores === 9 && repechajePreMatch) {
-        html += `<div class="extra-matches-container" style="display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; flex-wrap: wrap;">`;
-        // Pre-Playoffs
-        html += `<div id="pre-playoff-container" style="text-align: center; flex: 1; min-width: 0; box-sizing: border-box;">
-                <h3 style="margin-bottom: 1rem; color:#e67e22; text-align: center;">Pre-Playoffs</h3>
-                <div style="display: flex; justify-content: center;">
-                ${createMatchCardSimulador(repechajePreMatch.data.ganador, repechajePreMatch.j1, repechajePreMatch.j2, repechajePreMatch.data.goles1, repechajePreMatch.data.goles2, "Repechaje")}
-                </div>
-            </div>`;
-        // Tercer Puesto
-        html += `<div id="tercer-puesto-container" style="text-align: center; flex: 1; min-width: 0; box-sizing: border-box;">
-                <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">Tercer Puesto</h3>
-                <div style="display: flex; justify-content: center;">
-                ${createMatchCardSimulador(tercerPuesto.ganador, perdedorSF1, perdedorSF2, tercerPuesto.goles1, tercerPuesto.goles2, "Tercer Puesto")}
-                </div>
-            </div>`;
-        html += `</div>`;
-    } else if (tercerPuesto) {
-        // Mostrar sección de tercer puesto normal
+    if (tercerPuesto) {
         html += `<div id="tercer-puesto-container" style="margin-top: 1rem; text-align: center;">
                 <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">Tercer Puesto</h3>
                 <div style="display: flex; justify-content: center;">
-                    ${createMatchCardSimulador(tercerPuesto.ganador, perdedorSF1, perdedorSF2, tercerPuesto.goles1, tercerPuesto.goles2, "Tercer Puesto")}
+                    ${createMatchCardSimulador(tercerPuesto.ganador, perdedorSF1, perdedorSF2, tercerPuesto.goles1, tercerPuesto.goles2, "Tercer y Cuarto Puesto")}
                 </div>
             </div>`;
     }
@@ -609,7 +600,9 @@ function renderPlayoffsHTML(playoffs, numJugadores, repechajePreMatch) {
 
 // Genera el HTML de la tabla de estadísticas del torneo
 function renderEstadisticasHTML(estadisticasJugadores, numJugadores, soloFaseFinal = false) {
-    let htmlStats = '<h2>ESTADÍSTICAS DEL TORNEO</h2><br>';
+    // Igual que en la página de torneos. La Copa de Campeones (soloFaseFinal)
+    // no está en esa página y queda como estaba, con el <br> y la pelotita.
+    let htmlStats = soloFaseFinal ? '<h2>ESTADÍSTICAS DEL TORNEO</h2><br>' : '<h2>ESTADÍSTICAS DEL TORNEO</h2>';
     htmlStats += '<div class="table-responsive"><table class="ranking-table densa-max">';
     const groupLabel = (numJugadores === 7 || numJugadores === 6) ? "G(FL)" : "G(FG)";
     htmlStats += `
@@ -645,7 +638,7 @@ function renderEstadisticasHTML(estadisticasJugadores, numJugadores, soloFaseFin
             promedio: stats.partidosJugados > 0 ? (totalGoles / stats.partidosJugados) : 0,
             promedioStr: stats.partidosJugados > 0 ? (totalGoles / stats.partidosJugados).toFixed(2) : '0.00'
         };
-    }).sort((a, b) => b.promedio - a.promedio || b.totalGoles - a.totalGoles || b.dif - a.dif);
+    }).sort((a, b) => b.promedio - a.promedio || b.totalGoles - a.totalGoles);
 
     statsArray.forEach(stat => {
         htmlStats += `
@@ -682,7 +675,7 @@ function renderEstadisticasHTML(estadisticasJugadores, numJugadores, soloFaseFin
         // Empate: múltiples goleadores
         const nombresGoleadores = goleadores.map(g => `<strong style="color: #1a56db;">${conEscudo(g.nombre)}</strong>`).join(', ').replace(/,([^,]*)$/, ' y$1');
         htmlStats += `<p style="margin: 0; font-size: 18px; font-weight: bold; color: #000;">
-            ⚽ ${nombresGoleadores} son los goleadores del torneo con un promedio de <strong style="color: #1a56db;">${goleadores[0].promedioStr}</strong> goles por partido
+            ${soloFaseFinal ? '⚽ ' : ''}${nombresGoleadores} son los goleadores del torneo con un promedio de <strong style="color: #1a56db;">${goleadores[0].promedioStr}</strong> goles por partido
         </p>`;
     }
 
@@ -736,54 +729,180 @@ function drawSimBracketLines() {
     `;
 }
 
-function renderGrupoUIX(partidos, rankingGrupo, clasifCount) {
-    let out = '<div class="home-container" style="margin-bottom:2rem;">';
-    out += '<div><h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Posiciones</h4>';
-    out += '<div class="table-responsive"><table class="ranking-table densa">';
-    out += '<thead><tr><th>#</th><th>Jugador</th><th>PJ</th><th>PG</th><th>PP</th><th>GF</th><th>GC</th><th>DIF</th><th>PTS</th></tr></thead><tbody>';
-    rankingGrupo.forEach((r, idx) => {
-        out += `<tr ${idx < clasifCount ? 'style="background: rgba(46, 160, 67, 0.15);"' : ''}>
-            <td>${idx + 1}</td>
-            <td>${conEscudo(r.nombre, { negrita: true })}</td>
-            <td>${r.pj}</td>
-            <td>${r.pg}</td>
-            <td>${r.pp}</td>
-            <td>${r.gf}</td>
-            <td>${r.gc}</td>
-            <td>${r.gf - r.gc > 0 ? '+' : ''}${r.gf - r.gc}</td>
-            <td><strong>${r.pts}</strong></td>
-        </tr>`;
-    });
-    out += '</tbody></table></div>';
-    if(clasifCount>0) {
-        out += `<div class="leyenda-clasificacion" style="margin-top: 10px; font-size: 0.85rem; color: #8b949e; display: flex; align-items: center;"><span style="display:inline-block; width:12px; height:12px; background: rgba(46, 160, 67, 0.5); border-radius: 2px; margin-right: 5px;"></span><span>[1-${clasifCount}] Clasifica</span></div>`;
-    }
-    // Tres o mas empatados en todo: el directo no alcanza (puede ser
-    // circular). Mismo aviso que en las paginas de torneos.
-    for (let i = 0; i < rankingGrupo.length; ) {
-        let fin = i;
-        while (fin + 1 < rankingGrupo.length && empatanEnTodo(rankingGrupo[fin], rankingGrupo[fin + 1])) fin++;
-        if (fin - i >= 2 && (rankingGrupo[i].pj || 0) > 0) {
-            const nombres = rankingGrupo.slice(i, fin + 1).map(r => r.nombre).join(', ');
-            out += `<div class="aviso-empate-multiple" style="margin-top: 10px; font-size: 0.85rem; color: #d29922; background: rgba(210, 153, 34, 0.1); border: 1px solid rgba(210, 153, 34, 0.35); border-radius: 8px; padding: 10px 12px;">⚠️ <strong>${nombres}</strong> quedaron empatados en puntos y diferencia de gol. El enfrentamiento directo solo desempata entre dos, así que en un torneo real este orden se define a mano. Acá quedaron en un orden cualquiera.</div>`;
-        }
-        i = fin + 1;
-    }
-    out += '</div>';
+// =====================================================
+// FASE REGULAR CON EL MISMO HTML QUE LA PÁGINA DE TORNEOS
+// =====================================================
+// Las tablas de liga, grupos y repechajes, el partido eliminatorio y el
+// lugar de las estadísticas se arman igual que en torneos.html
+// (js/historial_torneos.js): mismos títulos ("Fase de Grupos (A)",
+// "Repechaje 2° Puestos"), mismas columnas (G, P, PTS(GF)), mismas
+// leyendas y el mismo aviso de empates. Si se cambia algo allá, hay que
+// cambiarlo acá también, para que un torneo simulado se vea igual que uno
+// jugado.
+//
+// `secciones` es lo que devuelve la simulación:
+//   { esLiga, grupos: [{ nombre, partidos, ranking, clasifCount }],
+//     repechajes: [{ nombre, partidos, ranking }], eliminatorio: { j1, j2, g1, g2, ganador } | null }
 
-    out += '<div class="panel-resultados"><h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Resultados</h4>';
-    out += '<div class="table-responsive"><table class="ranking-table align-center large-table-font">';
-    out += '<thead><tr><th style="text-align: center;">Local</th><th style="text-align: center;">Resultado</th><th style="text-align: center;">Visitante</th></tr></thead><tbody>';
-    partidos.forEach(p => {
-        out += `<tr class="fila-resultado">
-            <td style="text-align: center;">${conEscudo(p.azul, { derecha: true })}</td>
-            <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${p.golesAzul}-${p.golesRojo}</td>
-            <td style="text-align: center;">${conEscudo(p.rojo)}</td>
-        </tr>`;
-    });
-    out += '</tbody></table></div></div>';
-    out += '</div>';
-    return out;
+function htmlTablaPosiciones(ranking, clasifCount) {
+    const filas = ranking.map((r, idx) => {
+        const dif = r.gf - r.gc;
+        return `
+            <tr${idx < clasifCount ? ' style="background: rgba(46, 160, 67, 0.15);"' : ''}>
+                <td>${idx + 1}</td>
+                <td>${conEscudo(r.nombre, { negrita: true })}</td>
+                <td>${r.pj}</td>
+                <td>${r.pg}</td>
+                <td>${r.pp}</td>
+                <td>${r.gf}</td>
+                <td>${r.gc}</td>
+                <td>${dif > 0 ? '+' + dif : dif}</td>
+                <td><strong>${r.pts}</strong></td>
+            </tr>`;
+    }).join('');
+    return `
+        <div class="table-responsive">
+            <table class="ranking-table densa">
+                <thead>
+                    <tr><th>#</th><th>Jugador</th><th>PJ</th><th>G</th><th>P</th><th>GF</th><th>GC</th><th>DIF</th><th>PTS(GF)</th></tr>
+                </thead>
+                <tbody>${filas}</tbody>
+            </table>
+        </div>`;
+}
+
+function htmlTablaResultados(partidos) {
+    return `
+        <div class="table-responsive">
+            <table class="ranking-table align-center large-table-font">
+                <thead>
+                    <tr><th style="text-align: center;">Local</th><th style="text-align: center;">Resultado</th><th style="text-align: center;">Visitante</th></tr>
+                </thead>
+                <tbody>
+                    ${partidos.map(p => `
+                    <tr class="fila-resultado">
+                        <td style="text-align: center;">${conEscudo(p.azul, { derecha: true })}</td>
+                        <td style="text-align: center; font-weight: bold; letter-spacing: 2px;">${p.golesAzul}-${p.golesRojo}</td>
+                        <td style="text-align: center;">${conEscudo(p.rojo)}</td>
+                    </tr>`).join('')}
+                </tbody>
+            </table>
+        </div>`;
+}
+
+// "[1-2] Clasifica a playoffs", "[1] Avanza al partido eliminatorio"
+function textoClasifican(cantidad, texto) {
+    return `[${cantidad === 1 ? '1' : '1-' + cantidad}] ${texto}`;
+}
+
+// Torneos tiene dos versiones de la leyenda (la de grupos en flex y la de
+// liga y repechajes con vertical-align): se respetan las dos
+function htmlLeyenda(texto, enFlex) {
+    return enFlex
+        ? `<div class="leyenda-clasificacion" style="margin-top: 10px; font-size: 0.85rem; color: #8b949e; display: flex; align-items: center;"><span style="display:inline-block; width:12px; height:12px; background: rgba(46, 160, 67, 0.5); border-radius: 2px; margin-right: 5px;"></span><span>${texto}</span></div>`
+        : `<div class="leyenda-clasificacion" style="margin-top: 10px; font-size: 0.85rem; color: #8b949e;"><span style="display:inline-block; width:12px; height:12px; background: rgba(46, 160, 67, 0.5); border-radius: 2px; margin-right: 5px; vertical-align: middle;"></span> <span style="vertical-align: middle;">${texto}</span></div>`;
+}
+
+// Tres o más empatados en todo: el directo no alcanza. Mismo aviso que
+// renderAvisoEmpates() de historial_torneos.js
+function htmlAvisoEmpates(ranking) {
+    const empates = (ranking && ranking.empatesSinResolver) || [];
+    if (empates.length === 0) return '';
+    return `<div class="aviso-empate-multiple" style="margin-top: 10px; font-size: 0.85rem; color: #d29922; background: rgba(210, 153, 34, 0.1); border: 1px solid rgba(210, 153, 34, 0.35); border-radius: 8px; padding: 10px 12px;">${empates.map(grupo =>
+        `⚠️ <strong>${grupo.join(', ')}</strong> quedaron empatados en puntos, diferencia y goles a favor. El enfrentamiento directo solo desempata entre dos, así que este orden hay que definirlo a mano.`
+    ).join('<br>')}</div>`;
+}
+
+// Un grupo o un repechaje: título, Posiciones a la izquierda y Resultados
+// a la derecha (abajo en celular)
+function htmlBloqueFase(titulo, partidos, ranking, clasifCount, leyenda) {
+    return `
+        <div style="margin-bottom: 2rem;">
+            <h3 style="margin-bottom: 1rem; color: #58a6ff;">${titulo}</h3>
+            <div class="home-container">
+                <div>
+                    <h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Posiciones</h4>
+                    ${htmlTablaPosiciones(ranking, clasifCount)}
+                    ${leyenda}
+                </div>
+                <div class="panel-resultados">
+                    <h4 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Resultados</h4>
+                    ${htmlTablaResultados(partidos)}
+                </div>
+            </div>
+            ${htmlAvisoEmpates(ranking)}
+        </div>`;
+}
+
+// En fila con flex: si no, el que tiene el escudo adelante queda más arriba
+// (se alinea por el borde de abajo de la imagen y no por el texto)
+function htmlEliminatorio(e) {
+    return `
+        <div style="text-align:center; margin-bottom: 1.5rem;">
+            <h3 style="margin-bottom: 1rem; color: #58a6ff;">${FASE_ELIMINATORIO}</h3>
+            <div style="display:inline-block; background:#161b22; border:1px solid #30363d; border-radius:12px; padding:14px 22px;">
+                <div style="font-size:1.05rem; font-weight:700; display:flex; align-items:center; justify-content:center;">
+                    <span>${conEscudo(e.j1, { derecha: true })}</span>
+                    <span style="margin:0 10px; letter-spacing:2px;">${e.g1}-${e.g2}</span>
+                    <span>${conEscudo(e.j2)}</span>
+                </div>
+                <div style="margin-top:8px; background:#d29922; color:#0d1117; border-radius:6px; padding:4px 10px; font-weight:700; font-size:0.85rem;">
+                    Clasifica: ${e.ganador}
+                </div>
+            </div>
+        </div>`;
+}
+
+// Arma toda la parte de abajo del bracket. Las estadísticas van donde las
+// pone torneos.html: en liga, dentro de la grilla (debajo de Posiciones en
+// PC, debajo de Resultados en celular); en grupos, al final, después de los
+// repechajes y el partido eliminatorio si los hay.
+function renderFaseRegularHTML(secciones, htmlStats) {
+    const stats = `<div id="stats-container" style="margin-top: 2rem;">${htmlStats}</div>`;
+
+    if (secciones.esLiga) {
+        const liga = secciones.grupos[0];
+        return `
+            <div id="bloque-liga">
+                <h2>Fase de Liga</h2>
+                <br>
+                <div class="home-container">
+                    <div id="col-posiciones">
+                        <h3 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Posiciones</h3>
+                        ${htmlTablaPosiciones(liga.ranking, liga.clasifCount)}
+                        ${htmlLeyenda(textoClasifican(liga.clasifCount, 'Clasifica a playoffs'), false)}
+                        ${htmlAvisoEmpates(liga.ranking)}
+                    </div>
+                    <div class="panel-resultados" id="col-resultados">
+                        <h3 style="margin-bottom: 1rem; text-align: center; color: #eff0f3;">Resultados</h3>
+                        <div id="resultados-fase">${htmlTablaResultados(liga.partidos)}</div>
+                    </div>
+                    <div id="col-stats">${stats}</div>
+                </div>
+            </div>`;
+    }
+
+    const repechajes = secciones.repechajes.map(r => htmlBloqueFase(r.nombre, r.partidos, r.ranking, 1,
+        htmlLeyenda(textoClasifican(1, 'Avanza al partido eliminatorio'), false))).join('');
+    const eliminatorio = secciones.eliminatorio ? htmlEliminatorio(secciones.eliminatorio) : '';
+
+    return `
+        <div id="bloque-grupos">
+            <h2>Fase de Grupos</h2>
+            <br>
+            <div id="grupos-container">
+                ${secciones.grupos.map(g => htmlBloqueFase(g.nombre, g.partidos, g.ranking, g.clasifCount,
+                    htmlLeyenda(textoClasifican(g.clasifCount, 'Clasifica a playoffs'), true))).join('')}
+            </div>
+            ${repechajes || eliminatorio ? `<div id="repechajes-container">${repechajes}${eliminatorio}</div>` : ''}
+            ${stats}
+        </div>`;
+}
+
+// El partido eliminatorio del formato de 9, en el formato de renderFaseRegularHTML
+function eliminatorioDesdePrePlayoff(match) {
+    if (!match) return null;
+    return { j1: match.j1, j2: match.j2, g1: match.data.goles1, g2: match.data.goles2, ganador: match.data.ganador };
 }
 
 function createMatchCardSimulador(ganador, j1, j2, g1, g2, title) {
@@ -1014,9 +1133,9 @@ function simularTorneo(mantenerGrupos = false) {
         return;
     }
 
-    let htmlFase = '';
     let clasificados = [];
-    let repechajePreMatch = null;
+    // Lo que va debajo del bracket, en el formato de renderFaseRegularHTML
+    const secciones = { esLiga: numJugadores === 7 || numJugadores === 6, grupos: [], repechajes: [], eliminatorio: null };
     // Estructura de grupos para el cálculo de bicampeonato (Monte Carlo)
     let gruposBicampeon = null;
 
@@ -1033,8 +1152,6 @@ function simularTorneo(mantenerGrupos = false) {
     if (numJugadores === 7 || numJugadores === 6) {
         // Formato Liga: Todos contra todos
         // FASE DE LIGA COMPLETA (4, 5 o 6 jugadores)
-        htmlFase += '<h2>Fase de Liga</h2><br>';
-
         gruposBicampeon = { all: jugadores.slice() };
         if (typeof calibrarSiCorresponde === 'function') {
             calibrarSiCorresponde(gruposBicampeon, numJugadores, simularPartido, simGrupoBicampeon);
@@ -1042,14 +1159,12 @@ function simularTorneo(mantenerGrupos = false) {
 
         const { partidos, rankingGrupo } = simularGrupo(jugadores, 'Liga', 1, estadisticasJugadores);
 
-        htmlFase += renderGrupoUIX(partidos, rankingGrupo, 4);
+        secciones.grupos.push({ nombre: FASE_LIGA, partidos, ranking: rankingGrupo, clasifCount: 4 });
 
         clasificados = rankingGrupo.slice(0, 4);
 
     } else if (numJugadores === 8) {
         // 2 grupos de 4
-        htmlFase += '<h2>Fase de Grupos</h2><br>';
-
         let grupoA, grupoB;
 
         if (modoGrupos === 'manual' && window.gruposManualConfig) {
@@ -1070,12 +1185,10 @@ function simularTorneo(mantenerGrupos = false) {
         const resultadoA = simularGrupo(grupoA, 'A', 1, estadisticasJugadores);
         const resultadoB = simularGrupo(grupoB, 'B', resultadoA.matchNumber, estadisticasJugadores);
 
-        // Mostrar partidos por grupo
-        htmlFase += '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">GRUPO A</h3>';
-        htmlFase += renderGrupoUIX(resultadoA.partidos, resultadoA.rankingGrupo, 2);
-
-        htmlFase += '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">GRUPO B</h3>';
-        htmlFase += renderGrupoUIX(resultadoB.partidos, resultadoB.rankingGrupo, 2);
+        secciones.grupos.push(
+            { nombre: faseDelGrupo('A'), partidos: resultadoA.partidos, ranking: resultadoA.rankingGrupo, clasifCount: 2 },
+            { nombre: faseDelGrupo('B'), partidos: resultadoB.partidos, ranking: resultadoB.rankingGrupo, clasifCount: 2 }
+        );
 
         // Los 2 primeros de cada grupo clasifican
         clasificados = [
@@ -1085,8 +1198,6 @@ function simularTorneo(mantenerGrupos = false) {
 
     } else if (numJugadores === 9) {
         // 3 grupos de 3
-        htmlFase += '<h2>Fase de Grupos</h2><br>';
-
         // Separar en 3 grupos (A, B, C)
         let grupos = [[], [], []];
         if (modoGrupos === 'manual' && window.gruposManualConfig) {
@@ -1108,8 +1219,8 @@ function simularTorneo(mantenerGrupos = false) {
         for (let i = 0; i < grupos.length; i++) {
             const resultadoGrupo = simularGrupo(grupos[i], String.fromCharCode(65 + i), 1, estadisticasJugadores);
             resultadosGrupos9.push(resultadoGrupo);
-            htmlFase += `<h3 style="text-align: center; margin: 20px 0; color: #667eea;">GRUPO ${String.fromCharCode(65 + i)}</h3>`;
-            htmlFase += renderGrupoUIX(resultadoGrupo.partidos, resultadoGrupo.rankingGrupo, 1);
+            // Con 3 grupos pasa directo solo el 1°: los 2° y 3° van al repechaje
+            secciones.grupos.push({ nombre: faseDelGrupo(String.fromCharCode(65 + i)), partidos: resultadoGrupo.partidos, ranking: resultadoGrupo.rankingGrupo, clasifCount: 1 });
         }
 
         // Clasifican los 3 primeros de cada grupo directo
@@ -1126,27 +1237,23 @@ function simularTorneo(mantenerGrupos = false) {
         // ========== MINI-LIGA ENTRE SEGUNDOS ==========
         const miniSegundos = simularMiniLiga(construirCandidatos(segundos, jugadores), estadisticasJugadores);
 
-        htmlFase += '<h2>REPECHAJE 2° PUESTOS - MINI-LIGA (3 PARTIDOS)</h2><br>';
-        htmlFase += renderGrupoUIX(miniSegundos.partidos, miniSegundos.ranking, 1);
+        secciones.repechajes.push({ nombre: FASE_REPECHAJE_2, partidos: miniSegundos.partidos, ranking: miniSegundos.ranking });
 
         // ========== REPECHAJE ENTRE TERCEROS ==========
         const miniTerceros = simularMiniLiga(construirCandidatos(terceros, jugadores), estadisticasJugadores);
 
-        htmlFase += '<h2>REPECHAJE 3° PUESTOS - MINI-LIGA (3 PARTIDOS)</h2><br>';
-        htmlFase += renderGrupoUIX(miniTerceros.partidos, miniTerceros.ranking, 1);
+        secciones.repechajes.push({ nombre: FASE_REPECHAJE_3, partidos: miniTerceros.partidos, ranking: miniTerceros.ranking });
 
         // ========== PARTIDO ELIMINATORIO PRE-PLAYOFFS ==========
         // 1° de repechaje segundos vs 1° de repechaje terceros
         const prePlayoff = simularPrePlayoff(miniSegundos.ranking[0], miniTerceros.ranking[0], jugadores, estadisticasJugadores);
-        repechajePreMatch = prePlayoff.match;
+        secciones.eliminatorio = eliminatorioDesdePrePlayoff(prePlayoff.match);
 
         // El ganador del partido eliminatorio es el 4° clasificado
         clasificados = [...primeros, prePlayoff.cuartoClasificado];
 
     } else if (numJugadores === 10) {
         // 2 grupos de 5
-        htmlFase += '<h2>Fase de Grupos</h2><br>';
-
         let grupos = [[], []];
         if (modoGrupos === 'manual' && window.gruposManualConfig) {
             grupos[0] = window.gruposManualConfig.grupoA.map(nombre => jugadores.find(j => j.nombre === nombre)).filter(Boolean);
@@ -1165,8 +1272,7 @@ function simularTorneo(mantenerGrupos = false) {
         for (let i = 0; i < grupos.length; i++) {
             const resultadoGrupo = simularGrupo(grupos[i], String.fromCharCode(65 + i), 1, estadisticasJugadores);
             resultadosGrupos.push(resultadoGrupo);
-            htmlFase += `<h3 style="text-align: center; margin: 20px 0; color: #667eea;">GRUPO ${String.fromCharCode(65 + i)}</h3>`;
-            htmlFase += renderGrupoUIX(resultadoGrupo.partidos, resultadoGrupo.rankingGrupo, 2);
+            secciones.grupos.push({ nombre: faseDelGrupo(String.fromCharCode(65 + i)), partidos: resultadoGrupo.partidos, ranking: resultadoGrupo.rankingGrupo, clasifCount: 2 });
         }
 
         // Los 2 primeros de cada grupo clasifican
@@ -1180,7 +1286,7 @@ function simularTorneo(mantenerGrupos = false) {
     const playoffs = simularPlayoffs(clasificados, jugadores, estadisticasJugadores);
 
     // Generar html para playoffs con formato bracket y conector de SVG
-    const htmlPlayoffs = renderPlayoffsHTML(playoffs, numJugadores, repechajePreMatch);
+    const htmlPlayoffs = renderPlayoffsHTML(playoffs);
 
     requestAnimationFrame(() => drawSimBracketLines());
     if (!window._simResizeListenerAdded) {
@@ -1203,7 +1309,7 @@ function simularTorneo(mantenerGrupos = false) {
     reSimulateButtons += `</div>`;
 
     document.getElementById('resultado').innerHTML =
-        reSimulateButtons + htmlPlayoffs + htmlFase + htmlStats;
+        reSimulateButtons + htmlPlayoffs + renderFaseRegularHTML(secciones, htmlStats);
 
     // Draw SVG lines after injecting HTML
     setTimeout(() => {
@@ -1860,7 +1966,8 @@ function ejecutarSimulacionSilenciosa() {
             numJugadores: 4,
             grupos: [],
             repechajes: [],
-            repechajePreMatch: null,
+            esLiga: false,
+            eliminatorio: null,
             clasificados: resultadoCopa.clasificados,
             playoffs: null,
             playoffsCopa: resultadoCopa,
@@ -1874,9 +1981,11 @@ function ejecutarSimulacionSilenciosa() {
 
     const torneoData = {
         numJugadores: numJugadores,
-        grupos: [],              // [{ titulo, partidos, ranking, clasifCount }]
-        repechajes: [],          // [{ titulo, partidos, ranking, clasifCount }]
-        repechajePreMatch: null, // Partido eliminatorio de 9 jugadores
+        // Fase regular, en el formato de renderFaseRegularHTML
+        esLiga: numJugadores === 7 || numJugadores === 6,
+        grupos: [],              // [{ nombre, partidos, ranking, clasifCount }]
+        repechajes: [],          // [{ nombre, partidos, ranking }]
+        eliminatorio: null,      // Partido eliminatorio de 9 jugadores
         clasificados: [],
         playoffs: null,
         semifinalistas: [],
@@ -1914,7 +2023,7 @@ function ejecutarSimulacionSilenciosa() {
         }
         const { partidos, rankingGrupo } = simularGrupo(jugadores, 'Liga', 1, estadisticasJugadores);
         torneoData.grupos.push({
-            titulo: '<h2>Fase de Liga</h2><br>',
+            nombre: FASE_LIGA,
             partidos: partidos,
             ranking: rankingGrupo,
             clasifCount: 4
@@ -1934,13 +2043,13 @@ function ejecutarSimulacionSilenciosa() {
         const resultadoB = simularGrupo(grupoB, 'B', resultadoA.matchNumber, estadisticasJugadores);
 
         torneoData.grupos.push({
-            titulo: '<h2>Fase de Grupos</h2><br><h3 style="text-align: center; margin: 20px 0; color: #667eea;">GRUPO A</h3>',
+            nombre: faseDelGrupo('A'),
             partidos: resultadoA.partidos,
             ranking: resultadoA.rankingGrupo,
             clasifCount: 2
         });
         torneoData.grupos.push({
-            titulo: '<h3 style="text-align: center; margin: 20px 0; color: #667eea;">GRUPO B</h3>',
+            nombre: faseDelGrupo('B'),
             partidos: resultadoB.partidos,
             ranking: resultadoB.rankingGrupo,
             clasifCount: 2
@@ -1965,8 +2074,7 @@ function ejecutarSimulacionSilenciosa() {
             const resultadoGrupo = simularGrupo(grupos[i], letra, 1, estadisticasJugadores);
             resultadosGrupos9.push(resultadoGrupo);
             torneoData.grupos.push({
-                titulo: (i === 0 ? '<h2>Fase de Grupos</h2><br>' : '') +
-                    `<h3 style="text-align: center; margin: 20px 0; color: #667eea;">GRUPO ${letra}</h3>`,
+                nombre: faseDelGrupo(letra),
                 partidos: resultadoGrupo.partidos,
                 ranking: resultadoGrupo.rankingGrupo,
                 clasifCount: 1
@@ -1985,7 +2093,7 @@ function ejecutarSimulacionSilenciosa() {
         // Mini-liga entre 2° puestos
         const miniSegundos = simularMiniLiga(construirCandidatos(segundos, jugadores), estadisticasJugadores);
         torneoData.repechajes.push({
-            titulo: '<h2>REPECHAJE 2° PUESTOS - MINI-LIGA (3 PARTIDOS)</h2><br>',
+            nombre: FASE_REPECHAJE_2,
             partidos: miniSegundos.partidos,
             ranking: miniSegundos.ranking,
             clasifCount: 1
@@ -1994,7 +2102,7 @@ function ejecutarSimulacionSilenciosa() {
         // Mini-liga entre 3° puestos
         const miniTerceros = simularMiniLiga(construirCandidatos(terceros, jugadores), estadisticasJugadores);
         torneoData.repechajes.push({
-            titulo: '<h2>REPECHAJE 3° PUESTOS - MINI-LIGA (3 PARTIDOS)</h2><br>',
+            nombre: FASE_REPECHAJE_3,
             partidos: miniTerceros.partidos,
             ranking: miniTerceros.ranking,
             clasifCount: 1
@@ -2002,7 +2110,7 @@ function ejecutarSimulacionSilenciosa() {
 
         // Partido eliminatorio pre-playoffs: define el 4° clasificado
         const prePlayoff = simularPrePlayoff(miniSegundos.ranking[0], miniTerceros.ranking[0], jugadores, estadisticasJugadores);
-        torneoData.repechajePreMatch = prePlayoff.match;
+        torneoData.eliminatorio = eliminatorioDesdePrePlayoff(prePlayoff.match);
 
         clasificados = [...primeros, prePlayoff.cuartoClasificado];
 
@@ -2020,8 +2128,7 @@ function ejecutarSimulacionSilenciosa() {
             const resultadoGrupo = simularGrupo(grupos[i], letra, 1, estadisticasJugadores);
             resultadosGrupos.push(resultadoGrupo);
             torneoData.grupos.push({
-                titulo: (i === 0 ? '<h2>Fase de Grupos</h2><br>' : '') +
-                    `<h3 style="text-align: center; margin: 20px 0; color: #667eea;">GRUPO ${letra}</h3>`,
+                nombre: faseDelGrupo(letra),
                 partidos: resultadoGrupo.partidos,
                 ranking: resultadoGrupo.rankingGrupo,
                 clasifCount: 2
@@ -2081,19 +2188,12 @@ function mostrarTorneoMasPromedio(torneoData, frecuencia, totalSimulaciones = 10
        <p style="color:#8b949e; margin:0; font-size:12px;">Este torneo ocurrió <strong>${frecuencia}</strong> veces de ${totalSimulaciones.toLocaleString('es-AR')} simulaciones (${((frecuencia / totalSimulaciones) * 100).toFixed(2)}%)</p>
     </div>`;
 
-    // Fase de grupos y repechajes
-    let htmlFase = '';
-    [...torneoData.grupos, ...torneoData.repechajes].forEach(seccion => {
-        htmlFase += seccion.titulo;
-        htmlFase += renderGrupoUIX(seccion.partidos, seccion.ranking, seccion.clasifCount);
-    });
-
     // Playoffs: mismo bracket que la simulación única (la Copa de Campeones
     // usa su propio bracket a ida y vuelta, ver renderPlayoffsCopaHTML)
     const htmlPlayoffs = torneoData.esCopa
         ? renderPlayoffsCopaHTML(torneoData.playoffsCopa)
         : (torneoData.playoffs
-            ? renderPlayoffsHTML(torneoData.playoffs, numJugadores, torneoData.repechajePreMatch)
+            ? renderPlayoffsHTML(torneoData.playoffs)
             : '');
 
     // Tabla de estadísticas
@@ -2106,8 +2206,12 @@ function mostrarTorneoMasPromedio(torneoData, frecuencia, totalSimulaciones = 10
        <button onclick="window.simularTorneoMonteCarlo();" class="re-simular-btn">📊 Analizar de nuevo</button>
     </div>`;
 
+    // Fase regular y estadísticas, igual que en la simulación única. La Copa
+    // no tiene fase regular: ahí van solo las estadísticas.
+    const htmlFaseYStats = torneoData.esCopa ? htmlStats : renderFaseRegularHTML(torneoData, htmlStats);
+
     document.getElementById('resultado').innerHTML =
-        htmlBanner + reSimulateButtons + htmlPlayoffs + htmlFase + htmlStats;
+        htmlBanner + reSimulateButtons + htmlPlayoffs + htmlFaseYStats;
 
     // Dibujar los conectores SVG del bracket una vez inyectado el HTML
     const dibujarLineas = torneoData.esCopa ? drawBracketLines : drawSimBracketLines;

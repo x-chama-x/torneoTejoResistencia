@@ -10,19 +10,8 @@
     <link rel="stylesheet" href="css/playoffs.css">
     <link rel="stylesheet" href="css/probabilidades.css">
     <style>
-        /* Layout de la fase de liga: Estadísticas queda bajo Posiciones en PC
-           y bajo Resultados en móvil (igual que en las páginas viejas) */
-        @media (min-width: 1200px) {
-            #col-posiciones { grid-column: 1; grid-row: 1; }
-            #col-resultados { grid-column: 2; grid-row: 1 / span 2; }
-            #col-stats { grid-column: 1; grid-row: 2; }
-        }
-        @media (max-width: 1199px) {
-            .home-container { display: flex; flex-direction: column; }
-            #col-posiciones { order: 1; }
-            #col-resultados { order: 2; }
-            #col-stats { order: 3; }
-        }
+        /* El layout de la fase de liga (Posiciones, Resultados y
+           Estadísticas) está en css/styles.css: lo comparte con el simulador */
 
         .torneo-selector {
             display: flex;
@@ -260,11 +249,13 @@
             <div id="grupos-container">
                 <!-- Poblado por JS -->
             </div>
-        </div>
 
-        <!-- Repechajes y eliminatorio (solo formato de 9 jugadores) -->
-        <div id="repechajes-container" style="display: none;">
-            <!-- Poblado por JS -->
+            <!-- Repechajes y eliminatorio (solo formato de 9 jugadores). Van
+                 dentro del bloque para que las estadísticas, que torneos.js
+                 pone al final del bloque, queden debajo de todo -->
+            <div id="repechajes-container" style="display: none;">
+                <!-- Poblado por JS -->
+            </div>
         </div>
 
         <!-- Fase de liga (solo para torneos de formato liga) -->
