@@ -107,10 +107,12 @@ function renderRepechajes(repechajes, eliminatorio) {
         const ganador = g[0] > g[1] ? m.j1 : m.j2;
         const div = document.createElement("div");
         div.style = "text-align:center; margin-bottom: 1.5rem;";
+        // En fila con flex: si no, el que tiene el escudo adelante queda más
+        // arriba (se alinea por el borde de abajo de la imagen y no por el texto)
         div.innerHTML = `
             <h3 style="margin-bottom: 1rem; color: #58a6ff;">${m.fase}</h3>
             <div style="display:inline-block; background:#161b22; border:1px solid #30363d; border-radius:12px; padding:14px 22px;">
-                <div style="font-size:1.05rem; font-weight:700;">
+                <div style="font-size:1.05rem; font-weight:700; display:flex; align-items:center; justify-content:center;">
                     <span>${conEscudo(m.j1, { derecha: true })}</span>
                     <span style="margin:0 10px; letter-spacing:2px;">${m.marcador}</span>
                     <span>${conEscudo(m.j2)}</span>
@@ -301,6 +303,9 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
         const gCont = document.getElementById("grupos-container");
         if (gCont) {
             gCont.innerHTML = "";
+            // Con 3 grupos (9 jugadores) pasa directo solo el 1°: los 2° y 3°
+            // van a los repechajes. Con 2 grupos pasan los dos primeros.
+            const clasifican = gruposList.length === 3 ? 1 : 2;
             gruposList.forEach(gName => {
                 const gMatches = matches.filter(m => m.fase === gName);
                 const letra = (gName.match(/\(([A-Z])\)/) || [])[1];
@@ -330,7 +335,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                                 </thead>
                                 <tbody>
                                     ${stdgs.map((s, idx) => {
-                    const isClasificado = idx < 2;
+                    const isClasificado = idx < clasifican;
                     return `
                                         <tr ${isClasificado ? 'style="background: rgba(46, 160, 67, 0.15);"' : ''}>
                                             <td>${idx + 1}</td>
@@ -349,7 +354,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                         </div>
                         <div class="leyenda-clasificacion" style="margin-top: 10px; font-size: 0.85rem; color: #8b949e; display: flex; align-items: center;">
                             <span style="display:inline-block; width:12px; height:12px; background: rgba(46, 160, 67, 0.5); border-radius: 2px; margin-right: 5px;"></span>
-                            <span>[1-2] Clasifica a playoffs</span>
+                            <span>${clasifican === 1 ? '[1]' : '[1-2]'} Clasifica a playoffs</span>
                         </div>
                         </div>
                         <div class="panel-resultados">
