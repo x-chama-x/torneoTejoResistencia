@@ -1182,9 +1182,12 @@ select:hover {
     #ranking-secondary-block { order: 3; }
     #stats-col { order: 4; }
 
-    /* Sin scroll horizontal en la tabla de resultados */
+    /* Sin scroll horizontal en la tabla de resultados. Va hidden y no
+       visible: con visible el recuadro no recorta lo de adentro, y la linea
+       de abajo de la ultima fila, que es recta, se salia por las esquinas
+       redondeadas. La tabla entra justa, asi que no se corta nada. */
     #resultados-fechas .table-responsive {
-        overflow-x: visible;
+        overflow: hidden;
     }
 
     /* Resultados ocupa todo el ancho sin recuadro */
