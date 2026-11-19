@@ -531,7 +531,8 @@ select:hover {
 
     .bracket-col-semis .round-title,
     .bracket-col-final .round-title,
-    #tercer-puesto-container h3 {
+    #tercer-puesto-container h3,
+    .extra-matches-container #pre-playoff-container h3 {
         font-size: 11px !important;
         margin-bottom: 6px !important;
     }
@@ -543,7 +544,7 @@ select:hover {
         border-radius: 8px;
     }
 
-    /* Tercer puesto, solo debajo del bracket */
+    /* Solo cuando tercer puesto está solo (otros formatos) */
     #tercer-puesto-container .match-card {
         padding: 8px;
         width: calc(50% - 15px);
@@ -551,39 +552,54 @@ select:hover {
         border-radius: 8px;
     }
 
+    /* Cuando están dentro del extra-matches-container (formato 9 jugadores) */
+    .extra-matches-container #tercer-puesto-container .match-card,
+    .extra-matches-container #pre-playoff-container .match-card {
+        padding: 8px;
+        width: 100%;
+        max-width: none;
+        border-radius: 8px;
+    }
+
     .bracket-fixture .match-number,
-    #tercer-puesto-container .match-number {
+    #tercer-puesto-container .match-number,
+    .extra-matches-container #pre-playoff-container .match-number {
         font-size: 9px;
         margin-bottom: 6px;
     }
 
     .bracket-fixture .match-players,
-    #tercer-puesto-container .match-players {
+    #tercer-puesto-container .match-players,
+    .extra-matches-container #pre-playoff-container .match-players {
         flex-direction: row; /* Forzar que queden horizontales incluso en pantallas chicas */
         margin: 6px 0;
         gap: 3px;
     }
 
     .bracket-fixture .player,
-    #tercer-puesto-container .player {
+    #tercer-puesto-container .player,
+    .extra-matches-container #pre-playoff-container .player {
         font-size: 11px;
         min-width: 0;
     }
 
     .bracket-fixture .vs,
-    #tercer-puesto-container .vs {
+    #tercer-puesto-container .vs,
+    .extra-matches-container #pre-playoff-container .vs {
         padding: 0 4px;
         font-size: 11px;
     }
 
     .bracket-fixture .vs.marcador-vs,
-    #tercer-puesto-container .vs.marcador-vs {
+    #tercer-puesto-container .vs.marcador-vs,
+    .extra-matches-container #pre-playoff-container .vs.marcador-vs {
         font-size: 15px;
         padding: 0 4px;
     }
 
     .bracket-fixture .winner-badge,
-    #tercer-puesto-container .winner-badge {
+    #tercer-puesto-container .winner-badge,
+    .extra-matches-container #pre-playoff-container .winner-badge {
         font-size: 9px;
         padding: 3px 6px;
         border-radius: 12px;
@@ -635,12 +651,14 @@ select:hover {
     /* Los dos nombres se reparten la fila y pueden partirse en dos
        lineas: con 11px y sin wrap, "Ganador SF1" no entra en 162px */
     .bracket-fixture .match-players,
-    #tercer-puesto-container .match-players {
+    #tercer-puesto-container .match-players,
+    .extra-matches-container #pre-playoff-container .match-players {
         gap: 2px;
     }
 
     .bracket-fixture .player,
-    #tercer-puesto-container .player {
+    #tercer-puesto-container .player,
+    .extra-matches-container #pre-playoff-container .player {
         flex: 1 1 0;
         min-width: 0;
         white-space: normal;
@@ -649,12 +667,14 @@ select:hover {
     }
 
     .bracket-fixture .player.por-definir,
-    #tercer-puesto-container .player.por-definir {
+    #tercer-puesto-container .player.por-definir,
+    .extra-matches-container #pre-playoff-container .player.por-definir {
         font-size: 10px;
     }
 
     .bracket-fixture .vs,
-    #tercer-puesto-container .vs {
+    #tercer-puesto-container .vs,
+    .extra-matches-container #pre-playoff-container .vs {
         flex: 0 0 auto;
         padding: 0 3px;
         font-size: 10px;
@@ -664,7 +684,8 @@ select:hover {
        los espacios de "7 - 4" se achican para no quitarle ancho a los
        nombres. */
     .bracket-fixture .vs.marcador-vs,
-    #tercer-puesto-container .vs.marcador-vs {
+    #tercer-puesto-container .vs.marcador-vs,
+    .extra-matches-container #pre-playoff-container .vs.marcador-vs {
         font-size: 14px;
         padding: 0 2px;
         word-spacing: -0.12em;
@@ -672,26 +693,30 @@ select:hover {
 
     /* El min-width de 64px por badge venia de la pagina de Playoffs */
     .bracket-fixture .sf-prob-badge,
-    #tercer-puesto-container .sf-prob-badge {
+    #tercer-puesto-container .sf-prob-badge,
+    .extra-matches-container #pre-playoff-container .sf-prob-badge {
         font-size: 11px;
         min-width: 0;
         padding: 2px 5px;
     }
 
     .bracket-fixture .sf-split-bar,
-    #tercer-puesto-container .sf-split-bar {
+    #tercer-puesto-container .sf-split-bar,
+    .extra-matches-container #pre-playoff-container .sf-split-bar {
         height: 10px;
         margin: 5px 0;
     }
 
     .bracket-fixture .sf-insight,
-    #tercer-puesto-container .sf-insight {
+    #tercer-puesto-container .sf-insight,
+    .extra-matches-container #pre-playoff-container .sf-insight {
         font-size: 10px;
         padding: 6px 0 2px;
     }
 
     .bracket-fixture .prob-sin-datos,
-    #tercer-puesto-container .prob-sin-datos {
+    #tercer-puesto-container .prob-sin-datos,
+    .extra-matches-container #pre-playoff-container .prob-sin-datos {
         font-size: 10px;
     }
 
@@ -704,7 +729,8 @@ select:hover {
    poco mas y casi sin espacios ("7-4"), para que entren los nombres. */
 @media (max-width: 359px) {
     .bracket-fixture .vs.marcador-vs,
-    #tercer-puesto-container .vs.marcador-vs {
+    #tercer-puesto-container .vs.marcador-vs,
+    .extra-matches-container #pre-playoff-container .vs.marcador-vs {
         font-size: 12.5px;
         padding: 0 1px;
         word-spacing: -0.2em;
@@ -1099,6 +1125,15 @@ select:hover {
     #col-posiciones { grid-column: 1; grid-row: 1; }
     #col-resultados { grid-column: 2; grid-row: 1 / span 2; }
     #col-stats { grid-column: 1; grid-row: 2; }
+}
+
+/* Formato de 9: Pre-Playoffs y Tercer Puesto van en fila, cada uno en su
+   mitad. En torneos.html, mientras el tercer puesto no tiene nada (todavia
+   no se jugaron las semis) su mitad se esconde y el Pre-Playoffs queda
+   centrado, del mismo ancho que cuando estan los dos. */
+.extra-matches-container > :empty { display: none; }
+.extra-matches-container:has(> #tercer-puesto-container:empty) > #pre-playoff-container {
+    max-width: calc(50% - 1rem);   /* max-width y no flex: el flex va en linea */
 }
 
 @media (max-width: 900px) {

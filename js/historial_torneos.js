@@ -18,22 +18,23 @@ function cargarTorneo(nombreTorneo) {
             const final = matches.filter(m => m.fase.includes("Final"));
             const tercerPuesto = matches.filter(m => m.fase.includes("Tercer Puesto"));
             renderGroupMatchesAndStandings(groupMatches, nombreTorneo);
-            renderRepechajes(repechajes, eliminatorio);
-            renderPlayoffs(semis, final, tercerPuesto);
+            renderRepechajes(repechajes);
+            renderPlayoffs(semis, final, tercerPuesto, eliminatorio);
             renderTournamentStats(matches, nombreTorneo);
         });
 }
 
-// Repechajes y partido eliminatorio: solo existen en el formato de 9 jugadores
-// (dos mini-ligas, de segundos y de terceros, y un partido entre sus ganadores
-// que define el cuarto lugar de playoffs). Si el torneo no los tiene, el
-// contenedor queda vacío y no se muestra nada.
-function renderRepechajes(repechajes, eliminatorio) {
+// Repechajes: solo existen en el formato de 9 jugadores (dos mini-ligas, de
+// segundos y de terceros). Sus ganadores juegan el partido eliminatorio, que
+// define el cuarto lugar de playoffs y va en el cuadro de playoffs (ver
+// renderPlayoffs). Si el torneo no tiene repechajes, el contenedor queda
+// vacío y no se muestra nada.
+function renderRepechajes(repechajes) {
     const cont = document.getElementById("repechajes-container");
     if (!cont) return;
 
     cont.innerHTML = "";
-    if (repechajes.length === 0 && eliminatorio.length === 0) {
+    if (repechajes.length === 0) {
         cont.style.display = "none";
         return;
     }
@@ -99,28 +100,6 @@ function renderRepechajes(repechajes, eliminatorio) {
                 </div>
             </div>`;
         renderAvisoEmpates(div, tabla.empatesSinResolver);
-        cont.appendChild(div);
-    });
-
-    eliminatorio.forEach(m => {
-        const g = m.marcador.split("-").map(Number);
-        const ganador = g[0] > g[1] ? m.j1 : m.j2;
-        const div = document.createElement("div");
-        div.style = "text-align:center; margin-bottom: 1.5rem;";
-        // En fila con flex: si no, el que tiene el escudo adelante queda más
-        // arriba (se alinea por el borde de abajo de la imagen y no por el texto)
-        div.innerHTML = `
-            <h3 style="margin-bottom: 1rem; color: #58a6ff;">${m.fase}</h3>
-            <div style="display:inline-block; background:#161b22; border:1px solid #30363d; border-radius:12px; padding:14px 22px;">
-                <div style="font-size:1.05rem; font-weight:700; display:flex; align-items:center; justify-content:center;">
-                    <span>${conEscudo(m.j1, { derecha: true })}</span>
-                    <span style="margin:0 10px; letter-spacing:2px;">${m.marcador}</span>
-                    <span>${conEscudo(m.j2)}</span>
-                </div>
-                <div style="margin-top:8px; background:#d29922; color:#0d1117; border-radius:6px; padding:4px 10px; font-weight:700; font-size:0.85rem;">
-                    Clasifica: ${ganador}
-                </div>
-            </div>`;
         cont.appendChild(div);
     });
 }
@@ -476,7 +455,7 @@ function drawBracketLines() {
     `;
 }
 
-function renderPlayoffs(semis, final, tercerPuesto) {
+function renderPlayoffs(semis, final, tercerPuesto, eliminatorio) {
     const bracket = document.getElementById("playoff-bracket");
     if (bracket) {
         bracket.innerHTML = `
@@ -507,6 +486,47 @@ function renderPlayoffs(semis, final, tercerPuesto) {
                 ${createMatchCard(tercerPuesto[0], "Tercer y Cuarto Puesto")}
             </div>
         `;
+    }
+
+    // Formato de 9: el partido eliminatorio, al lado del tercer puesto. Si
+    // todavía no se jugó, js/pendientes.js arma el lugar y pone la tarjeta
+    // con la probabilidad.
+    const elim = eliminatorio || [];
+    armarLugarPrePlayoff(elim.length > 0);
+    const ppc = document.getElementById("pre-playoff-container");
+    if (ppc && elim.length > 0) ppc.innerHTML = htmlPrePlayoff(createMatchCard(elim[0], "Partido Eliminatorio"));
+}
+
+// Título y tarjeta del partido eliminatorio (la usa también js/pendientes.js)
+function htmlPrePlayoff(tarjeta) {
+    return `
+        <h3 style="margin-bottom: 1rem; color:#e67e22; text-align: center;">Pre-Playoffs</h3>
+        <div style="display: flex; justify-content: center;">${tarjeta}</div>`;
+}
+
+// En el formato de 9, debajo del bracket van dos tarjetas en fila: Pre-Playoffs
+// (el partido eliminatorio) y Tercer Puesto. Igual que en el simulador: las
+// dos dentro de un .extra-matches-container. En los otros formatos el tercer
+// puesto va solo, como está en torneos.html. Se arma y se desarma al cambiar
+// de torneo, porque el contenedor del tercer puesto es uno solo.
+function armarLugarPrePlayoff(activo) {
+    const tpc = document.getElementById("tercer-puesto-container");
+    if (!tpc) return;
+    const fila = tpc.closest(".extra-matches-container");
+
+    if (activo && !fila) {
+        const nueva = document.createElement("div");
+        nueva.className = "extra-matches-container";
+        nueva.style.cssText = "display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; flex-wrap: wrap;";
+        const ppc = document.createElement("div");
+        ppc.id = "pre-playoff-container";
+        tpc.parentNode.insertBefore(nueva, tpc);
+        nueva.append(ppc, tpc);
+        ppc.style.cssText = tpc.style.cssText = "text-align: center; flex: 1; min-width: 0; box-sizing: border-box;";
+    } else if (!activo && fila) {
+        fila.parentNode.insertBefore(tpc, fila);
+        fila.remove();
+        tpc.style.cssText = "margin-top: 1rem; text-align: center;";
     }
 }
 

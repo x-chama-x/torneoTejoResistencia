@@ -554,9 +554,10 @@ function simularPlayoffs(clasificados, jugadores, estadisticasJugadores) {
 }
 
 // Genera el HTML del bracket de playoffs (idéntico para simulación única y
-// Monte Carlo). Igual que el de torneos.html: el partido eliminatorio del
-// formato de 9 no va acá sino con los repechajes (ver renderFaseRegularHTML).
-function renderPlayoffsHTML(playoffs) {
+// Monte Carlo, y al de torneos.html). En el formato de 9 el partido
+// eliminatorio va en el cuadro, como "Pre-Playoffs", al lado del tercer
+// puesto. `eliminatorio`: { j1, j2, g1, g2, ganador } o null.
+function renderPlayoffsHTML(playoffs, eliminatorio) {
     const { semifinalistas, sf1, sf2, tercerPuesto, perdedorSF1, perdedorSF2, final } = playoffs;
 
     let html = `
@@ -585,13 +586,25 @@ function renderPlayoffsHTML(playoffs) {
                 </div>
             </div>`;
 
-    if (tercerPuesto) {
-        html += `<div id="tercer-puesto-container" style="margin-top: 1rem; text-align: center;">
+    const htmlTercero = tercerPuesto ? `
                 <h3 style="margin-bottom: 1rem; color:#f39c12; text-align: center;">Tercer Puesto</h3>
                 <div style="display: flex; justify-content: center;">
                     ${createMatchCardSimulador(tercerPuesto.ganador, perdedorSF1, perdedorSF2, tercerPuesto.goles1, tercerPuesto.goles2, "Tercer y Cuarto Puesto")}
+                </div>` : '';
+
+    if (eliminatorio) {
+        // Formato de 9: Pre-Playoffs y Tercer Puesto, uno al lado del otro
+        html += `<div class="extra-matches-container" style="display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; flex-wrap: wrap;">
+            <div id="pre-playoff-container" style="text-align: center; flex: 1; min-width: 0; box-sizing: border-box;">
+                <h3 style="margin-bottom: 1rem; color:#e67e22; text-align: center;">Pre-Playoffs</h3>
+                <div style="display: flex; justify-content: center;">
+                    ${createMatchCardSimulador(eliminatorio.ganador, eliminatorio.j1, eliminatorio.j2, eliminatorio.g1, eliminatorio.g2, "Partido Eliminatorio")}
                 </div>
-            </div>`;
+            </div>
+            <div id="tercer-puesto-container" style="text-align: center; flex: 1; min-width: 0; box-sizing: border-box;">${htmlTercero}</div>
+        </div>`;
+    } else if (tercerPuesto) {
+        html += `<div id="tercer-puesto-container" style="margin-top: 1rem; text-align: center;">${htmlTercero}</div>`;
     }
 
     html += `</div>`;
@@ -606,7 +619,9 @@ function renderEstadisticasHTML(estadisticasJugadores, numJugadores, soloFaseFin
     htmlStats += '<div class="table-responsive"><table class="ranking-table densa-max">';
     const groupLabel = (numJugadores === 7 || numJugadores === 6) ? "G(FL)" : "G(FG)";
     // Columnas: primero los partidos (PJ, PG, PP), después los goles y al
-    // final el promedio. Mismo orden que en la página de torneos.
+    // final el promedio. Mismo orden que en la página de torneos. En la Copa
+    // de Campeones (soloFaseFinal) todos los goles son de la fase final: esa
+    // columna sería igual a TG, así que va solo TG.
     htmlStats += `
         <thead>
             <tr>
@@ -614,8 +629,8 @@ function renderEstadisticasHTML(estadisticasJugadores, numJugadores, soloFaseFin
                 <th>PJ</th>
                 <th>PG</th>
                 <th>PP</th>
-                ${soloFaseFinal ? '' : `<th>${groupLabel}</th>`}
-                <th>${soloFaseFinal ? 'Goles' : 'G(PO)'}</th>
+                ${soloFaseFinal ? '' : `<th>${groupLabel}</th>
+                <th>G(PO)</th>`}
                 <th>TG</th>
                 <th>GC</th>
                 <th>DIF</th>
@@ -649,8 +664,8 @@ function renderEstadisticasHTML(estadisticasJugadores, numJugadores, soloFaseFin
                 <td>${stat.partidosJugados}</td>
                 <td>${stat.pg}</td>
                 <td>${stat.pp}</td>
-                ${soloFaseFinal ? '' : `<td>${stat.golesLiga}</td>`}
-                <td>${stat.golesFaseFinal}</td>
+                ${soloFaseFinal ? '' : `<td>${stat.golesLiga}</td>
+                <td>${stat.golesFaseFinal}</td>`}
                 <td><strong>${stat.totalGoles}</strong></td>
                 <td>${stat.gc}</td>
                 <td>${stat.dif > 0 ? '+' : ''}${stat.dif}</td>
@@ -836,29 +851,11 @@ function htmlBloqueFase(titulo, partidos, ranking, clasifCount, leyenda) {
         </div>`;
 }
 
-// En fila con flex: si no, el que tiene el escudo adelante queda más arriba
-// (se alinea por el borde de abajo de la imagen y no por el texto)
-function htmlEliminatorio(e) {
-    return `
-        <div style="text-align:center; margin-bottom: 1.5rem;">
-            <h3 style="margin-bottom: 1rem; color: #58a6ff;">${FASE_ELIMINATORIO}</h3>
-            <div style="display:inline-block; background:#161b22; border:1px solid #30363d; border-radius:12px; padding:14px 22px;">
-                <div style="font-size:1.05rem; font-weight:700; display:flex; align-items:center; justify-content:center;">
-                    <span>${conEscudo(e.j1, { derecha: true })}</span>
-                    <span style="margin:0 10px; letter-spacing:2px;">${e.g1}-${e.g2}</span>
-                    <span>${conEscudo(e.j2)}</span>
-                </div>
-                <div style="margin-top:8px; background:#d29922; color:#0d1117; border-radius:6px; padding:4px 10px; font-weight:700; font-size:0.85rem;">
-                    Clasifica: ${e.ganador}
-                </div>
-            </div>
-        </div>`;
-}
-
 // Arma toda la parte de abajo del bracket. Las estadísticas van donde las
 // pone torneos.html: en liga, dentro de la grilla (debajo de Posiciones en
 // PC, debajo de Resultados en celular); en grupos, al final, después de los
-// repechajes y el partido eliminatorio si los hay.
+// repechajes si los hay. El partido eliminatorio no va acá: va en el cuadro
+// de playoffs (ver renderPlayoffsHTML).
 function renderFaseRegularHTML(secciones, htmlStats) {
     const stats = `<div id="stats-container" style="margin-top: 2rem;">${htmlStats}</div>`;
 
@@ -886,7 +883,6 @@ function renderFaseRegularHTML(secciones, htmlStats) {
 
     const repechajes = secciones.repechajes.map(r => htmlBloqueFase(r.nombre, r.partidos, r.ranking, 1,
         htmlLeyenda(textoClasifican(1, 'Avanza al partido eliminatorio'), false))).join('');
-    const eliminatorio = secciones.eliminatorio ? htmlEliminatorio(secciones.eliminatorio) : '';
 
     return `
         <div id="bloque-grupos">
@@ -896,12 +892,12 @@ function renderFaseRegularHTML(secciones, htmlStats) {
                 ${secciones.grupos.map(g => htmlBloqueFase(g.nombre, g.partidos, g.ranking, g.clasifCount,
                     htmlLeyenda(textoClasifican(g.clasifCount, 'Clasifica a playoffs'), true))).join('')}
             </div>
-            ${repechajes || eliminatorio ? `<div id="repechajes-container">${repechajes}${eliminatorio}</div>` : ''}
+            ${repechajes ? `<div id="repechajes-container">${repechajes}</div>` : ''}
             ${stats}
         </div>`;
 }
 
-// El partido eliminatorio del formato de 9, en el formato de renderFaseRegularHTML
+// El partido eliminatorio del formato de 9, en el formato de renderPlayoffsHTML
 function eliminatorioDesdePrePlayoff(match) {
     if (!match) return null;
     return { j1: match.j1, j2: match.j2, g1: match.data.goles1, g2: match.data.goles2, ganador: match.data.ganador };
@@ -1288,7 +1284,7 @@ function simularTorneo(mantenerGrupos = false) {
     const playoffs = simularPlayoffs(clasificados, jugadores, estadisticasJugadores);
 
     // Generar html para playoffs con formato bracket y conector de SVG
-    const htmlPlayoffs = renderPlayoffsHTML(playoffs);
+    const htmlPlayoffs = renderPlayoffsHTML(playoffs, secciones.eliminatorio);
 
     requestAnimationFrame(() => drawSimBracketLines());
     if (!window._simResizeListenerAdded) {
@@ -2195,7 +2191,7 @@ function mostrarTorneoMasPromedio(torneoData, frecuencia, totalSimulaciones = 10
     const htmlPlayoffs = torneoData.esCopa
         ? renderPlayoffsCopaHTML(torneoData.playoffsCopa)
         : (torneoData.playoffs
-            ? renderPlayoffsHTML(torneoData.playoffs)
+            ? renderPlayoffsHTML(torneoData.playoffs, torneoData.eliminatorio)
             : '');
 
     // Tabla de estadísticas

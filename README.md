@@ -395,7 +395,8 @@ Los partidos que **todavia no se jugaron** no van en una seccion aparte: se dibu
 |---|---|
 | Fase de liga y de grupos | Una fila mas en la tabla de Resultados |
 | Semifinales, final y tercer puesto | La tarjeta del bracket, igual que en la pagina de Playoffs |
-| Repechajes y eliminatorio | Como la liga, en su tabla de Resultados |
+| Repechajes | Como la liga, en su tabla de Resultados |
+| Partido eliminatorio | La tarjeta "Pre-Playoffs" del cuadro de playoffs, al lado del tercer puesto (igual que en el Simulador) |
 
 Mientras las semifinales estan sorteadas pero sin jugar, la final **tampoco queda vacia**: muestra "Ganador SF1 vs Ganador SF2" y, debajo, la probabilidad de cada uno de los cuatro de salir campeon. No se simula, se calcula exacto: la chance de ganar su semi por la chance de ganarle a cada rival posible, pesada por lo probable que sea enfrentar a cada uno. Las cuatro suman 100%. El tercer puesto hace lo mismo con "Perdedor SF1 vs Perdedor SF2".
 

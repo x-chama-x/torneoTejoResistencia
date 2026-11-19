@@ -138,11 +138,20 @@ function ocultarSeccionesVacias(partidos, esLiga, sorteo) {
     // tarjeta con la probabilidad de un cruce pendiente.
     const hayPlayoffs = partidos.some(m =>
         ['Semifinal', 'Final', 'Tercer Puesto'].includes(m.fase)) ||
-        !!document.querySelector('#playoff-bracket .match-card, #tercer-puesto-container .match-card') ||
+        !!document.querySelector('#playoff-bracket .match-card, #tercer-puesto-container .match-card, #pre-playoff-container .match-card') ||
         !!document.querySelector('#playoff-bracket [style*="d29922"]');  // aviso de semis sin sortear
 
     const panelPlayoffs = document.querySelector('.playoffs-section');
     if (panelPlayoffs) panelPlayoffs.style.display = hayPlayoffs ? '' : 'none';
+
+    // Formato de 9: puede haber tarjeta de Pre-Playoffs (el partido
+    // eliminatorio) cuando todavía no hay nada para el bracket. Ahí el bracket
+    // no se dibuja, para que no queden las columnas vacías.
+    const bracket = document.getElementById('playoff-bracket');
+    if (bracket) {
+        const bracketVacio = !bracket.querySelector('.match-card, [style*="d29922"]');
+        bracket.style.display = bracketVacio && document.querySelector('#pre-playoff-container .match-card') ? 'none' : '';
+    }
 
     // La fase regular se muestra siempre que haya sorteo (aunque sea en cero)
     const hayFaseRegular = partidos.some(m => m.fase.startsWith('Fase')) || !!sorteo;
@@ -189,7 +198,7 @@ function detectarEsLiga(texto, nombreTorneo) {
 // (por ejemplo, viniendo de un torneo de liga a uno de grupos) se quedarían
 // con la tabla vieja colgada.
 function limpiarRestos() {
-    ['resultados-fase', 'tabla-body', 'grupos-container', 'stats-container', 'playoff-bracket', 'tercer-puesto-container', 'repechajes-container']
+    ['resultados-fase', 'tabla-body', 'grupos-container', 'stats-container', 'playoff-bracket', 'tercer-puesto-container', 'pre-playoff-container', 'repechajes-container']
         .forEach(id => {
             const el = document.getElementById(id);
             if (el) el.innerHTML = '';
