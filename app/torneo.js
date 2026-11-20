@@ -717,7 +717,7 @@ async function guardarResultadoFixture() {
     }
 
     const partido = partidoDelFormulario();
-    if (!partido || errorDelMarcador(partido)) {
+    if (!partido || errorDelMarcador(partido) || bloqueadoPorReloj()) {
         estado.subiendo = false;
         actualizarUI();
         return;

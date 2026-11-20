@@ -557,9 +557,38 @@ function iniciarReloj() {
         reloj.restanteMs = typeof guardado.restanteMs === 'number' ? guardado.restanteMs : reloj.restanteMs;
     }
     document.getElementById('reloj-play').addEventListener('click', () => (reloj.finEn ? pausarReloj() : arrancarReloj()));
-    document.getElementById('reloj-reiniciar').addEventListener('click', () => reiniciarReloj());
+    document.getElementById('reloj-reiniciar').addEventListener('click', () => { reiniciarReloj(); actualizarUI(); });
+    document.getElementById('reloj-saltear').addEventListener('click', saltearReloj);
+    // Al volver a la app (se había bloqueado el celu), recalcular ya mismo
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) tickReloj(); });
     if (reloj.finEn) reloj.timer = setInterval(tickReloj, 250);
     tickReloj();
+}
+
+// ¿Terminó el partido? (el reloj llegó a cero, o se salteó a propósito)
+function relojTerminado() {
+    return reloj.finEn === null && reloj.restanteMs <= 0;
+}
+
+// Un partido por tiempo no se puede cargar hasta que termine el reloj: el
+// reloj es parte de la carga. No aplica al editar partidos ya cargados.
+function bloqueadoPorReloj() {
+    return esPorTiempo() && !estado.editando && !relojTerminado();
+}
+
+// Por si el partido se jugó con otro reloj (el del lugar, o se olvidaron de
+// arrancarlo): da el tiempo por terminado, con confirmación.
+function saltearReloj() {
+    if (relojTerminado()) return;
+    if (!confirm('¿Dar el partido por terminado?\n\nUsalo solo si se jugó con otro reloj o se olvidaron de arrancar este.')) return;
+    reloj.finEn = null;
+    reloj.restanteMs = 0;
+    clearInterval(reloj.timer);
+    soltarWakeLock();
+    cancelarNotificacionReloj();
+    guardarReloj();
+    tickReloj();
+    actualizarUI();
 }
 
 function guardarReloj() {
@@ -576,12 +605,15 @@ function arrancarReloj() {
     try {
         navigator.wakeLock?.request('screen').then(w => { reloj.wakeLock = w; }).catch(() => {});
     } catch { /* no soportado */ }
+    pedirPermisoNotificaciones();
 
     reloj.finEn = Date.now() + reloj.restanteMs;
     clearInterval(reloj.timer);
     reloj.timer = setInterval(tickReloj, 250);
+    programarNotificacionReloj();
     guardarReloj();
     tickReloj();
+    actualizarUI();
 }
 
 function pausarReloj() {
@@ -590,6 +622,7 @@ function pausarReloj() {
     reloj.finEn = null;
     clearInterval(reloj.timer);
     soltarWakeLock();
+    cancelarNotificacionReloj();
     guardarReloj();
     tickReloj();
 }
@@ -601,6 +634,7 @@ function reiniciarReloj() {
     reloj.restanteMs = reloj.duracionMs;
     clearInterval(reloj.timer);
     soltarWakeLock();
+    cancelarNotificacionReloj();
     guardarReloj();
     tickReloj();
 }
@@ -624,6 +658,7 @@ function tickReloj() {
         soltarWakeLock();
         guardarReloj();
         sonarFinDelReloj();
+        actualizarUI(); // ya se puede cargar el resultado
     }
 
     const seg = Math.ceil(Math.max(0, restante) / 1000);
@@ -633,6 +668,80 @@ function tickReloj() {
 
     const lleno = reloj.restanteMs === reloj.duracionMs;
     btn.textContent = reloj.finEn ? '⏸ Pausar' : (seg === 0 ? '▶ Otro partido' : (lleno ? '▶ Empezar' : '▶ Seguir'));
+
+    // Aviso de por qué todavía no se puede cargar, y el atajo para saltearlo
+    const aviso = document.getElementById('reloj-aviso');
+    const saltear = document.getElementById('reloj-saltear');
+    if (aviso) {
+        aviso.textContent = seg === 0
+            ? '✅ Terminó el partido: ya podés cargar el resultado.'
+            : (lleno && !reloj.finEn
+                ? 'Arrancá el reloj cuando empiece el partido. El resultado se carga cuando termina.'
+                : 'Podés ir marcando los goles; el resultado se carga cuando termine el reloj.');
+    }
+    if (saltear) saltear.style.display = seg === 0 ? 'none' : '';
+}
+
+// =====================================================
+// Notificación del fin del reloj (con el celu bloqueado o en otra app)
+// =====================================================
+// Con la pantalla bloqueada el navegador "duerme" la página y la alarma de
+// arriba no puede sonar. Para eso se le pide al service worker (sw.js) que
+// muestre una notificación del sistema cuando llegue la hora. Es lo mejor
+// que se puede sin un servidor que mande el aviso: en Android suele andar;
+// en iPhone solo con la app instalada en la pantalla de inicio (iOS 16.4+),
+// y el sistema puede demorarla o no mostrarla si la app estuvo mucho tiempo
+// suspendida. Además la página programa su propio aviso, por si sigue viva
+// en segundo plano. Los dos usan el mismo "tag": si llegan los dos, el
+// segundo reemplaza al primero sin volver a sonar.
+let timeoutNotificacion = null;
+
+function pedirPermisoNotificaciones() {
+    try {
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission().catch(() => {});
+        }
+    } catch { /* no soportado */ }
+}
+
+function notificacionesPermitidas() {
+    return 'Notification' in window && Notification.permission === 'granted';
+}
+
+function mensajeAlServiceWorker(msg) {
+    try {
+        navigator.serviceWorker?.ready.then(reg => reg.active?.postMessage(msg)).catch(() => {});
+    } catch { /* sin service worker */ }
+}
+
+function programarNotificacionReloj() {
+    cancelarNotificacionReloj();
+    if (!reloj.finEn) return;
+    const finEn = reloj.finEn;
+    mensajeAlServiceWorker({ tipo: 'reloj-programar', finEn, titulo: '⏱️ ¡Tiempo!', cuerpo: 'Terminó el partido: cargá el resultado.' });
+    timeoutNotificacion = setTimeout(() => {
+        tickReloj(); // si la página sigue viva, termina el reloj y suena
+        if (document.hidden) mostrarNotificacionReloj();
+    }, Math.max(0, finEn - Date.now()));
+}
+
+function cancelarNotificacionReloj() {
+    clearTimeout(timeoutNotificacion);
+    timeoutNotificacion = null;
+    mensajeAlServiceWorker({ tipo: 'reloj-cancelar' });
+}
+
+function mostrarNotificacionReloj() {
+    if (!notificacionesPermitidas()) return;
+    try {
+        navigator.serviceWorker?.ready.then(reg => reg.showNotification('⏱️ ¡Tiempo!', {
+            body: 'Terminó el partido: cargá el resultado.',
+            tag: 'reloj-partido',
+            icon: 'icon-192.png',
+            vibrate: [500, 200, 500, 200, 900],
+            requireInteraction: true
+        })).catch(() => {});
+    } catch { /* nada */ }
 }
 
 function sonarFinDelReloj() {
@@ -726,7 +835,8 @@ function actualizarUI() {
     }
 
     // Botones de acción
-    const listo = !!partido && !error && !estado.subiendo;
+    // Por tiempo, el resultado recién se carga cuando termina el reloj
+    const listo = !!partido && !error && !estado.subiendo && !bloqueadoPorReloj();
     document.getElementById('btn-cargar').disabled = !listo;
     document.getElementById('btn-agregar').disabled = !listo;
     document.getElementById('btn-guardar-edicion').disabled = !listo;
@@ -848,7 +958,7 @@ function renderTanda() {
 
 function agregarATanda() {
     const partido = partidoDelFormulario();
-    if (!partido || errorDelMarcador(partido)) return;
+    if (!partido || errorDelMarcador(partido) || bloqueadoPorReloj()) return;
     estado.tanda.push({
         id: Date.now() + Math.random(),
         ...partido,
@@ -1157,7 +1267,7 @@ async function cargarDirecto() {
     actualizarUI();
 
     const partido = partidoDelFormulario();
-    if (!partido || errorDelMarcador(partido)) {
+    if (!partido || errorDelMarcador(partido) || bloqueadoPorReloj()) {
         estado.subiendo = false;
         actualizarUI();
         return;
