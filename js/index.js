@@ -282,6 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 nombre,
                 pj: s.pj,
                 g: s.g,
+                e: s.e,
                 p: s.p,
                 winRate,
                 gf: s.gf,
@@ -303,6 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${conEscudo(j.nombre, { negrita: true })}</td>
                     <td>${j.pj}</td>
                     <td>${j.g}</td>
+                    ${tdEmpates(j.e)}
                     <td>${j.p}</td>
                     <td><strong>${j.winRate}</strong></td>
                     <td>${j.gf}</td>

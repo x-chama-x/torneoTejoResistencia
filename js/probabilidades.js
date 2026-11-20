@@ -165,6 +165,38 @@ function prepararProbabilidades(texto) {
     probData.listo = true;
 }
 
+// =====================================================
+// EMPATES (solo en los deportes que los tienen, como el metegol por tiempo)
+// =====================================================
+// Chance de que un partido termine empatado. `base` es la proporción de
+// empates del deporte (la calcula quien llama a partir del historial; ver
+// tasaDeEmpates). Se escala con lo parejo del cruce: con 50% y 50% es la
+// base entera, y baja a medida que uno es más favorito (4·p·(1−p) vale 1
+// en 0.5 y tiende a 0 en los extremos). En los deportes sin empate, 0.
+const TASA_EMPATE_INICIAL = 0.2;   // con pocos partidos, se asume 1 de cada 5
+const PARTIDOS_FANTASMA_EMPATE = 10;
+
+function probabilidadEmpate(probGana1, base) {
+    if (typeof DEPORTE === 'undefined' || !DEPORTE.permiteEmpate) return 0;
+    const b = typeof base === 'number' ? base : TASA_EMPATE_INICIAL;
+    return Math.max(0, Math.min(0.6, b * 4 * probGana1 * (1 - probGana1)));
+}
+
+// Proporción de empates del historial, con partidos fantasma: con pocos
+// partidos queda cerca de TASA_EMPATE_INICIAL y después se acerca a la real.
+// `partidos`: [{ g1, g2 }] (o { goles1, goles2 }), sin los de playoffs.
+function tasaDeEmpates(partidos) {
+    let n = 0, e = 0;
+    (partidos || []).forEach(p => {
+        const g1 = p.g1 !== undefined ? p.g1 : p.goles1;
+        const g2 = p.g2 !== undefined ? p.g2 : p.goles2;
+        if (isNaN(g1) || isNaN(g2)) return;
+        n++;
+        if (g1 === g2) e++;
+    });
+    return (e + TASA_EMPATE_INICIAL * PARTIDOS_FANTASMA_EMPATE) / (n + PARTIDOS_FANTASMA_EMPATE);
+}
+
 // Probabilidad de que gane el primero, entre 0 y 1.
 // Devuelve null si no se puede calcular (jugador desconocido o datos sin cargar).
 function probabilidadGana1(nombre1, nombre2) {

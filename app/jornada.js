@@ -169,6 +169,10 @@ function renderCrearJornada(editando = false) {
             <p class="hint" id="hint-jornada"></p>
         </div>
 
+        ${editando
+            ? (HAY_TIEMPO ? `<div class="card"><label>Cómo se juega</label><p class="hint" style="margin:0;">${nombreModalidad(jornada.abierta.modalidad || 'goles', jornada.abierta.minutos || MINUTOS_DEFAULT)} · se eligió al armar la jornada.</p></div>` : '')
+            : htmlEleccionModalidad('modalidad-jornada', MODALIDAD_DEFAULT)}
+
         <div class="card">
             <label>Fecha</label>
             ${editando
@@ -183,6 +187,7 @@ function renderCrearJornada(editando = false) {
     `;
 
     if (!editando) document.getElementById('fecha-jornada').value = hoyISO();
+    bindEleccionModalidad('modalidad-jornada', () => {});
     renderChipsJornada();
 
     document.getElementById('btn-cancelar-jornada').addEventListener('click',
@@ -286,6 +291,11 @@ async function crearJornada() {
     // Al editar, la fecha es la de la jornada abierta: es lo que la
     // identifica en el archivo, así que no se toca.
     const fecha = jornada.editando ? jornada.abierta.fecha : fechaDesdeInput('fecha-jornada');
+    // A goles o por tiempo: al editar se mantiene la que ya tenía
+    const modalidad = !HAY_TIEMPO ? 'goles'
+        : (jornada.editando ? (jornada.abierta.modalidad || 'goles') : modalidadElegida('modalidad-jornada'));
+    const minutos = modalidad !== 'tiempo' ? undefined
+        : (jornada.editando ? normalizarMinutos(jornada.abierta.minutos || MINUTOS_DEFAULT) : minutosElegidos('modalidad-jornada'));
     jornada.cargando = true;
     actualizarUIJornada();
 
@@ -293,13 +303,17 @@ async function crearJornada() {
         const res = await fetch(API_JORNADA, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fecha, jugadores: jornada.seleccion })
+            body: JSON.stringify(HAY_TIEMPO
+                ? { fecha, jugadores: jornada.seleccion, modalidad, minutos }
+                : { fecha, jugadores: jornada.seleccion })
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
 
         const eraEdicion = jornada.editando;
         const actualizada = { fecha, jugadores: jornada.seleccion.slice() };
+        if (modalidad !== 'goles') actualizada.modalidad = modalidad;
+        if (minutos) actualizada.minutos = minutos;
         jornada.abiertas = jornada.abiertas.filter(j => j.fecha !== fecha).concat([actualizada]);
         jornada.abiertas.sort((a, b) => claveDeFecha(a.fecha) - claveDeFecha(b.fecha));
         jornada.abierta = actualizada;
@@ -404,7 +418,7 @@ function renderJornadaEnCurso() {
             <label>Jornada del ${escaparHtml(jornada.abierta.fecha)}</label>
             <p class="hint" style="margin: 0 0 10px 0;">
                 ${jornada.abierta.jugadores.length} jugadores ·
-                ${listos} de ${total} jugados${faltan === 0 ? ' · completa 🎉' : ''}
+                ${listos} de ${total} jugados${faltan === 0 ? ' · completa 🎉' : ''}${HAY_TIEMPO ? ` · ${nombreModalidad(jornada.abierta.modalidad || 'goles', jornada.abierta.minutos || MINUTOS_DEFAULT)}` : ''}
             </p>
             <div class="chips">
                 ${jornada.abierta.jugadores.map(n => `<span class="chip sel-1">${escaparHtml(n)}</span>`).join('')}
@@ -442,7 +456,9 @@ function renderJornadaEnCurso() {
                 fase: FASE,
                 torneoSuelto: TORNEO,
                 origen: 'jornada',
-                fecha: jornada.abierta.fecha
+                fecha: jornada.abierta.fecha,
+                modalidad: jornada.abierta.modalidad || 'goles',
+                minutos: jornada.abierta.minutos
             });
         });
     });

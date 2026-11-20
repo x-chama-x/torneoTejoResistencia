@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saber Más - Tejo Hockey</title>
+    <title data-dtexto="Saber Más - {nombreLargo}">Saber Más - Tejo Hockey</title>
     <link rel="icon" type="image/png" href="img/favicon.png">
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -11,6 +11,108 @@
     <div class="container">
         <h1><img src="img/favicon.png" alt="logo" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 5px;"> Saber Más</h1>
         <p class="page-subtitle">Todo sobre los formatos de torneo y cómo funciona el Ranking FIFA</p>
+
+        <!-- ===================== METEGOL ===================== -->
+        <div data-solo="metegol" style="display: none;">
+        <div class="panel" id="metegol-reglas-panel">
+            <h2>Reglas del Metegol</h2>
+            <br>
+            <div class="format-section" style="margin-bottom: 1.5rem;">
+                <h3>¿De qué se trata el juego?</h3>
+                <p style="margin-top: 0.5rem; line-height: 1.5; color: #c9d1d9;">El <strong>metegol</strong> (fútbol de mesa) se juega <strong>1 contra 1</strong>: cada jugador maneja las cuatro barras de su lado (arquero, defensa, mitad de cancha y delantera) y el objetivo es meter la pelota en el arco del rival. Las reglas toman como base las de los partidos oficiales (ITSF, que juega a 5 goles), adaptadas a cómo jugamos nosotros.</p>
+            </div>
+            <div class="format-section" style="margin-bottom: 1rem;">
+                <h3>Dos formas de jugar un partido</h3>
+                <p style="color: #c9d1d9; margin-bottom: 0.5rem;">Cada torneo y cada jornada de la Nations League elige al armarse cómo se juegan sus partidos:</p>
+                <ul>
+                    <li><strong>⚽ A 5 goles:</strong> gana el primero que llega a 5. No hay empates.</li>
+                    <li><strong>⏱️ Por tiempo:</strong> pensado para los lugares que cobran por tiempo de mesa. Los minutos se eligen al armar el torneo o la jornada (vienen 10 puestos). Se juegan los minutos enteros, sin tope de goles: llegar a 5 no termina el partido. Gana el que va arriba cuando suena el reloj, y si van iguales es <strong>empate</strong>. La app de carga trae un reloj con esos minutos que vibra y suena al terminar.</li>
+                </ul>
+            </div>
+            <div class="format-section" style="margin-bottom: 1rem;">
+                <h3>Puntos: 3-1-0, como en el fútbol</h3>
+                <ul>
+                    <li><strong>Victoria:</strong> 3 puntos. <strong>Empate:</strong> 1 punto. <strong>Derrota:</strong> 0.</li>
+                    <li><strong>Orden de las tablas</strong> (liga, grupos y repechajes): puntos, después diferencia de gol, después goles a favor. Si quedan exactamente dos iguales en todo eso, decide el partido entre ellos.</li>
+                    <li>Es la gran diferencia con el tejo, donde los puntos de la tabla son los goles a favor: acá un empate tiene que valer algo y una victoria tiene que valer más que muchos goles en una derrota.</li>
+                </ul>
+            </div>
+            <div class="format-section" style="margin-bottom: 1rem;">
+                <h3>Playoffs: siempre hay ganador (gol de oro)</h3>
+                <ul>
+                    <li>Las <strong>semifinales, el tercer puesto, la final</strong> y el <strong>partido eliminatorio</strong> (formato de 9) no pueden terminar empatados.</li>
+                    <li>Si terminan iguales cuando suena el reloj, se sigue con <strong>gol de oro</strong>: el próximo gol gana. Se carga el resultado final (por ejemplo, 2-2 y gol de oro queda 3-2).</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="panel" id="metegol-formatos-panel" style="margin-top: 1.5rem;">
+            <h2>Formatos de Torneo</h2>
+            <br>
+            <p style="color: #c9d1d9; margin-bottom: 1rem; line-height: 1.5;">Son los mismos formatos que en el tejo. Los costos están calculados a <strong>$3.000 por partido de 10 minutos</strong> (lo que cobra el lugar que averiguamos para el primer torneo) y con una sola mesa; los desempates con gol de oro pueden sumar algunos minutos.</p>
+            <div class="format-section" style="margin-bottom: 1rem;">
+                <h3>1. Liga (Round Robin) - 6 Jugadores</h3>
+                <ul>
+                    <li><strong>Estructura:</strong> Todos contra todos (15 partidos). Los mejores 4 van a playoffs: semifinales, tercer puesto y final.</li>
+                    <li><strong>Costo estimado:</strong> 19 partidos, $57.000 en total ($9.500 por jugador aprox).</li>
+                </ul>
+            </div>
+            <div class="format-section" style="margin-bottom: 1rem;">
+                <h3>2. Liga (Round Robin) - 7 Jugadores</h3>
+                <ul>
+                    <li><strong>Estructura:</strong> Todos contra todos (21 partidos). Los mejores 4 van a playoffs.</li>
+                    <li><strong>Costo estimado:</strong> 25 partidos, $75.000 en total ($10.700 por jugador aprox).</li>
+                </ul>
+            </div>
+            <div class="format-section" style="margin-bottom: 1rem;">
+                <h3>3. Grupos (Dos grupos) - 8 Jugadores</h3>
+                <ul>
+                    <li><strong>Estructura:</strong> 2 grupos de 4 (12 partidos). Los 2 primeros de cada grupo van a playoffs.</li>
+                    <li><strong>Costo estimado:</strong> 16 partidos, $48.000 en total ($6.000 por jugador).</li>
+                </ul>
+            </div>
+            <div class="format-section" style="margin-bottom: 1rem;">
+                <h3>4. Grupos (Tres grupos) - 9 Jugadores</h3>
+                <ul>
+                    <li><strong>Estructura:</strong> 3 grupos de 3 (9 partidos). El 1° de cada grupo clasifica directo.</li>
+                    <li><strong>Repechajes:</strong> mini-liga de segundos y mini-liga de terceros (pueden terminar empatados, son fase regular); sus ganadores juegan el partido eliminatorio (con gol de oro si hace falta) por el 4° lugar en playoffs.</li>
+                    <li><strong>Costo estimado:</strong> 20 partidos, $60.000 en total ($6.700 por jugador aprox).</li>
+                </ul>
+            </div>
+            <div class="format-section" style="margin-bottom: 1rem;">
+                <h3>5. Grupos (Dos grupos grandes) - 10 Jugadores</h3>
+                <ul>
+                    <li><strong>Estructura:</strong> 2 grupos de 5 (20 partidos). Los 2 primeros de cada grupo van a playoffs.</li>
+                    <li><strong>Costo estimado:</strong> 24 partidos, $72.000 en total ($7.200 por jugador).</li>
+                </ul>
+            </div>
+            <div class="format-section" style="margin-bottom: 1rem;">
+                <h3>Metegol Nations League - Partidos Amistosos</h3>
+                <ul>
+                    <li><strong>Qué es:</strong> la misma idea que la del tejo: una liga anual y libre donde cuenta cada partido "Amistoso", sin fixture ni fecha límite. Cada año calendario es una edición nueva.</li>
+                    <li><strong>Orden por puntos por partido:</strong> la tabla se ordena por <strong>PPP* (puntos por partido ajustado)</strong>, con el mismo 3-1-0, después diferencia de gol por partido y porcentaje de victorias. En el tejo se ordena por goles por partido, pero con empates y partidos por tiempo los goles dicen poco.</li>
+                    <li><strong>Qué es el "ajustado":</strong> el promedio arranca cerca del promedio general de la liga y se acerca al tuyo a medida que jugás más partidos, así un buen día aislado no alcanza para el primer puesto.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="panel" id="metegol-ranking-panel" style="margin-top: 1.5rem;">
+            <h2>Ranking FIFA del Metegol</h2>
+            <br>
+            <div class="format-section" style="margin-bottom: 1rem;">
+                <ul>
+                    <li><strong>Mismo sistema que el tejo:</strong> suma cero (lo que gana uno lo pierde el otro), puntos base según el tipo de partido (amistoso 2, fase regular 20, playoffs y eliminatorio 30), multiplicador tipo ELO según la diferencia de puntos y piso de 5 puntos.</li>
+                    <li><strong>Arranca de cero:</strong> no hay base histórica como la del primer torneo de tejo. Todos empiezan con los 15 puntos de un jugador nuevo y el ranking se arma con los partidos de metegol.</li>
+                    <li><strong>Empates:</strong> como en el ELO del ajedrez, un empate entre dos parejos no mueve nada. Si uno era favorito, le pasa puntos al otro: <code>Puntos = Base × mín(0.5, D / 200)</code>, donde D es la diferencia de puntos. Ejemplo en fase de grupos (base 20): con 40 puntos de diferencia, el favorito le pasa 4 puntos al otro; con 100 o más, le pasa 10 (el tope).</li>
+                    <li><strong>Ganar y perder</strong> funciona igual que en el tejo (ver el Saber Más del tejo para el detalle y los ejemplos).</li>
+                </ul>
+            </div>
+        </div>
+        </div>
+        <!-- =================== FIN METEGOL =================== -->
+
+        <!-- ======================= TEJO ======================= -->
+        <div data-solo="tejo">
 
         <!-- Formatos de Torneo -->
         <div class="panel" id="formatos-panel">
@@ -208,6 +310,8 @@
                 </ul>
             </div>
         </div>
+        </div>
+        <!-- ===================== FIN TEJO ===================== -->
     </div>
     <!-- Scripts -->
     <script src="js/deportes.js"></script>

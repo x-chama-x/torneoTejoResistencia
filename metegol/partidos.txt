@@ -3,7 +3,9 @@
 # ============================================
 # Mismo formato que enfrentamientos_directos.txt (el del tejo):
 # jugador1,jugador2,resultado_j1,marcador,torneo,fecha,fase
-# resultado_j1: "G" = Ganó jugador1, "P" = Perdió jugador1
+# resultado_j1: "G" = Ganó jugador1, "P" = Perdió jugador1, "E" = Empate (solo por tiempo)
 # Los amistosos van con torneo y fase "Amistoso" (Metegol Nations League).
-# Reglas (provisorias): 1 contra 1, a 5 goles. Ver js/deportes.js.
+# Reglas: 1 contra 1, a 5 goles o por tiempo (10 minutos enteros, sin
+# tope de goles, puede haber empate; en playoffs se desempata con gol de
+# oro). Ver js/deportes.js.
 # ============================================

@@ -17,6 +17,11 @@
 //
 // Orden de la tabla: PG* desc > DIF por partido desc > WR (% de victorias)
 // desc > PTS total desc (como último desempate).
+//
+// En los deportes con puntos 3-1-0 (el metegol, ver js/deportes.js) el
+// promedio no es de goles sino de puntos por partido (PPP*), con la misma
+// fórmula: con empates y partidos por tiempo, los goles dicen poco.
+// En el tejo "pts" sigue siendo los goles a favor, así que da lo mismo.
 // =====================================================
 
 const PARTIDOS_FANTASMA = 4; // cuántos "partidos promedio" se le asumen a todos antes de confiar en su promedio real
@@ -58,30 +63,38 @@ function calcularPosicionesNL(partidos) {
         const g = m.marcador.split('-').map(Number);
         if (g.length !== 2 || isNaN(g[0]) || isNaN(g[1])) return;
 
-        if (!stats[m.j1]) stats[m.j1] = { nombre: m.j1, pj: 0, g: 0, p: 0, gf: 0, gc: 0 };
-        if (!stats[m.j2]) stats[m.j2] = { nombre: m.j2, pj: 0, g: 0, p: 0, gf: 0, gc: 0 };
+        if (!stats[m.j1]) stats[m.j1] = { nombre: m.j1, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, pts: 0 };
+        if (!stats[m.j2]) stats[m.j2] = { nombre: m.j2, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, pts: 0 };
 
         stats[m.j1].pj++; stats[m.j2].pj++;
         stats[m.j1].gf += g[0]; stats[m.j1].gc += g[1];
         stats[m.j2].gf += g[1]; stats[m.j2].gc += g[0];
 
-        if (m.res === 'G') { stats[m.j1].g++; stats[m.j2].p++; }
+        if (m.res === 'E' || g[0] === g[1]) { stats[m.j1].e++; stats[m.j2].e++; }
+        else if (m.res === 'G') { stats[m.j1].g++; stats[m.j2].p++; }
         else { stats[m.j2].g++; stats[m.j1].p++; }
 
-        totalGf += g[0] + g[1];
+        // PTS: goles a favor en el tejo, 3-1-0 en el metegol
+        const p1 = puntosDePartido(g[0], g[1]);
+        const p2 = puntosDePartido(g[1], g[0]);
+        stats[m.j1].pts += p1;
+        stats[m.j2].pts += p2;
+
+        totalGf += p1 + p2;
         totalPj += 2;
     });
 
-    // Promedio general de goles por partido en toda la edición (el "m" del promedio ajustado).
+    // Promedio general de goles (o puntos) por partido en toda la edición
+    // (el "m" del promedio ajustado). totalGf suma PTS: goles en el tejo.
     const promedioLiga = totalPj > 0 ? totalGf / totalPj : 0;
 
     return Object.values(stats)
         .map(s => ({
             ...s,
             dif: s.gf - s.gc,
-            pts: s.gf, // PTS = goles a favor (se muestra, pero ya no ordena la tabla)
-            pg: s.pj > 0 ? s.gf / s.pj : 0, // promedio real de goles por partido
-            pgAjustado: (PARTIDOS_FANTASMA * promedioLiga + s.gf) / (PARTIDOS_FANTASMA + s.pj), // promedio ajustado (ver comentario arriba)
+            // pts: en el tejo, los goles a favor (se muestra, pero ya no ordena la tabla)
+            pg: s.pj > 0 ? s.pts / s.pj : 0, // promedio real de goles (o puntos) por partido
+            pgAjustado: (PARTIDOS_FANTASMA * promedioLiga + s.pts) / (PARTIDOS_FANTASMA + s.pj), // promedio ajustado (ver comentario arriba)
             difPromedio: s.pj > 0 ? (s.gf - s.gc) / s.pj : 0, // diferencia de gol por partido
             wr: s.pj > 0 ? s.g / s.pj : 0 // % de victorias
         }))

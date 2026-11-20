@@ -6,7 +6,9 @@
 // partidos por jugar.
 //
 //   GET    /api/jornada   -> { jornadas: [...] }
-//   PUT    /api/jornada   -> abre o actualiza { fecha, jugadores }
+//   PUT    /api/jornada   -> abre o actualiza { fecha, jugadores, modalidad }
+//                            (modalidad: 'goles' o 'tiempo'; default 'goles';
+//                             minutos: solo por tiempo, de 1 a 60)
 //   DELETE /api/jornada   -> cierra { fecha }
 //
 // Qué guarda y qué NO guarda, igual que con los torneos: acá va solo la
@@ -33,7 +35,7 @@ import {
     commitearArchivo,
     errorHttp
 } from '../lib/github.js';
-import { deporteDelPedido, prefijoCommit } from '../lib/deportes.js';
+import { deporteDelPedido, prefijoCommit, validarModalidad, validarMinutos } from '../lib/deportes.js';
 
 function parsearLista(contenido) {
     if (!contenido) return [];
@@ -95,12 +97,19 @@ export default async function handler(req, res) {
         if (req.method === 'PUT') {
             const fecha = validarFecha((req.body || {}).fecha);
             const jugadores = validarJugadores((req.body || {}).jugadores);
+            const modalidad = validarModalidad(deporte, (req.body || {}).modalidad);
+            const minutos = modalidad === 'tiempo' ? validarMinutos((req.body || {}).minutos) : null;
 
             const { contenido, sha } = await obtenerArchivoActual(config, ARCHIVO);
             const lista = parsearLista(contenido).filter(j => j && j.fecha !== fecha);
             const existia = parsearLista(contenido).some(j => j && j.fecha === fecha);
 
-            lista.push({ fecha, jugadores });
+            // La modalidad solo se guarda si no es la de siempre, así las
+            // jornadas del tejo quedan igual que antes.
+            const entrada = { fecha, jugadores };
+            if (modalidad !== 'goles') entrada.modalidad = modalidad;
+            if (minutos) entrada.minutos = minutos;
+            lista.push(entrada);
             lista.sort((a, b) => claveFecha(a.fecha) - claveFecha(b.fecha));
 
             await commitearArchivo(
@@ -112,7 +121,7 @@ export default async function handler(req, res) {
                     : `Abrir jornada del ${fecha} (${jugadores.length} jugadores)`),
                 ARCHIVO
             );
-            return res.status(200).json({ success: true, fecha, jugadores, creada: !existia });
+            return res.status(200).json({ success: true, fecha, jugadores, modalidad, minutos, creada: !existia });
         }
 
         if (req.method === 'DELETE') {

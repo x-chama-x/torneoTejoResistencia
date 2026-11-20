@@ -55,7 +55,7 @@ function renderRepechajes(repechajes) {
                     <div class="table-responsive">
                         <table class="ranking-table densa">
                             <thead>
-                                <tr><th>#</th><th>Jugador</th><th>PJ</th><th>G</th><th>P</th><th>GF</th><th>GC</th><th>DIF</th><th>PTS(GF)</th></tr>
+                                <tr><th>#</th><th>Jugador</th><th>PJ</th><th>G</th>${thEmpates()}<th>P</th><th>GF</th><th>GC</th><th>DIF</th><th>${DEPORTE.etiquetaPuntos}</th></tr>
                             </thead>
                             <tbody>
                                 ${tabla.map((s, i) => `
@@ -64,6 +64,7 @@ function renderRepechajes(repechajes) {
                                         <td>${conEscudo(s.nombre, { negrita: true })}</td>
                                         <td>${s.p}</td>
                                         <td>${s.w}</td>
+                                        ${tdEmpates(s.e)}
                                         <td>${s.l}</td>
                                         <td>${s.gf}</td>
                                         <td>${s.gc}</td>
@@ -146,22 +147,25 @@ function processStandings(matches, plantel) {
     const stats = {};
 
     (plantel || []).forEach(nombre => {
-        stats[nombre] = { nombre, p: 0, w: 0, l: 0, gf: 0, gc: 0, pts: 0 };
+        stats[nombre] = { nombre, p: 0, w: 0, e: 0, l: 0, gf: 0, gc: 0, pts: 0 };
     });
 
     matches.forEach(m => {
-        if(!stats[m.j1]) stats[m.j1] = { nombre: m.j1, p:0, w:0, l:0, gf:0, gc:0, pts:0 };
-        if(!stats[m.j2]) stats[m.j2] = { nombre: m.j2, p:0, w:0, l:0, gf:0, gc:0, pts:0 };
+        if(!stats[m.j1]) stats[m.j1] = { nombre: m.j1, p:0, w:0, e:0, l:0, gf:0, gc:0, pts:0 };
+        if(!stats[m.j2]) stats[m.j2] = { nombre: m.j2, p:0, w:0, e:0, l:0, gf:0, gc:0, pts:0 };
         const g = m.marcador.split("-").map(Number);
         stats[m.j1].p++; stats[m.j2].p++;
         stats[m.j1].gf += g[0]; stats[m.j1].gc += g[1];
         stats[m.j2].gf += g[1]; stats[m.j2].gc += g[0];
 
-        // Pts son los goles anotados a favor
-        stats[m.j1].pts += g[0];
-        stats[m.j2].pts += g[1];
+        // Pts: en el tejo son los goles a favor; en el metegol, 3-1-0
+        // (ver puntos en js/deportes.js)
+        stats[m.j1].pts += puntosDePartido(g[0], g[1]);
+        stats[m.j2].pts += puntosDePartido(g[1], g[0]);
 
-        if (m.res === "G") {
+        if (m.res === "E" || g[0] === g[1]) {
+            stats[m.j1].e++; stats[m.j2].e++;
+        } else if (m.res === "G") {
             stats[m.j1].w++; stats[m.j2].l++;
         } else {
             stats[m.j2].w++; stats[m.j1].l++;
@@ -250,6 +254,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                     <td>${conEscudo(s.nombre, { negrita: true })}</td>
                     <td>${s.p}</td>
                     <td>${s.w}</td>
+                    ${tdEmpates(s.e)}
                     <td>${s.l}</td>
                     <td>${s.gf}</td>
                     <td>${s.gc}</td>
@@ -305,11 +310,12 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                                         <th>Jugador</th>
                                         <th>PJ</th>
                                         <th>G</th>
+                                        ${thEmpates()}
                                         <th>P</th>
                                         <th>GF</th>
                                         <th>GC</th>
                                         <th>DIF</th>
-                                        <th>PTS(GF)</th>
+                                        <th>${DEPORTE.etiquetaPuntos}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -321,6 +327,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                                             <td>${conEscudo(s.nombre, { negrita: true })}</td>
                                             <td>${s.p}</td>
                                             <td>${s.w}</td>
+                                            ${tdEmpates(s.e)}
                                             <td>${s.l}</td>
                                             <td>${s.gf}</td>
                                             <td>${s.gc}</td>
@@ -544,8 +551,8 @@ function renderTournamentStats(allMatches, nombreTorneo) {
 
     function addGoals(matches, phase) {
         matches.forEach(m => {
-            if (!stats[m.j1]) stats[m.j1] = { golesGrupo: 0, golesFinal: 0, golesContra: 0, partidos: 0, pg: 0, pp: 0 };
-            if (!stats[m.j2]) stats[m.j2] = { golesGrupo: 0, golesFinal: 0, golesContra: 0, partidos: 0, pg: 0, pp: 0 };
+            if (!stats[m.j1]) stats[m.j1] = { golesGrupo: 0, golesFinal: 0, golesContra: 0, partidos: 0, pg: 0, pe: 0, pp: 0 };
+            if (!stats[m.j2]) stats[m.j2] = { golesGrupo: 0, golesFinal: 0, golesContra: 0, partidos: 0, pg: 0, pe: 0, pp: 0 };
             const g = m.marcador.split("-").map(Number);
             if (phase === "grupo") {
                 stats[m.j1].golesGrupo += g[0];
@@ -560,6 +567,7 @@ function renderTournamentStats(allMatches, nombreTorneo) {
             stats[m.j2].partidos++;
             if (g[0] > g[1]) { stats[m.j1].pg++; stats[m.j2].pp++; }
             else if (g[1] > g[0]) { stats[m.j2].pg++; stats[m.j1].pp++; }
+            else { stats[m.j1].pe++; stats[m.j2].pe++; }
         });
     }
 
@@ -577,6 +585,7 @@ function renderTournamentStats(allMatches, nombreTorneo) {
             dif: (difGoles > 0 ? '+' : '') + difGoles,
             partidos: s.partidos,
             pg: s.pg,
+            pe: s.pe,
             pp: s.pp,
             promedio: s.partidos > 0 ? (s.golesGrupo + s.golesFinal) / s.partidos : 0,
             promedioStr: s.partidos > 0 ? ((s.golesGrupo + s.golesFinal) / s.partidos).toFixed(2) : "0.00"
@@ -600,6 +609,7 @@ function renderTournamentStats(allMatches, nombreTorneo) {
                 <th>Jugador</th>
                 <th>PJ</th>
                 <th>PG</th>
+                ${DEPORTE.permiteEmpate ? '<th title="Partidos empatados">PE</th>' : ''}
                 <th>PP</th>
                 <th>${groupLabel}</th>
                 <th>G(PO)</th>
@@ -613,6 +623,7 @@ function renderTournamentStats(allMatches, nombreTorneo) {
                     <td>${conEscudo(s.nombre, { negrita: true })}</td>
                     <td>${s.partidos}</td>
                     <td>${s.pg}</td>
+                    ${tdEmpates(s.pe)}
                     <td>${s.pp}</td>
                     <td>${s.golesGrupo}</td>
                     <td>${s.golesFinal}</td>

@@ -19,7 +19,9 @@
 // se reescribe con los valores del deporte (sirve también en <title>).
 // El texto que queda escrito en el HTML es el del tejo, así no hay
 // parpadeo en el deporte por defecto. Un elemento con data-solo="tejo"
-// se oculta en los demás deportes.
+// se oculta en los demás deportes. Un elemento con data-si-empate se
+// saca en los deportes sin empate (y uno con data-sin-empate, al revés):
+// sirve para la columna "E" de las tablas escritas en el HTML.
 //
 // Ojo: las rutas de los archivos están repetidas en lib/deportes.js (el
 // lado servidor). Si cambiás una, cambiala en los dos.
@@ -40,6 +42,18 @@ const DEPORTES = {
         // Reglas
         golesParaGanar: 7,     // el ganador siempre hace exactamente esta cantidad
         diferenciaPaliza: 5,   // "Palizas" en Partido 1vs1: 7-2, 7-1, 7-0
+        permiteEmpate: false,  // nunca: siempre se juega hasta que alguien llega a 7
+        // Puntos en las tablas de torneo: null = los PTS son los goles a favor
+        // (la regla de siempre del tejo). Si no, { victoria, empate, derrota }.
+        puntos: null,
+        etiquetaPuntos: 'PTS(GF)',
+        // Nations League: la tabla se ordena por promedio ajustado de goles
+        etiquetaPromedioNL: 'PG*',
+        notaNL: 'La tabla se ordena por rendimiento, no por goles totales. * PG ajustado: arranca cerca del promedio general y se acerca a tu promedio real a medida que jugás más partidos, así un partidazo aislado no alcanza para el primer puesto.',
+        // Cómo se puede jugar un partido: 'goles' (hasta que alguien llega a
+        // golesParaGanar) y/o 'tiempo' (minutosPorPartido de reloj).
+        modalidades: ['goles'],
+        minutosPorPartido: null,
 
         // Datos (relativos a la raíz del sitio)
         archivoPartidos: 'enfrentamientos_directos.txt',
@@ -73,14 +87,29 @@ const DEPORTES = {
         sufijoTorneo: 'torneo de metegol',
         descripcion: 'Metegol (fútbol de mesa) 1 contra 1: cada jugador maneja las cuatro barras de su lado.',
 
-        // TODO reglas: todavía no están definidas. Por ahora a 5 goles y
-        // a un solo partido, como el reglamento ITSF (partidos a 5 goles).
-        // El ITSF además juega al mejor de 3 o de 5 partidos y en el partido
-        // decisivo hay que ganar por 2 (tope 8): si adoptan eso, el ganador
-        // ya no hace siempre la misma cantidad de goles y la app tiene que
-        // dejar de asumirlo (ver golesParaGanar en app/app.js).
+        // Reglas: 1 contra 1, a un solo partido. Cada torneo o jornada elige
+        // al crearse cómo se juega:
+        //   - a goles: gana el primero que llega a 5 (como un partido ITSF).
+        //   - por tiempo: se juegan los 10 minutos enteros (los lugares cobran
+        //     por tiempo), sin tope de goles: llegar a 5 no termina el partido.
+        //     Gana el que va arriba cuando suena el reloj; iguales es empate.
+        // Semis, tercer puesto, final y el eliminatorio no pueden terminar
+        // empatados: se desempatan con gol de oro (el próximo gol gana) y se
+        // carga el resultado final.
         golesParaGanar: 5,
         diferenciaPaliza: 4,   // 5-1, 5-0
+        permiteEmpate: true,
+        puntos: { victoria: 3, empate: 1, derrota: 0 }, // como en el fútbol
+        etiquetaPuntos: 'PTS',
+        // Nations League: con empates y partidos por tiempo los goles dicen
+        // poco, así que se ordena por puntos por partido (3-1-0), ajustado
+        etiquetaPromedioNL: 'PPP*',
+        notaNL: 'La tabla se ordena por puntos por partido (3 por ganar, 1 por empatar), no por puntos totales. * PPP ajustado: arranca cerca del promedio general y se acerca a tu promedio real a medida que jugás más partidos, así un buen día aislado no alcanza para el primer puesto.',
+        modalidades: ['goles', 'tiempo'],
+        modalidadPorDefecto: 'tiempo', // la que aparece elegida al crear
+        minutosPorPartido: 10,
+        golesMaximosPorTiempo: 15,     // hasta dónde llegan los botones de goles en la app
+        desempatePlayoff: 'gol de oro',
 
         archivoPartidos: 'metegol/partidos.txt',
         carpetaTorneos: 'metegol/torneos',
@@ -127,6 +156,36 @@ function textoDeporte(plantilla) {
         (DEPORTE[clave] !== undefined ? DEPORTE[clave] : todo));
 }
 
+// Resultado para el jugador 1 a partir de los goles: G, P o E (empate).
+function resultadoDeMarcador(g1, g2) {
+    return g1 > g2 ? 'G' : (g1 < g2 ? 'P' : 'E');
+}
+
+// Puntos que suma un jugador en la tabla de un torneo por un partido. En
+// el tejo son sus goles; en el metegol, 3-1-0.
+function puntosDePartido(golesPropios, golesRival) {
+    const p = DEPORTE.puntos;
+    if (!p) return golesPropios;
+    if (golesPropios > golesRival) return p.victoria;
+    if (golesPropios < golesRival) return p.derrota;
+    return p.empate;
+}
+
+// Columna "E" (empatados) de las tablas: solo en los deportes con empate,
+// así las del tejo quedan exactamente como siempre.
+function thEmpates(atributos) {
+    return DEPORTE.permiteEmpate ? `<th${atributos ? ' ' + atributos : ''} title="Empatados">E</th>` : '';
+}
+function tdEmpates(n, atributos) {
+    return DEPORTE.permiteEmpate ? `<td${atributos ? ' ' + atributos : ''}>${n || 0}</td>` : '';
+}
+
+// Las fases que no pueden terminar empatadas (se desempatan con gol de oro).
+function esFaseEliminatoria(fase) {
+    const f = String(fase || '').toLowerCase();
+    return ['semifinal', 'tercer puesto', 'final', 'eliminatorio'].some(x => f.includes(x));
+}
+
 // Primer torneo, segundo torneo... con el nombre del deporte.
 function esTorneoDelDeporte(nombre) {
     return String(nombre || '').toLowerCase().includes(DEPORTE.sufijoTorneo.toLowerCase());
@@ -139,15 +198,24 @@ function aplicarTextosDeporte(raiz) {
     });
     base.querySelectorAll('[data-solo]').forEach(el => {
         const ids = el.dataset.solo.split(/[\s,]+/);
-        if (!ids.includes(DEPORTE.id)) el.style.display = 'none';
+        // Lo que no es del tejo puede venir oculto en el HTML (para que no
+        // aparezca un instante en el tejo antes de que corra esto): se muestra.
+        el.style.display = ids.includes(DEPORTE.id) ? '' : 'none';
     });
+    // Columnas y textos que solo tienen sentido si puede haber empates
+    if (!DEPORTE.permiteEmpate) {
+        base.querySelectorAll('[data-si-empate]').forEach(el => el.remove());
+    } else {
+        base.querySelectorAll('[data-sin-empate]').forEach(el => el.remove());
+    }
     if (document.body) document.body.dataset.deporte = DEPORTE.id;
 }
 
 if (typeof window !== 'undefined') {
     Object.assign(window, {
         DEPORTES, DEPORTE, DEPORTE_DEFAULT,
-        urlDeporte, textoDeporte, esTorneoDelDeporte, aplicarTextosDeporte
+        urlDeporte, textoDeporte, esTorneoDelDeporte, aplicarTextosDeporte,
+        resultadoDeMarcador, puntosDePartido, thEmpates, tdEmpates, esFaseEliminatoria
     });
     if (typeof document !== 'undefined') {
         if (document.readyState === 'loading') {

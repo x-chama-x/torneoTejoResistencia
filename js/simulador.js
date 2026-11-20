@@ -138,7 +138,8 @@ async function cargarHistorialCompleto() {
                     jugador2,
                     ganador,
                     goles1,
-                    goles2
+                    goles2,
+                    fase: (partes[6] || '').trim()
                 };
 
                 partidosDetallados.push(partido);
@@ -206,7 +207,68 @@ function obtenerHistorialEnfrentamiento(nombreJ1, nombreJ2) {
     return enfrentamientosDirectos[clave] || null;
 }
 
-function simularPartido(jugador1, jugador2) {
+// El simulador juega los partidos como la modalidad por defecto del deporte:
+// en el tejo, a 7 goles; en el metegol, por tiempo (los minutos enteros,
+// sin tope de goles, con empates en la fase regular y gol de oro en
+// playoffs). Los minutos regulables no cambian la simulación: la cantidad
+// de goles sale del promedio del historial.
+function simulaPorTiempo() {
+    return DEPORTE.modalidades.includes('tiempo') && DEPORTE.modalidadPorDefecto === 'tiempo';
+}
+
+// Goles que hace un jugador por partido, en promedio, según el historial.
+// Con pocos partidos se arranca de 3 (partidos fantasma, como en el PG*).
+let golesMediosCache = null;
+function golesPorJugadorSimulador() {
+    if (golesMediosCache === null) {
+        let suma = 0, n = 0;
+        partidosDetallados.forEach(p => {
+            if (!isNaN(p.goles1) && !isNaN(p.goles2)) { suma += p.goles1 + p.goles2; n += 2; }
+        });
+        const FANTASMA = 20, INICIAL = 3;
+        golesMediosCache = (suma + INICIAL * FANTASMA) / (n + FANTASMA);
+    }
+    return golesMediosCache;
+}
+
+// Ruido con forma de campana, entre -1.5 y 1.5 (suma de tres al azar).
+function ruidoGoles() {
+    return Math.random() + Math.random() + Math.random() - 1.5;
+}
+
+// Un partido por tiempo: puede terminar con cualquier marcador. Si sale
+// empate y es de fase regular (puedeEmpatar), queda empate; si es de
+// playoffs, se define con gol de oro (el ganador hace uno más).
+function simularPartidoPorTiempo(jugador1, jugador2, probFinal, puedeEmpatar) {
+    const media = golesPorJugadorSimulador();
+    const pEmpate = probabilidadEmpate(probFinal, tasaEmpateSimulador());
+    const gana1 = Math.random() < probFinal;
+    const armar = (g1, g2, ganador) => ({ ganador, goles1: g1, goles2: g2, resultado: `${g1}${g2}` });
+
+    if (Math.random() < pEmpate) {
+        const g = Math.max(0, Math.round(media + ruidoGoles()));
+        if (puedeEmpatar) return armar(g, g, null);
+        return gana1 ? armar(g + 1, g, jugador1.nombre) : armar(g, g + 1, jugador2.nombre); // gol de oro
+    }
+
+    // Diferencia de 1 a 3 goles, más hasta 2 si uno promedia bastante más
+    const promGanador = gana1 ? jugador1.promedioGoles : jugador2.promedioGoles;
+    const promPerdedor = gana1 ? jugador2.promedioGoles : jugador1.promedioGoles;
+    const bonus = Math.max(0, Math.min(2, promGanador - promPerdedor));
+    const dif = 1 + Math.floor(Math.random() * 3) + Math.round(bonus);
+    const tope = DEPORTE.golesMaximosPorTiempo || 15;
+    const golesPerdedor = Math.max(0, Math.min(tope - dif, Math.round(media - dif / 2 + ruidoGoles())));
+    const golesGanador = golesPerdedor + dif;
+    return gana1
+        ? armar(golesGanador, golesPerdedor, jugador1.nombre)
+        : armar(golesPerdedor, golesGanador, jugador2.nombre);
+}
+
+// opciones.puedeEmpatar: en los deportes con empate (metegol por tiempo),
+// los partidos de fase regular pueden terminar iguales. Los de playoffs
+// nunca: se desempatan con gol de oro, así que siempre hay ganador. Un
+// empate devuelve ganador: null.
+function simularPartido(jugador1, jugador2, opciones = {}) {
     // La fórmula (40% ranking + 60% winRate, ajuste por mano a mano y
     // sigmoide) vive en js/probabilidades.js, que es el único lugar donde se
     // toca, con la suavidad de PROB_K. Lo único propio del Simulador es el
@@ -224,6 +286,10 @@ function simularPartido(jugador1, jugador2) {
         obtenerHistorialEnfrentamiento(jugador1.nombre, jugador2.nombre),
         { campeon: true }
     );
+
+    if (simulaPorTiempo()) {
+        return simularPartidoPorTiempo(jugador1, jugador2, probFinal, !!opciones.puedeEmpatar);
+    }
 
     const gana1 = Math.random() < probFinal;
 
@@ -265,6 +331,35 @@ function simularPartido(jugador1, jugador2) {
     };
 }
 
+// Proporción de empates del historial (fase regular), para simularPartido.
+// Se calcula una sola vez: el historial no cambia durante la simulación.
+let tasaEmpateCache = null;
+function tasaEmpateSimulador() {
+    if (tasaEmpateCache === null) {
+        tasaEmpateCache = tasaDeEmpates(
+            partidosDetallados.filter(p => !esFaseEliminatoria(p.fase))
+        );
+    }
+    return tasaEmpateCache;
+}
+
+// Suma un partido a dos filas de una tabla de posiciones: G / E / P y los
+// PTS (en el tejo, los goles a favor; en el metegol, 3-1-0).
+function sumarPartidoATabla(sA, sB, gA, gB) {
+    if (gA > gB) { sA.pg++; sB.pp++; }
+    else if (gB > gA) { sB.pg++; sA.pp++; }
+    else { sA.pe = (sA.pe || 0) + 1; sB.pe = (sB.pe || 0) + 1; }
+    sA.pts += puntosDePartido(gA, gB);
+    sB.pts += puntosDePartido(gB, gA);
+}
+
+// Lo mismo para las estadísticas del torneo (PG / PE / PP).
+function sumarResultadoGlobal(st, ganador, nombre) {
+    if (ganador === nombre) st.pg++;
+    else if (ganador) st.pp++;
+    else st.pe = (st.pe || 0) + 1;
+}
+
 // --- Helper para la calibración de la maldición del campeón (js/campeon.js) ---
 // Simula un round-robin y devuelve el ranking (1°..n°) sin efectos secundarios.
 // Se inyecta como callback `simGrupo` en calibrarSiCorresponde()/calibrarPesoCampeon().
@@ -274,16 +369,12 @@ function simGrupoBicampeon(jugadoresGrupo) {
     jugadoresGrupo.forEach(j => { stats[j.nombre] = { pg: 0, pp: 0, gf: 0, gc: 0, pts: 0 }; });
     for (let i = 0; i < jugadoresGrupo.length; i++) {
         for (let j = i + 1; j < jugadoresGrupo.length; j++) {
-            const r = simularPartido(jugadoresGrupo[i], jugadoresGrupo[j]);
+            const r = simularPartido(jugadoresGrupo[i], jugadoresGrupo[j], { puedeEmpatar: true });
             const a = jugadoresGrupo[i].nombre, b = jugadoresGrupo[j].nombre;
             partidos.push({ j1: a, j2: b, g1: r.goles1, g2: r.goles2 });
             stats[a].gf += r.goles1; stats[a].gc += r.goles2;
             stats[b].gf += r.goles2; stats[b].gc += r.goles1;
-            if (r.ganador === a) {
-                stats[a].pg++; stats[b].pp++; stats[a].pts += r.goles1; stats[b].pts += r.goles2;
-            } else {
-                stats[b].pg++; stats[a].pp++; stats[b].pts += r.goles2; stats[a].pts += r.goles1;
-            }
+            sumarPartidoATabla(stats[a], stats[b], r.goles1, r.goles2);
         }
     }
     // Mismo orden y desempate que las tablas reales (lib/torneo-formatos.js)
@@ -305,7 +396,7 @@ function simularGrupo(jugadoresGrupo, nombreGrupo, matchNumberInicial, estadisti
     for (let i = 0; i < jugadoresGrupo.length; i++) {
         for (let j = i + 1; j < jugadoresGrupo.length; j++) {
             const esAzul = Math.random() < 0.5;
-            const resultado = simularPartido(jugadoresGrupo[i], jugadoresGrupo[j]);
+            const resultado = simularPartido(jugadoresGrupo[i], jugadoresGrupo[j], { puedeEmpatar: true });
 
             partidos.push({
                 numero: matchNumber++,
@@ -330,29 +421,20 @@ function simularGrupo(jugadoresGrupo, nombreGrupo, matchNumberInicial, estadisti
                     estadisticasGlobales[jugadoresGrupo[i].nombre].golesLiga += resultado.goles1;
                     estadisticasGlobales[jugadoresGrupo[i].nombre].gc += resultado.goles2;
                     estadisticasGlobales[jugadoresGrupo[i].nombre].partidosJugados++;
-                    if (resultado.ganador === jugadoresGrupo[i].nombre) estadisticasGlobales[jugadoresGrupo[i].nombre].pg++;
-                    else estadisticasGlobales[jugadoresGrupo[i].nombre].pp++;
+                    sumarResultadoGlobal(estadisticasGlobales[jugadoresGrupo[i].nombre], resultado.ganador, jugadoresGrupo[i].nombre);
                 }
                 if (estadisticasGlobales[jugadoresGrupo[j].nombre]) {
                     estadisticasGlobales[jugadoresGrupo[j].nombre].golesLiga += resultado.goles2;
                     estadisticasGlobales[jugadoresGrupo[j].nombre].gc += resultado.goles1;
                     estadisticasGlobales[jugadoresGrupo[j].nombre].partidosJugados++;
-                    if (resultado.ganador === jugadoresGrupo[j].nombre) estadisticasGlobales[jugadoresGrupo[j].nombre].pg++;
-                    else estadisticasGlobales[jugadoresGrupo[j].nombre].pp++;
+                    sumarResultadoGlobal(estadisticasGlobales[jugadoresGrupo[j].nombre], resultado.ganador, jugadoresGrupo[j].nombre);
                 }
             }
 
-            if (resultado.ganador === jugadoresGrupo[i].nombre) {
-                estadisticas[jugadoresGrupo[i].nombre].pg++;
-                estadisticas[jugadoresGrupo[j].nombre].pp++;
-                estadisticas[jugadoresGrupo[i].nombre].pts += resultado.goles1;
-                estadisticas[jugadoresGrupo[j].nombre].pts += resultado.goles2;
-            } else {
-                estadisticas[jugadoresGrupo[j].nombre].pg++;
-                estadisticas[jugadoresGrupo[i].nombre].pp++;
-                estadisticas[jugadoresGrupo[j].nombre].pts += resultado.goles2;
-                estadisticas[jugadoresGrupo[i].nombre].pts += resultado.goles1;
-            }
+            sumarPartidoATabla(
+                estadisticas[jugadoresGrupo[i].nombre], estadisticas[jugadoresGrupo[j].nombre],
+                resultado.goles1, resultado.goles2
+            );
         }
     }
 
@@ -408,7 +490,7 @@ function simularMiniLiga(candidatos, estadisticasGlobales = null) {
         for (let j = i + 1; j < candidatos.length; j++) {
             const j1 = candidatos[i].data;
             const j2 = candidatos[j].data;
-            const resultadoMini = simularPartido(j1, j2);
+            const resultadoMini = simularPartido(j1, j2, { puedeEmpatar: true });
 
             partidos.push({
                 azul: j1.nombre,
@@ -430,29 +512,17 @@ function simularMiniLiga(candidatos, estadisticasGlobales = null) {
                     estadisticasGlobales[j1.nombre].golesFaseFinal += resultadoMini.goles1;
                     estadisticasGlobales[j1.nombre].gc += resultadoMini.goles2;
                     estadisticasGlobales[j1.nombre].partidosJugados++;
-                    if (resultadoMini.ganador === j1.nombre) estadisticasGlobales[j1.nombre].pg++;
-                    else estadisticasGlobales[j1.nombre].pp++;
+                    sumarResultadoGlobal(estadisticasGlobales[j1.nombre], resultadoMini.ganador, j1.nombre);
                 }
                 if (estadisticasGlobales[j2.nombre]) {
                     estadisticasGlobales[j2.nombre].golesFaseFinal += resultadoMini.goles2;
                     estadisticasGlobales[j2.nombre].gc += resultadoMini.goles1;
                     estadisticasGlobales[j2.nombre].partidosJugados++;
-                    if (resultadoMini.ganador === j2.nombre) estadisticasGlobales[j2.nombre].pg++;
-                    else estadisticasGlobales[j2.nombre].pp++;
+                    sumarResultadoGlobal(estadisticasGlobales[j2.nombre], resultadoMini.ganador, j2.nombre);
                 }
             }
 
-            if (resultadoMini.ganador === j1.nombre) {
-                stats[j1.nombre].pg++;
-                stats[j2.nombre].pp++;
-                stats[j1.nombre].pts += resultadoMini.goles1;
-                stats[j2.nombre].pts += resultadoMini.goles2;
-            } else {
-                stats[j2.nombre].pg++;
-                stats[j1.nombre].pp++;
-                stats[j2.nombre].pts += resultadoMini.goles2;
-                stats[j1.nombre].pts += resultadoMini.goles1;
-            }
+            sumarPartidoATabla(stats[j1.nombre], stats[j2.nombre], resultadoMini.goles1, resultadoMini.goles2);
         }
     }
 
@@ -628,6 +698,7 @@ function renderEstadisticasHTML(estadisticasJugadores, numJugadores, soloFaseFin
                 <th>Jugador</th>
                 <th>PJ</th>
                 <th>PG</th>
+                ${DEPORTE.permiteEmpate ? '<th title="Partidos empatados">PE</th>' : ''}
                 <th>PP</th>
                 ${soloFaseFinal ? '' : `<th>${groupLabel}</th>
                 <th>G(PO)</th>`}
@@ -651,6 +722,7 @@ function renderEstadisticasHTML(estadisticasJugadores, numJugadores, soloFaseFin
             dif: totalGoles - stats.gc,
             partidosJugados: stats.partidosJugados,
             pg: stats.pg,
+            pe: stats.pe || 0,
             pp: stats.pp,
             promedio: stats.partidosJugados > 0 ? (totalGoles / stats.partidosJugados) : 0,
             promedioStr: stats.partidosJugados > 0 ? (totalGoles / stats.partidosJugados).toFixed(2) : '0.00'
@@ -663,6 +735,7 @@ function renderEstadisticasHTML(estadisticasJugadores, numJugadores, soloFaseFin
                 <td>${conEscudo(stat.nombre, { negrita: true })}</td>
                 <td>${stat.partidosJugados}</td>
                 <td>${stat.pg}</td>
+                ${tdEmpates(stat.pe)}
                 <td>${stat.pp}</td>
                 ${soloFaseFinal ? '' : `<td>${stat.golesLiga}</td>
                 <td>${stat.golesFaseFinal}</td>`}
@@ -770,6 +843,7 @@ function htmlTablaPosiciones(ranking, clasifCount) {
                 <td>${conEscudo(r.nombre, { negrita: true })}</td>
                 <td>${r.pj}</td>
                 <td>${r.pg}</td>
+                ${tdEmpates(r.pe)}
                 <td>${r.pp}</td>
                 <td>${r.gf}</td>
                 <td>${r.gc}</td>
@@ -781,7 +855,7 @@ function htmlTablaPosiciones(ranking, clasifCount) {
         <div class="table-responsive">
             <table class="ranking-table densa">
                 <thead>
-                    <tr><th>#</th><th>Jugador</th><th>PJ</th><th>G</th><th>P</th><th>GF</th><th>GC</th><th>DIF</th><th>PTS(GF)</th></tr>
+                    <tr><th>#</th><th>Jugador</th><th>PJ</th><th>G</th>${thEmpates()}<th>P</th><th>GF</th><th>GC</th><th>DIF</th><th>${DEPORTE.etiquetaPuntos}</th></tr>
                 </thead>
                 <tbody>${filas}</tbody>
             </table>

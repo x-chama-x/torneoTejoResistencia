@@ -29,7 +29,7 @@ import {
     borrarArchivo,
     errorHttp
 } from '../lib/github.js';
-import { deporteDelPedido, prefijoCommit } from '../lib/deportes.js';
+import { deporteDelPedido, prefijoCommit, validarModalidad, validarMinutos } from '../lib/deportes.js';
 
 const GITHUB_API = 'https://api.github.com';
 
@@ -179,6 +179,9 @@ export default async function handler(req, res) {
 
             const errorValidacion = validarEstado(estado);
             if (errorValidacion) throw errorHttp(400, errorValidacion);
+            // 'goles' o 'tiempo' (si viene); sin el campo es a goles
+            if (estado.modalidad !== undefined) validarModalidad(config.deporte, estado.modalidad);
+            if (estado.minutos !== undefined) validarMinutos(estado.minutos);
 
             const { sha, existe } = await obtenerArchivoActual(config, ruta);
             const contenidoNuevo = JSON.stringify(estado, null, 2) + '\n';
