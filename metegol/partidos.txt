@@ -9,3 +9,4 @@
 # tope de goles, puede haber empate; en playoffs se desempata con gol de
 # oro). Ver js/deportes.js.
 # ============================================
+Marco,Kovic,G,8-4,Primer torneo de metegol,19/11/2026,Fase de Grupos (A)
