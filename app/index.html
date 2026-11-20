@@ -68,6 +68,16 @@
         }
         .reloj.ultimo-minuto { color: var(--amber); }
         .reloj.terminado { color: var(--red); }
+        .link-saltear {
+            display: block;
+            margin: 6px auto 0;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            text-decoration: underline;
+            cursor: pointer;
+        }
         /* Minutos por partido (al elegir "por tiempo") */
         .minutos-row {
             display: flex;
@@ -497,6 +507,8 @@
                 <button class="btn btn-secondary" id="reloj-reiniciar" title="Volver a empezar">↺ Reiniciar</button>
                 <button class="btn btn-primary" id="reloj-play">▶ Empezar</button>
             </div>
+            <p class="hint" id="reloj-aviso" style="text-align: center; margin: 10px 0 0;"></p>
+            <button type="button" class="link-saltear" id="reloj-saltear">¿Jugaron con otro reloj? Dar por terminado</button>
         </div>
 
         <!-- Jugadores -->
