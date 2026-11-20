@@ -1,0 +1,22 @@
+{
+  "nombre": "Primer torneo de metegol",
+  "formato": 8,
+  "fecha": "19/11/2026",
+  "grupos": {
+    "A": [
+      "Kovic",
+      "Marco",
+      "Mateo",
+      "Pedro"
+    ],
+    "B": [
+      "Hector",
+      "Lucas",
+      "Chama",
+      "Facu"
+    ]
+  },
+  "creado": "2026-11-20T00:48:52.200Z",
+  "modalidad": "tiempo",
+  "minutos": 10
+}
