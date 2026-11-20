@@ -9,3 +9,4 @@
 # tope de goles, puede haber empate; en playoffs se desempata con gol de
 # oro). Ver js/deportes.js.
 # ============================================
+Kovic,Hector,G,10-2,Primer torneo de metegol,20/11/2026,Fase de Grupos (A)
