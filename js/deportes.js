@@ -34,6 +34,7 @@ const DEPORTES = {
         nombreLargo: 'Tejo Hockey',        // título del inicio
         nombreFifa: 'Air Hockey',          // "Ranking FIFA Air Hockey", títulos de páginas
         nombreLiga: 'Tejo Nations League', // liga anual de amistosos
+        icono: 'img/favicon.png',          // el mazo: al lado de los títulos y en la pestaña
         // Los torneos se llaman "Cuarto torneo de hockey de mesa": la app
         // sugiere el nombre con esto y el sitio lo usa para acortarlo.
         sufijoTorneo: 'torneo de hockey de mesa',
@@ -84,6 +85,7 @@ const DEPORTES = {
         nombreLargo: 'Metegol',
         nombreFifa: 'Metegol',
         nombreLiga: 'Metegol Nations League',
+        icono: 'img/pelota.png',
         sufijoTorneo: 'torneo de metegol',
         descripcion: 'Metegol (fútbol de mesa) 1 contra 1: cada jugador maneja las cuatro barras de su lado.',
 
@@ -202,6 +204,13 @@ function aplicarTextosDeporte(raiz) {
         // aparezca un instante en el tejo antes de que corra esto): se muestra.
         el.style.display = ids.includes(DEPORTE.id) ? '' : 'none';
     });
+    // Ícono del deporte: el HTML trae el del tejo (img/favicon.png, el mazo),
+    // en los títulos y en la pestaña; los otros deportes lo cambian por el suyo.
+    const iconoTejo = DEPORTES[DEPORTE_DEFAULT].icono;
+    if (DEPORTE.icono && DEPORTE.icono !== iconoTejo) {
+        base.querySelectorAll(`img[src="${iconoTejo}"]`).forEach(img => { img.src = DEPORTE.icono; });
+        document.querySelectorAll(`link[rel="icon"][href="${iconoTejo}"]`).forEach(l => { l.href = DEPORTE.icono; });
+    }
     // Columnas y textos que solo tienen sentido si puede haber empates
     if (!DEPORTE.permiteEmpate) {
         base.querySelectorAll('[data-si-empate]').forEach(el => el.remove());
