@@ -9,6 +9,8 @@
 // 1. Sistema de Suma Cero (puntos ganados = puntos perdidos).
 // 2. Multiplicador dinámico por diferencia de puntos (tipo ELO).
 // 3. Puntos base reducidos para partidos Amistosos.
+// 4. Empates (solo metegol por tiempo): el favorito le pasa al otro hasta
+//    la mitad de los puntos base, según la diferencia (entre parejos, nada).
 // =====================================================
 
 // Base histórica con la que arranca el ranking de cada deporte (en el
@@ -71,6 +73,24 @@ function calcularRankingDesdeTexto(texto) {
 
         if (!(j1 in ranking)) ranking[j1] = NUEVO_JUGADOR_PUNTOS;
         if (!(j2 in ranking)) ranking[j2] = NUEVO_JUGADOR_PUNTOS;
+
+        const faseLower0 = fase.toLowerCase();
+        const torneoLower0 = torneo.toLowerCase();
+
+        // Empate (solo en el metegol por tiempo): como en el ELO del ajedrez,
+        // entre dos parejos no cambia nada, y si uno era favorito le pasa
+        // algunos puntos al otro (más cuanto más grande la diferencia, con
+        // tope en la mitad de los puntos base del partido).
+        if (resJ1.toUpperCase() === 'E') {
+            const base = (faseLower0.includes('amistoso') || torneoLower0.includes('amistoso')) ? 2.0 : 20.0;
+            const fuerte = ranking[j1] >= ranking[j2] ? j1 : j2;
+            const debil = fuerte === j1 ? j2 : j1;
+            const D = ranking[fuerte] - ranking[debil];
+            const pasa = base * Math.min(0.5, D / 200.0);
+            ranking[debil] += pasa;
+            ranking[fuerte] = Math.max(PISO_MINIMO_PUNTOS, ranking[fuerte] - pasa);
+            continue;
+        }
 
         const ganador = resJ1.toUpperCase() === 'G' ? j1 : j2;
         const perdedor = resJ1.toUpperCase() === 'G' ? j2 : j1;

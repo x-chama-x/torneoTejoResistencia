@@ -124,6 +124,8 @@ function renderCrearTorneo() {
             <p class="hint" id="hint-formato"></p>
         </div>
 
+        ${htmlEleccionModalidad('modalidad-torneo', MODALIDAD_DEFAULT, 'Cómo se juegan los partidos')}
+
         <div class="card">
             <label>Jugadores <span id="contador-jugadores" style="color: var(--accent);"></span></label>
             <div class="chips" id="chips-torneo-jugadores"></div>
@@ -148,6 +150,7 @@ function renderCrearTorneo() {
     renderChipsFormato();
     renderChipsTorneoJugadores();
 
+    bindEleccionModalidad('modalidad-torneo', () => {});
     document.getElementById('btn-cancelar-crear').addEventListener('click', renderInicioTorneo);
     document.getElementById('btn-sortear').addEventListener('click', sortearYGuardar);
 }
@@ -250,6 +253,12 @@ async function sortearYGuardar() {
         grupos,
         creado: new Date().toISOString()
     };
+    // A goles o por tiempo: lo usa la app para saber cómo cargar cada
+    // partido. Solo en los deportes que tienen las dos (el tejo, como antes).
+    if (HAY_TIEMPO) {
+        nuevo.modalidad = modalidadElegida('modalidad-torneo');
+        if (nuevo.modalidad === 'tiempo') nuevo.minutos = minutosElegidos('modalidad-torneo');
+    }
     const ruta = rutaEstado(nombre);
 
     try {
@@ -592,6 +601,7 @@ function renderTablas(s) {
                 <td><strong>${escaparHtml(t.nombre)}</strong></td>
                 <td>${t.p}</td>
                 <td>${t.w}</td>
+                ${tdEmpates(t.e)}
                 <td>${t.l}</td>
                 <td>${t.gf}</td>
                 <td>${t.gc}</td>
@@ -608,7 +618,7 @@ function renderTablas(s) {
                 <label>${titulo}</label>
                 <div class="table-responsive">
                     <table class="tabla-mini">
-                        <thead><tr><th>#</th><th>Jugador</th><th>PJ</th><th>G</th><th>P</th><th>GF</th><th>GC</th><th>DIF</th><th>PTS</th></tr></thead>
+                        <thead><tr><th>#</th><th>Jugador</th><th>PJ</th><th>G</th>${thEmpates()}<th>P</th><th>GF</th><th>GC</th><th>DIF</th><th>PTS</th></tr></thead>
                         <tbody>${filas}</tbody>
                     </table>
                 </div>
@@ -624,11 +634,18 @@ function renderTablas(s) {
 // así que solo hay que elegir quién ganó y cuántos goles hizo el perdedor.
 
 function abrirCargaDeFixture(cruce) {
+    // Los cruces del torneo en curso se juegan como diga el torneo; los de
+    // la jornada traen la suya (ver jornada.js).
+    if (!cruce.modalidad) {
+        cruce.modalidad = torneo.estado?.modalidad || 'goles';
+        cruce.minutos = torneo.estado?.minutos;
+    }
     torneo.pendienteActual = cruce;
 
     estado.ganador = cruce.j1;
     estado.perdedor = cruce.j2;
     estado.golesPerdedor = null;
+    estado.golesGanador = null;
     // Un cruce de jornada trae su fecha (la del día que se juntaron);
     // los del fixture de un torneo se cargan con la de hoy.
     document.getElementById('fecha').value = cruce.fecha ? fechaAISO(cruce.fecha) : hoyISO();
@@ -643,9 +660,13 @@ function abrirCargaDeFixture(cruce) {
     const esJornada = cruce.origen === 'jornada';
     const titulo = document.getElementById('fixture-titulo');
     if (titulo) titulo.textContent = esJornada ? '🗓️ Partido de la jornada' : '🏆 Partido del torneo';
-    document.getElementById('fixture-info').textContent = esJornada
+    document.getElementById('fixture-info').textContent = (esJornada
         ? `${cruce.j1} vs ${cruce.j2}`
-        : `${cruce.fase}: ${cruce.j1} vs ${cruce.j2}`;
+        : `${cruce.fase}: ${cruce.j1} vs ${cruce.j2}`)
+        + (cruce.modalidad === 'tiempo' ? ` · ${nombreModalidad('tiempo', normalizarMinutos(cruce.minutos || MINUTOS_DEFAULT))}` : '');
+
+    // El selector de modalidad no va: la fija el torneo o la jornada
+    renderModalidadFormulario();
 
     // En un cruce del fixture los jugadores están fijos: se tocan los chips
     // solo para dar vuelta quién fue el ganador.
@@ -695,16 +716,20 @@ async function guardarResultadoFixture() {
         return;
     }
 
-    try {
-        await enviarPartido({
-            ganador: estado.ganador,
-            perdedor: estado.perdedor,
-            golesPerdedor: estado.golesPerdedor,
-            fecha: fechaFormateada()
-        }, nombreTorneo, cruce.fase);
+    const partido = partidoDelFormulario();
+    if (!partido || errorDelMarcador(partido)) {
+        estado.subiendo = false;
+        actualizarUI();
+        return;
+    }
+    const porTiempo = esPorTiempo();
 
-        mostrarToast(`✅ ${estado.ganador} ${GOLES}-${estado.golesPerdedor} ${estado.perdedor}`, 'ok');
+    try {
+        await enviarPartido(partido, nombreTorneo, cruce.fase);
+
+        mostrarToast(`✅ ${partido.ganador} ${textoMarcador(partido)} ${partido.perdedor}`, 'ok');
         cerrarCargaDeFixture();
+        if (porTiempo) reiniciarReloj();
 
         // Refresca el historial completo (lo usan los partidos pendientes
         // viejos y la jornada, que deduce lo jugado del .txt)
@@ -732,6 +757,7 @@ function cerrarCargaDeFixture() {
     document.getElementById('fixture-banner').style.display = 'none';
     document.getElementById('formulario').style.display = 'none';
     limpiarFormulario();
+    renderModalidadFormulario();
     renderChips();
 }
 
@@ -809,7 +835,9 @@ function renderPartidosFaltantes() {
 function abrirCargaSuelta(partido) {
     // Ojo con el orden: abrirCargaDeFixture reemplaza pendienteActual, así que
     // el torneo al que pertenece se marca después, no antes.
-    abrirCargaDeFixture({ j1: partido.j1, j2: partido.j2, fase: partido.fase });
+    // De un torneo viejo no se sabe cómo se jugó: por tiempo (si el deporte
+    // lo tiene) acepta cualquier marcador, y siendo playoffs, sin empate.
+    abrirCargaDeFixture({ j1: partido.j1, j2: partido.j2, fase: partido.fase, modalidad: HAY_TIEMPO ? 'tiempo' : 'goles' });
     torneo.pendienteActual.torneoSuelto = partido.torneo;
     document.getElementById('fixture-info').textContent =
         `${partido.torneo} · ${partido.fase}: ${partido.j1} vs ${partido.j2}`;

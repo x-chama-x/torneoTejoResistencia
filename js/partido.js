@@ -31,7 +31,7 @@ async function cargarHistorialCompleto() {
             if (partes.length >= 7) {
                 const jugador1 = partes[0].trim();
                 const jugador2 = partes[1].trim();
-                const resultado = partes[2].trim(); // G o P para jugador1
+                const resultado = partes[2].trim(); // G, P o E (empate) para jugador1
                 const marcador = partes[3].trim();
                 const torneo = partes[4].trim();
                 const fecha = partes[5].trim();
@@ -43,8 +43,9 @@ async function cargarHistorialCompleto() {
                 const partido = {
                     jugador1,
                     jugador2,
-                    ganador: resultado === 'G' ? jugador1 : jugador2,
-                    perdedor: resultado === 'G' ? jugador2 : jugador1,
+                    // En un empate (metegol por tiempo) no hay ganador ni perdedor
+                    ganador: resultado === 'E' ? null : (resultado === 'G' ? jugador1 : jugador2),
+                    perdedor: resultado === 'E' ? null : (resultado === 'G' ? jugador2 : jugador1),
                     marcador,
                     goles1,
                     goles2,
@@ -78,6 +79,7 @@ async function cargarHistorialCompleto() {
                     enfrentamientosDirectos[clave] = {
                         jugadores: [jugador1, jugador2].sort(),
                         victorias: {},
+                        empates: 0,
                         goles: {}
                     };
                     // Inicializar para ambos jugadores
@@ -87,8 +89,9 @@ async function cargarHistorialCompleto() {
                     enfrentamientosDirectos[clave].goles[jugador2] = 0;
                 }
 
-                // Sumar victoria al ganador
-                enfrentamientosDirectos[clave].victorias[partido.ganador]++;
+                // Sumar victoria al ganador (o el empate)
+                if (partido.ganador) enfrentamientosDirectos[clave].victorias[partido.ganador]++;
+                else enfrentamientosDirectos[clave].empates++;
 
                 // Sumar goles a cada jugador
                 enfrentamientosDirectos[clave].goles[jugador1] += goles1;
@@ -111,7 +114,7 @@ async function cargarHistorialCompleto() {
         maxEnfrentamientosGlobal = 1; // Mínimo 1 para evitar división por cero
         for (const clave in enfrentamientosDirectos) {
             const h = enfrentamientosDirectos[clave];
-            const total = Object.values(h.victorias).reduce((a, b) => a + b, 0);
+            const total = Object.values(h.victorias).reduce((a, b) => a + b, 0) + (h.empates || 0);
             if (total > maxEnfrentamientosGlobal) {
                 maxEnfrentamientosGlobal = total;
             }
@@ -356,6 +359,7 @@ function mostrarHistorial(nombreJ1, nombreJ2) {
             <div class="historial-middle">
                 <div class="total-partidos">${total}</div>
                 <div class="subtitulo">partido${total === 1 ? '' : 's'} jugado${total === 1 ? '' : 's'}</div>
+                ${historial && historial.empates ? `<div class="subtitulo">${historial.empates} empate${historial.empates === 1 ? '' : 's'}</div>` : ''}
             </div>
             ${resumenJugador(nombreJ2, victoriasJ2, golesJ2)}
         </div>
@@ -423,16 +427,17 @@ function filtrosDelJugador(nombre) {
 
 // Estadísticas rápidas (PJ, G, P, WR) de un jugador sobre una lista de partidos ya filtrada
 function calcularStatsIndividuales(nombreJugador, partidos) {
-    let g = 0, p = 0, gf = 0, gc = 0;
+    let g = 0, e = 0, p = 0, gf = 0, gc = 0;
     partidos.forEach(partido => {
         const esJugador1 = partido.jugador1 === nombreJugador;
         gf += esJugador1 ? partido.goles1 : partido.goles2;
         gc += esJugador1 ? partido.goles2 : partido.goles1;
-        if (partido.ganador === nombreJugador) g++; else p++;
+        if (!partido.ganador) e++;
+        else if (partido.ganador === nombreJugador) g++; else p++;
     });
     const pj = partidos.length;
     const wr = pj > 0 ? ((g / pj) * 100).toFixed(1) : '0.0';
-    return { pj, g, p, gf, gc, wr };
+    return { pj, g, e, p, gf, gc, wr };
 }
 
 // Goles a favor y en contra contra cada rival: [{ rival, pj, gf, gc }]
@@ -496,6 +501,7 @@ function mostrarPartidosIndividuales(nombreJugador, filtro, suyos) {
         <div class="stats-grid-4">
             <div class="stat-item"><div class="stat-label">PJ</div><div class="stat-value">${stats.pj}</div></div>
             <div class="stat-item"><div class="stat-label">Ganados</div><div class="stat-value">${stats.g}</div></div>
+            ${DEPORTE.permiteEmpate ? `<div class="stat-item"><div class="stat-label">Empatados</div><div class="stat-value">${stats.e}</div></div>` : ''}
             <div class="stat-item"><div class="stat-label">Perdidos</div><div class="stat-value">${stats.p}</div></div>
             <div class="stat-item"><div class="stat-label">WR</div><div class="stat-value">${stats.wr}%</div></div>
         </div>

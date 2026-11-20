@@ -66,7 +66,7 @@ export default async function handler(req, res) {
     }
 
     const body = req.body || {};
-    const errorValidacion = validarPartido(body);
+    const errorValidacion = validarPartido(body, { permiteEmpate: deporte.permiteEmpate });
     if (errorValidacion) {
         return res.status(400).json({ error: errorValidacion });
     }

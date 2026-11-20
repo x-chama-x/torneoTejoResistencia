@@ -59,7 +59,18 @@ El menu arrastra el parametro al navegar y abajo de todo tiene un link para pasa
 
 La API (`/api/*`) recibe el mismo `?deporte=` y escribe en los archivos de ese deporte; sin parametro es el tejo. Sus rutas estan repetidas en `lib/deportes.js` (el navegador no puede importar un modulo de Node): si sumas un deporte o cambias una ruta, cambialo en los dos. Los commits que no son del tejo llevan un prefijo, ej. `[metegol] Amistoso 15/11/2026: ...`.
 
-> **Reglas del metegol**: provisorias. 1 contra 1 a 5 goles y a un solo partido, como los partidos del reglamento ITSF. El ITSF juega ademas al mejor de 3 o de 5 partidos y en el decisivo hay que ganar por 2 (tope 8); si se adopta, el ganador ya no hace siempre la misma cantidad de goles y la app tiene que dejar de asumirlo.
+### Reglas del metegol: a goles o por tiempo, con empates
+
+- 1 contra 1, a un solo partido. Cada **torneo** y cada **jornada** elige al crearse en la app como se juegan sus partidos (`modalidad` en el JSON del sorteo y en `metegol/jornadas/index.json`); los amistosos sueltos (Uno y Tanda) tienen un selector arriba del formulario:
+  - **A 5 goles**: gana el primero que llega a 5, sin empates (como un partido ITSF).
+  - **Por tiempo**, la que aparece elegida por defecto: los **minutos son regulables** (de 1 a 60, vienen 10) y se eligen junto con la modalidad; se guardan como `minutos` en el sorteo y en la jornada. Se juegan los minutos enteros, sin tope de goles (llegar a 5 no termina el partido). Gana el que va arriba cuando termina el reloj, y si van iguales es **empate**. La app carga los goles de los dos (de 0 a 15) y trae un reloj con los minutos del torneo o la jornada (vibra y suena al terminar, y sigue bien aunque se apague la pantalla).
+- El archivo de partidos acepta `E` en `resultado_j1` (ej. `Chama,Facu,E,2-2,...`), solo en los deportes con `permiteEmpate`. La API lo valida: en el tejo un empate se sigue rechazando.
+- **Semis, tercer puesto, final y eliminatorio** no pueden terminar empatados: se desempatan con **gol de oro** y se carga el resultado final (2-2 y gol de oro queda 3-2). La app y la API no dejan cargar un empate en esas fases.
+- **Puntos 3-1-0** en las tablas de liga, grupos y repechajes (`puntos` en `js/deportes.js`; en el tejo los PTS siguen siendo los goles a favor). Las tablas suman la columna **E** solo en el metegol.
+- **Nations League del metegol**: se ordena por **PPP\*** (puntos por partido ajustado, con los mismos partidos fantasma que el PG\* del tejo).
+- **Ranking FIFA**: en un empate, el favorito le pasa al otro `base × min(0.5, D/200)` puntos (entre parejos no cambia nada, como en el ELO).
+- **Simulador**: juega los partidos del metegol por tiempo, con marcadores libres (la cantidad de goles sale del promedio del historial, arrancando de 3 por jugador) y gol de oro en playoffs. Los de fase regular pueden terminar empatados, con una chance que sale de la proporcion de empates del historial (con 20% de arranque) y que es mayor cuanto mas parejo es el cruce (`probabilidadEmpate` en `js/probabilidades.js`). Los de playoffs siempre tienen ganador.
+- El Saber Mas tiene su version del metegol (reglas, formatos con costos a $3.000 el partido de 10 minutos, Nations League y ranking).
 
 ---
 

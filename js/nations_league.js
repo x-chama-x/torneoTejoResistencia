@@ -157,6 +157,7 @@ function renderPosiciones(posiciones) {
             <td>${conEscudo(s.nombre, { negrita: true })}</td>
             <td>${s.pj}</td>
             <td>${s.g}</td>
+            ${tdEmpates(s.e)}
             <td>${s.p}</td>
             <td>${s.gf}</td>
             <td>${s.gc}</td>
@@ -204,6 +205,7 @@ function renderEstadisticas(posiciones) {
                 <td>${conEscudo(s.nombre, { negrita: true })}</td>
                 <td>${s.pj}</td>
                 <td>${s.g}</td>
+                ${tdEmpates(s.e)}
                 <td>${s.p}</td>
                 <td><strong>${wr}</strong></td>
                 <td>${s.gf}</td>

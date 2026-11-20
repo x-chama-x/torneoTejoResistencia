@@ -144,7 +144,7 @@ async function manejarPut(req, res, config) {
         throw errorHttp(400, 'Falta el objeto "partido"');
     }
 
-    const errorValidacion = validarPartido(partido);
+    const errorValidacion = validarPartido(partido, { permiteEmpate: config.deporte.permiteEmpate });
     if (errorValidacion) {
         throw errorHttp(400, errorValidacion);
     }

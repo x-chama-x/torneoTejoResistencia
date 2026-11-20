@@ -57,6 +57,43 @@
             margin-bottom: 18px;
         }
         header img { width: 34px; height: 34px; border-radius: 8px; }
+        /* Reloj de los partidos por tiempo */
+        .reloj {
+            text-align: center;
+            font-size: 3.2rem;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 2px;
+            margin: 4px 0 12px;
+        }
+        .reloj.ultimo-minuto { color: var(--amber); }
+        .reloj.terminado { color: var(--red); }
+        /* Minutos por partido (al elegir "por tiempo") */
+        .minutos-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            font-size: 0.9rem;
+        }
+        .minutos-row span { flex: 1; color: var(--text-dim); }
+        .minutos-row input {
+            width: 64px;
+            text-align: center;
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+        .minutos-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            color: var(--text);
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
         /* Pasar al otro deporte (tejo <-> metegol) */
         header .cambiar-deporte {
             margin-left: auto;
@@ -449,6 +486,19 @@
 
     <!-- Formulario (carga y edición) -->
     <div id="formulario">
+        <!-- A goles o por tiempo (solo metegol, en los amistosos sueltos) -->
+        <div id="card-modalidad"></div>
+
+        <!-- Reloj de los partidos por tiempo -->
+        <div class="card" id="card-reloj" style="display: none;">
+            <label>Reloj</label>
+            <div class="reloj" id="reloj-display">10:00</div>
+            <div class="btn-row">
+                <button class="btn btn-secondary" id="reloj-reiniciar" title="Volver a empezar">↺ Reiniciar</button>
+                <button class="btn btn-primary" id="reloj-play">▶ Empezar</button>
+            </div>
+        </div>
+
         <!-- Jugadores -->
         <div class="card">
             <label>Jugadores</label>
@@ -465,7 +515,11 @@
                 <div class="vs-player p2 vacio" id="vs-p2">Perdedor</div>
             </div>
 
-            <label style="margin-top: 4px;">Goles del perdedor</label>
+            <!-- Por tiempo se cargan los goles de los dos -->
+            <label style="margin-top: 4px; display: none;" id="label-goles-1">Goles del jugador 1</label>
+            <div class="goles-grid" id="goles-grid-1" style="display: none; margin-bottom: 10px;"></div>
+
+            <label style="margin-top: 4px;" id="label-goles-2">Goles del perdedor</label>
             <div class="goles-grid" id="goles-grid"></div>
 
             <div class="marcador-preview" id="marcador-preview">

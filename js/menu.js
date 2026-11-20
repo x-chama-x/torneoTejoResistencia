@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ['copadecampeones.html', 'Copa de Campeones', 'Copa de Campeones', null],
         ['nationsleague.html', DEPORTE.nombreLiga, DEPORTE.nombreLiga, null],
         ['airhockeygame.html', 'Air Hockey', 'Air Hockey', ['tejo']],
-        ['sabermas.html', 'Saber Más', 'Saber Más', ['tejo']]
+        ['sabermas.html', 'Saber Más', 'Saber Más', null]
     ];
     const links = paginas
         .filter(([, , , solo]) => !solo || solo.includes(DEPORTE.id))
