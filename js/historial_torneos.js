@@ -544,8 +544,12 @@ function renderTournamentStats(allMatches, nombreTorneo) {
     const isLiga = allMatches.some(m => m.fase === "Fase de Liga");
     const groupLabel = isLiga ? "G(FL)" : "G(FG)";
 
-    const groupMatches = allMatches.filter(m => m.fase.includes("Fase"));
-    const playoffMatches = allMatches.filter(m => !m.fase.includes("Fase"));
+    // G(FG)/G(FL): la fase regular, y en el formato de 9 tambien las
+    // mini-ligas de repechaje. G(PO): semis, final, tercer puesto y el
+    // partido eliminatorio.
+    const esFaseRegular = m => m.fase.includes("Fase") || m.fase.includes("Repechaje");
+    const groupMatches = allMatches.filter(esFaseRegular);
+    const playoffMatches = allMatches.filter(m => !esFaseRegular(m));
 
     const stats = {};
 
