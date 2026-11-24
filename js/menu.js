@@ -77,27 +77,21 @@ document.addEventListener('DOMContentLoaded', () => {
     mostrarContadorDeVisitas();
 });
 
-// Contador de visitas (api/visitas.js). Se cuenta una visita por pestaña:
-// la primera página suma una y las siguientes (o recargar) solo leen el
-// total. Si la API no responde (el sitio abierto en la compu, o la base
-// sin configurar en Vercel) el contador no aparece.
+// Contador de visitas (api/visitas.js): personas distintas (por IP) que
+// entraron en el mes; vuelve a cero el 1° de cada mes. Cada página avisa
+// que entró alguien y la API cuenta cada IP una sola vez, así que recargar
+// o cambiar de página no suma. Si la API no responde (el sitio abierto en
+// la compu, o la base sin configurar en Vercel) el contador no aparece.
 function mostrarContadorDeVisitas() {
     const el = document.getElementById('contador-visitas');
     if (!el || typeof fetch !== 'function') return;
 
-    let yaContada = false;
-    try { yaContada = sessionStorage.getItem('visita-contada') === '1'; } catch { /* sin storage: cuenta igual */ }
-
-    fetch('/api/visitas', { method: yaContada ? 'GET' : 'POST', cache: 'no-store' })
+    fetch('/api/visitas', { method: 'POST', cache: 'no-store' })
         .then(r => (r.ok ? r.json() : null))
         .then(datos => {
             if (!datos || typeof datos.visitas !== 'number') return;
-            if (!yaContada) {
-                try { sessionStorage.setItem('visita-contada', '1'); } catch { /* nada */ }
-            }
-            const n = datos.visitas;
-            el.textContent = `👁 ${n.toLocaleString('es-AR')} ${n === 1 ? 'visita' : 'visitas'}`;
-            el.title = 'Visitas al sitio';
+            el.textContent = `Contador de visitas: ${datos.visitas.toLocaleString('es-AR')}`;
+            el.title = 'Personas distintas (por IP) que entraron este mes. Vuelve a cero el 1° de cada mes.';
             el.hidden = false;
         })
         .catch(() => { /* sin contador */ });
