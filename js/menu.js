@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <h2>${DEPORTE.nombre}</h2>
         ${links}
         ${cambios}
+        <div id="contador-visitas" class="contador-visitas" hidden></div>
         <div class="sidebar-footer">
             <img src="img/favicon2.png" alt="Logo">
             <br>
@@ -72,4 +73,32 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    mostrarContadorDeVisitas();
 });
+
+// Contador de visitas (api/visitas.js). Se cuenta una visita por pestaña:
+// la primera página suma una y las siguientes (o recargar) solo leen el
+// total. Si la API no responde (el sitio abierto en la compu, o la base
+// sin configurar en Vercel) el contador no aparece.
+function mostrarContadorDeVisitas() {
+    const el = document.getElementById('contador-visitas');
+    if (!el || typeof fetch !== 'function') return;
+
+    let yaContada = false;
+    try { yaContada = sessionStorage.getItem('visita-contada') === '1'; } catch { /* sin storage: cuenta igual */ }
+
+    fetch('/api/visitas', { method: yaContada ? 'GET' : 'POST', cache: 'no-store' })
+        .then(r => (r.ok ? r.json() : null))
+        .then(datos => {
+            if (!datos || typeof datos.visitas !== 'number') return;
+            if (!yaContada) {
+                try { sessionStorage.setItem('visita-contada', '1'); } catch { /* nada */ }
+            }
+            const n = datos.visitas;
+            el.textContent = `👁 ${n.toLocaleString('es-AR')} ${n === 1 ? 'visita' : 'visitas'}`;
+            el.title = 'Visitas al sitio';
+            el.hidden = false;
+        })
+        .catch(() => { /* sin contador */ });
+}
