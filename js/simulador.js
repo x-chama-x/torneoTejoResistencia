@@ -710,7 +710,10 @@ function renderEstadisticasHTML(estadisticasJugadores, numJugadores, soloFaseFin
         </thead>
         <tbody>`;
 
-    // Convertir estadísticas a array y ordenar por promedio TG/PJ (descendente)
+    // Convertir estadísticas a array y ordenar por promedio TG/PJ (descendente).
+    // Orden completo: promedio, total de goles y diferencia de gol. Si siguen iguales
+    // en todo, por nombre, asi el Simulador y la pagina de Torneos muestran
+    // siempre el mismo orden.
     const statsArray = Object.entries(estadisticasJugadores).map(([nombre, stats]) => {
         const totalGoles = stats.golesLiga + stats.golesFaseFinal;
         return {
@@ -727,7 +730,8 @@ function renderEstadisticasHTML(estadisticasJugadores, numJugadores, soloFaseFin
             promedio: stats.partidosJugados > 0 ? (totalGoles / stats.partidosJugados) : 0,
             promedioStr: stats.partidosJugados > 0 ? (totalGoles / stats.partidosJugados).toFixed(2) : '0.00'
         };
-    }).sort((a, b) => b.promedio - a.promedio || b.totalGoles - a.totalGoles);
+    }).sort((a, b) => b.promedio - a.promedio || b.totalGoles - a.totalGoles ||
+        b.dif - a.dif || a.nombre.localeCompare(b.nombre, 'es'));
 
     statsArray.forEach(stat => {
         htmlStats += `
