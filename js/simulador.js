@@ -476,9 +476,9 @@ function construirCandidatos(filasRanking, jugadores) {
 }
 
 // Mini-liga (todos contra todos) usada en los repechajes de 2° y 3° puestos.
-// En las estadísticas del torneo sus goles cuentan como G(PO), no como de la
-// fase de grupos: igual que en la página de torneos, que pone en G(FG) solo
-// los partidos de "Fase de Grupos".
+// En las estadísticas del torneo sus goles cuentan en G(FG), junto con los de
+// la fase de grupos, igual que en la página de torneos. El partido
+// eliminatorio que viene después sí va en G(PO) (ver simularPrePlayoff).
 function simularMiniLiga(candidatos, estadisticasGlobales = null) {
     const stats = {};
     candidatos.forEach(c => {
@@ -509,13 +509,13 @@ function simularMiniLiga(candidatos, estadisticasGlobales = null) {
 
             if (estadisticasGlobales) {
                 if (estadisticasGlobales[j1.nombre]) {
-                    estadisticasGlobales[j1.nombre].golesFaseFinal += resultadoMini.goles1;
+                    estadisticasGlobales[j1.nombre].golesLiga += resultadoMini.goles1;
                     estadisticasGlobales[j1.nombre].gc += resultadoMini.goles2;
                     estadisticasGlobales[j1.nombre].partidosJugados++;
                     sumarResultadoGlobal(estadisticasGlobales[j1.nombre], resultadoMini.ganador, j1.nombre);
                 }
                 if (estadisticasGlobales[j2.nombre]) {
-                    estadisticasGlobales[j2.nombre].golesFaseFinal += resultadoMini.goles2;
+                    estadisticasGlobales[j2.nombre].golesLiga += resultadoMini.goles2;
                     estadisticasGlobales[j2.nombre].gc += resultadoMini.goles1;
                     estadisticasGlobales[j2.nombre].partidosJugados++;
                     sumarResultadoGlobal(estadisticasGlobales[j2.nombre], resultadoMini.ganador, j2.nombre);
