@@ -1019,6 +1019,16 @@ select:hover {
     color: #ffffff;
 }
 
+/* Contador de visitas (js/menu.js), abajo del cambio de deporte. Arranca
+   oculto (hidden) y aparece cuando llega el número. */
+.contador-visitas {
+    margin-top: 8px;
+    padding: 6px 10px 6px 13px;
+    color: #8b949e;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
 .sidebar-footer {
     margin-top: 24px;
     text-align: center;
