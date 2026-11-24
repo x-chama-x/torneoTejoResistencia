@@ -578,6 +578,9 @@ function renderTournamentStats(allMatches, nombreTorneo) {
     addGoals(groupMatches, "grupo");
     addGoals(playoffMatches, "playoff");
 
+    // Orden: promedio, total de goles y diferencia de gol. Si siguen iguales
+    // en todo, por nombre, asi el Simulador y la pagina de Torneos muestran
+    // siempre el mismo orden.
     const statsArray = Object.entries(stats).map(([nombre, s]) => {
         const difGoles = (s.golesGrupo + s.golesFinal) - s.golesContra;
         return {
@@ -594,7 +597,8 @@ function renderTournamentStats(allMatches, nombreTorneo) {
             promedio: s.partidos > 0 ? (s.golesGrupo + s.golesFinal) / s.partidos : 0,
             promedioStr: s.partidos > 0 ? ((s.golesGrupo + s.golesFinal) / s.partidos).toFixed(2) : "0.00"
         };
-    }).sort((a, b) => b.promedio - a.promedio || b.totalGoles - a.totalGoles);
+    }).sort((a, b) => b.promedio - a.promedio || b.totalGoles - a.totalGoles ||
+        (b.totalGoles - b.gc) - (a.totalGoles - a.gc) || a.nombre.localeCompare(b.nombre, 'es'));
 
     if (statsArray.length === 0) return;
 
