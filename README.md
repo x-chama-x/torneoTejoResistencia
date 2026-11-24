@@ -472,7 +472,9 @@ La formula no incluye el ajuste por bicampeonato de `js/campeon.js`, que el Crea
 
 ### Desempate en la tabla
 
-El orden es: puntos (goles a favor), diferencia de gol, goles a favor. Si dos jugadores quedan empatados en los tres, desempata el **enfrentamiento directo** entre ellos.
+El orden es: puntos, diferencia de gol, goles a favor y **partidos ganados**. Si dos jugadores quedan empatados en todo eso, desempata el **enfrentamiento directo** entre ellos.
+
+En el tejo los puntos ya son los goles a favor, asi que en la practica queda: puntos, diferencia, ganados y directo. Los ganados casi siempre acompañan a la diferencia, pero dos jugadores pueden tener los mismos goles a favor y en contra con distinta cantidad de victorias (uno gano apretado y perdio por mucho, el otro al reves): ahi queda arriba el que gano mas partidos. En los torneos jugados hasta ahora nunca paso, asi que ninguna tabla cambio.
 
 Con tres o mas empatados no se aplica, porque el mano a mano puede ser circular (A le gana a B, B a C y C a A) y no existiria un orden valido. En ese caso la tabla muestra un aviso para definir ese tramo a mano. Es un caso abierto: mas adelante se vera como resolverlo.
 

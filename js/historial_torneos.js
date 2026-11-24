@@ -191,7 +191,7 @@ function renderAvisoEmpates(contenedor, empates) {
     aviso.className = "aviso-empate-multiple";
     aviso.style = "margin-top: 10px; font-size: 0.85rem; color: #d29922; background: rgba(210, 153, 34, 0.1); border: 1px solid rgba(210, 153, 34, 0.35); border-radius: 8px; padding: 10px 12px;";
     aviso.innerHTML = empates.map(grupo =>
-        `⚠️ <strong>${grupo.join(", ")}</strong> quedaron empatados en puntos, diferencia y goles a favor. El enfrentamiento directo solo desempata entre dos, así que este orden hay que definirlo a mano.`
+        `⚠️ <strong>${grupo.join(", ")}</strong> quedaron empatados en puntos, diferencia, goles a favor y partidos ganados. El enfrentamiento directo solo desempata entre dos, así que este orden hay que definirlo a mano.`
     ).join("<br>");
     contenedor.appendChild(aviso);
 }
