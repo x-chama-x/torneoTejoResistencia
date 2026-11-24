@@ -891,9 +891,30 @@
 
 .stats-grid-4 {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    /* --columnas lo pone js/partido.js: cuántos números hay (6 en el tejo,
+       7 en el metegol, que suma los empatados). Si no entran todos en una
+       fila van de a 3, y en el celular de a 2 (ver mas abajo). */
+    grid-template-columns: repeat(var(--columnas, 4), minmax(0, 1fr));
     gap: 15px;
     margin-bottom: 20px;
+}
+/* Todos en una fila necesitan unos 155px cada uno, para que "Goles
+   recibidos" no se parta en dos renglones (y los numeros queden a la misma
+   altura): eso pasa recien en pantallas grandes. Si no, de a 3. */
+@container historial (max-width: 999px) {
+    .stats-grid-4 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+/* En el metegol son 7 y en una fila necesitan mas lugar: en el medio van
+   de a 4 (4 arriba y 3 abajo, en vez de 3, 3 y uno solo) */
+@container historial (min-width: 680px) and (max-width: 1169px) {
+    .stats-grid-4.con-empates { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+/* En pantallas muy angostas "Goles recibidos" va en dos renglones: el
+   numero va abajo de todo, asi los de una misma fila quedan parejos */
+.stats-grid-4 .stat-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 /* Responsive */
