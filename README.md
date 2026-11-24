@@ -185,7 +185,7 @@ torneoTejoResistencia/
 ├── formatos.md                   # Documentacion de formatos
 ├── README.md                     # Este archivo
 ├── api/
-│   ├── visitas.js                # API serverless: contador de visitas del menu (Redis)
+│   ├── visitas.js                # API serverless: contador de visitas del menu (IPs distintas del mes, Redis)
 │   ├── cargar-partido.js         # API serverless: agrega un partido al .txt (commit a GitHub)
 │   ├── partidos.js               # API serverless: lista, edita y borra partidos
 │   └── torneo-estado.js          # API serverless: guarda y lee el sorteo de un torneo
@@ -372,8 +372,8 @@ Al editar se conservan el `torneo` y la `fase` originales, asi tambien se pueden
 | `GET` | `/api/jornada` | Lista las jornadas abiertas de la Nations League |
 | `PUT` | `/api/jornada` | Abre o actualiza una jornada (`fecha` + `jugadores`) |
 | `DELETE` | `/api/jornada` | Cierra la jornada de esa `fecha` |
-| `GET` | `/api/visitas` | Devuelve el total de visitas al sitio |
-| `POST` | `/api/visitas` | Suma una visita y devuelve el total (lo llama el menu, una vez por pestaña) |
+| `GET` | `/api/visitas` | Devuelve las visitas del mes: IPs distintas que entraron desde el 1° (hora argentina) |
+| `POST` | `/api/visitas` | Anota la IP del que entra (cada una cuenta una sola vez en el mes) y devuelve las visitas del mes. Lo llama el menu en cada pagina |
 
 La logica compartida de GitHub y del formato del archivo vive en `lib/github.js` (fuera de `/api`, porque cada archivo dentro de `/api` se vuelve una funcion serverless).
 
