@@ -425,7 +425,8 @@ function filtrosDelJugador(nombre) {
     return { suyos, filtros };
 }
 
-// Estadísticas rápidas (PJ, G, P, WR) de un jugador sobre una lista de partidos ya filtrada
+// Estadísticas rápidas (PJ, G, E, P, WR y goles anotados y recibidos) de un
+// jugador sobre una lista de partidos ya filtrada
 function calcularStatsIndividuales(nombreJugador, partidos) {
     let g = 0, e = 0, p = 0, gf = 0, gc = 0;
     partidos.forEach(partido => {
@@ -497,13 +498,24 @@ function mostrarPartidosIndividuales(nombreJugador, filtro, suyos) {
     const aFavor = rivales.slice().sort((a, b) => b.gf - a.gf || a.pj - b.pj || a.gc - b.gc || a.rival.localeCompare(b.rival));
     const enContra = rivales.slice().sort((a, b) => b.gc - a.gc || a.pj - b.pj || a.gf - b.gf || a.rival.localeCompare(b.rival));
 
+    // Los números de arriba: primero los resultados y después los goles.
+    // --columnas es cuántos son, para ponerlos todos en una fila cuando
+    // entran (ver .stats-grid-4 en css/partido.css).
+    const numeros = [
+        ['PJ', stats.pj],
+        ['Ganados', stats.g],
+        ...(DEPORTE.permiteEmpate ? [['Empatados', stats.e]] : []),
+        ['Perdidos', stats.p],
+        ['WR', `${stats.wr}%`],
+        ['Goles anotados', stats.gf],
+        ['Goles recibidos', stats.gc]
+    ];
+
     content.innerHTML = `
-        <div class="stats-grid-4">
-            <div class="stat-item"><div class="stat-label">PJ</div><div class="stat-value">${stats.pj}</div></div>
-            <div class="stat-item"><div class="stat-label">Ganados</div><div class="stat-value">${stats.g}</div></div>
-            ${DEPORTE.permiteEmpate ? `<div class="stat-item"><div class="stat-label">Empatados</div><div class="stat-value">${stats.e}</div></div>` : ''}
-            <div class="stat-item"><div class="stat-label">Perdidos</div><div class="stat-value">${stats.p}</div></div>
-            <div class="stat-item"><div class="stat-label">WR</div><div class="stat-value">${stats.wr}%</div></div>
+        <div class="stats-grid-4${DEPORTE.permiteEmpate ? ' con-empates' : ''}" style="--columnas: ${numeros.length};">
+            ${numeros.map(([etiqueta, valor]) =>
+                `<div class="stat-item"><div class="stat-label">${etiqueta}</div><div class="stat-value">${valor}</div></div>`
+            ).join('')}
         </div>
         <div class="cruce-cuerpo">
             <section class="cruce-todos">
