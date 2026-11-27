@@ -257,6 +257,7 @@ const estado = {
     modo: 'directo',        // 'directo' | 'tanda' | 'historial' | 'jornada' | 'torneo'
     jugadores: [],          // lista completa de nombres disponibles
     historial: [],          // todos los partidos del .txt (lo usa el modo Torneo)
+    textoPartidos: '',      // el .txt tal cual: de ahí sale el ranking que desempata las tablas del torneo
     ganador: null,
     perdedor: null,
     golesPerdedor: null,
@@ -340,6 +341,7 @@ async function cargarJugadores() {
         const res = await fetch(TXT_URL, { cache: 'no-store' });
         if (!res.ok) throw new Error('no se pudo leer el txt');
         const texto = await res.text();
+        estado.textoPartidos = texto;
 
         const set = new Set();
         estado.historial = texto.split('\n')

@@ -100,7 +100,7 @@ function renderRepechajes(repechajes) {
                     </div>
                 </div>
             </div>`;
-        renderAvisoEmpates(div, tabla.empatesSinResolver);
+        renderAvisoEmpates(div, tabla);
         cont.appendChild(div);
     });
 }
@@ -172,28 +172,29 @@ function processStandings(matches, plantel) {
         }
     });
     // Orden y desempate: ordenarPosiciones(), en lib/torneo-formatos.js.
-    // Es la misma regla que usa el simulador. Devuelve la tabla con
-    // .empatesSinResolver colgado (los grupos de 3 o mas empatados).
+    // Es la misma regla que usa el simulador. Devuelve la tabla con los
+    // avisos de empates de 3 o mas colgados (ver htmlAvisosDeDesempate).
+    // window.rankingDesempate es el ranking FIFA con el que se llego al
+    // torneo que se esta mostrando: lo deja js/torneos.js (o la app) y
+    // desempata a los grupos de 3 o mas en el tejo.
     return ordenarPosiciones(
         Object.values(stats).map(s => ({ ...s, dif: s.gf - s.gc })),
         matches.map(m => {
             const g = m.marcador.split("-").map(Number);
             return { j1: m.j1, j2: m.j2, g1: g[0], g2: g[1] };
-        })
+        }),
+        { rankingDe: (typeof window !== "undefined" && window.rankingDesempate) || null }
     );
 }
 
-// Cartel de aviso cuando hay empates de 3 o más que no se pueden desempatar solos.
-function renderAvisoEmpates(contenedor, empates) {
-    if (!contenedor || !empates || empates.length === 0) return;
-
-    const aviso = document.createElement("div");
-    aviso.className = "aviso-empate-multiple";
-    aviso.style = "margin-top: 10px; font-size: 0.85rem; color: #d29922; background: rgba(210, 153, 34, 0.1); border: 1px solid rgba(210, 153, 34, 0.35); border-radius: 8px; padding: 10px 12px;";
-    aviso.innerHTML = empates.map(grupo =>
-        `⚠️ <strong>${grupo.join(", ")}</strong> quedaron empatados en puntos, diferencia, goles a favor y partidos ganados. El enfrentamiento directo solo desempata entre dos, así que este orden hay que definirlo a mano.`
-    ).join("<br>");
-    contenedor.appendChild(aviso);
+// Avisos de abajo de una tabla cuando quedan 3 o más empatados en todo: el
+// que explica que se ordenaron por ranking FIFA (tejo) y el que pide
+// definir el orden a mano. Las cajas salen de htmlAvisosDeDesempate()
+// (lib/torneo-formatos.js), las mismas que usa el simulador.
+function renderAvisoEmpates(contenedor, tabla) {
+    if (!contenedor || !tabla) return;
+    const html = htmlAvisosDeDesempate(tabla);
+    if (html) contenedor.insertAdjacentHTML("beforeend", html);
 }
 
 function renderGroupMatchesAndStandings(matches, nombreTorneo) {
@@ -274,10 +275,10 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                 tableResp.parentElement.insertBefore(leyenda, tableResp.nextSibling);
             }
 
-            // Aviso de empates de 3 o más (el mano a mano no alcanza)
+            // Avisos de empates de 3 o más (el mano a mano no alcanza)
             const contAviso = tbody.closest(".table-responsive")?.parentElement;
-            contAviso?.querySelectorAll(".aviso-empate-multiple").forEach(el => el.remove());
-            renderAvisoEmpates(contAviso, stdgs.empatesSinResolver);
+            contAviso?.querySelectorAll(".aviso-empate-multiple, .aviso-desempate-ranking").forEach(el => el.remove());
+            renderAvisoEmpates(contAviso, stdgs);
         }
     } else {
         // Grupos
@@ -370,7 +371,7 @@ function renderGroupMatchesAndStandings(matches, nombreTorneo) {
                         </div>
                     </div>
                 `;
-                renderAvisoEmpates(gDiv, stdgs.empatesSinResolver);
+                renderAvisoEmpates(gDiv, stdgs);
                 gCont.appendChild(gDiv);
             });
         }

@@ -287,10 +287,25 @@ async function sortearYGuardar() {
 // Torneo en curso
 // =====================================================
 
+// Ranking FIFA con el que se llegó al torneo en curso, para ordenar a los
+// que quedan empatados en todo de a tres o más (lo lee processStandings, igual
+// que en la página de torneos). Sale del .txt que leyó cargarJugadores() y
+// se calcula una vez por torneo; si el .txt no se pudo leer, no hay ranking
+// y la tabla avisa que ese tramo hay que definirlo a mano.
+function rankingDelTorneoEnCurso() {
+    const nombre = torneo.estado && torneo.estado.nombre;
+    if (!nombre || typeof rankingParaDesempate !== 'function' || !estado.textoPartidos) return null;
+    if (!torneo.rankingDesempate || torneo.rankingDesempate.nombre !== nombre) {
+        torneo.rankingDesempate = { nombre, de: rankingParaDesempate(estado.textoPartidos, nombre) };
+    }
+    return torneo.rankingDesempate.de;
+}
+
 // Arma la foto completa del torneo cruzando el sorteo con lo jugado.
 function calcularSituacion() {
     const { grupos } = torneo.estado;
     const jugados = torneo.jugados;
+    window.rankingDesempate = rankingDelTorneoEnCurso();
 
     const tablaDe = fase => processStandings(
         jugados.filter(p => p.fase === fase)
@@ -609,9 +624,10 @@ function renderTablas(s) {
                 <td><strong>${t.pts}</strong></td>
             </tr>`).join('');
 
-        const aviso = (tabla.empatesSinResolver || []).length
-            ? `<p class="hint" style="color: var(--amber);">⚠️ ${tabla.empatesSinResolver.map(g => g.join(', ')).join(' / ')} quedaron empatados en todo. Ese tramo hay que definirlo a mano.</p>`
-            : '';
+        // Empates de 3 o más: mismos textos que en la página de torneos
+        const { porRanking, sinResolver } = textosDeDesempate(tabla);
+        const aviso = porRanking.map(t => `<p class="hint" style="color: var(--accent);">${t}</p>`).join('') +
+            sinResolver.map(t => `<p class="hint" style="color: var(--amber);">${t}</p>`).join('');
 
         return `
             <div class="card">

@@ -64,12 +64,17 @@ function parsearPartidosParaRanking(texto) {
 
 // Calcula el ranking FIFA a partir del texto crudo de enfrentamientos_directos.txt.
 // Devuelve un array [{nombre, ranking}] ordenado de mayor a menor.
-function calcularRankingDesdeTexto(texto) {
+// Con opciones.antesDe = <nombre de un torneo>, se frena justo antes del
+// primer partido de ese torneo: es el ranking con el que se llegó a él.
+function calcularRankingDesdeTexto(texto, opciones = {}) {
     const partidos = parsearPartidosParaRanking(texto);
     const ranking = Object.assign({}, DEPORTE.rankingBase);
+    const antesDe = opciones && opciones.antesDe;
 
     for (const partido of partidos) {
         const { j1, j2, resJ1, torneo, fase } = partido;
+
+        if (antesDe && torneo === antesDe) break;
 
         if (!(j1 in ranking)) ranking[j1] = NUEVO_JUGADOR_PUNTOS;
         if (!(j2 in ranking)) ranking[j2] = NUEVO_JUGADOR_PUNTOS;
@@ -145,5 +150,32 @@ async function cargarRankingCalculado() {
     return calcularRankingDesdeTexto(texto);
 }
 
+// =====================================================
+// RANKING CON EL QUE SE LLEGA A UN TORNEO (desempate de las tablas)
+// =====================================================
+// En el tejo, si tres o más quedan empatados en todo en una tabla, se
+// ordenan por el ranking FIFA con el que cada uno llegó al torneo (ver
+// ordenarPosiciones en lib/torneo-formatos.js). Es el ranking procesando el
+// historial hasta justo antes del primer partido del torneo: no se mueve
+// mientras se juega el torneo ni cuando después se suman partidos, así la
+// tabla de un torneo ya jugado queda siempre igual. Si el torneo todavía
+// no tiene partidos, es el ranking de hoy.
+//
+// Devuelve una función nombre -> puntos (el que debuta, los 15 con los que
+// entra), o null si este deporte no desempata así (DEPORTE.desempatePorRanking)
+// o si no hay un ranking previo a ese torneo: el Torneo 1, que ya viene
+// sumado en la base del ranking.
+function rankingParaDesempate(texto, nombreTorneo) {
+    if (!DEPORTE.desempatePorRanking || !texto || !nombreTorneo) return null;
+    if (DEPORTE.torneoIncluidoEnBase &&
+        String(nombreTorneo).trim().toLowerCase() === DEPORTE.torneoIncluidoEnBase) return null;
+
+    const puntos = {};
+    calcularRankingDesdeTexto(texto, { antesDe: String(nombreTorneo).trim() })
+        .forEach(r => { puntos[r.nombre] = r.ranking; });
+    return nombre => (nombre in puntos ? puntos[nombre] : NUEVO_JUGADOR_PUNTOS);
+}
+
 window.calcularRankingDesdeTexto = calcularRankingDesdeTexto;
 window.cargarRankingCalculado = cargarRankingCalculado;
+window.rankingParaDesempate = rankingParaDesempate;

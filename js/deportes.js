@@ -74,6 +74,10 @@ const DEPORTES = {
             Hector: 20.0
         },
         torneoIncluidoEnBase: 'primer torneo de hockey de mesa',
+        // Tablas de torneo: si tres o más quedan empatados en todo, se ordenan
+        // por el ranking FIFA con el que llegaron al torneo (ver
+        // rankingParaDesempate en js/rankingCalculator.js).
+        desempatePorRanking: true,
 
         // Prefijo de las claves de localStorage de la app (tanda, jugadores).
         prefijoStorage: 'tejo'
@@ -120,6 +124,7 @@ const DEPORTES = {
         // Sin historial previo: todos arrancan con los puntos de un jugador nuevo.
         rankingBase: {},
         torneoIncluidoEnBase: null,
+        desempatePorRanking: false,   // todavía no: se definirá más adelante
 
         // Es el mismo grupo: la app de carga ofrece también a los jugadores
         // del tejo, así no hay que agregarlos uno por uno al primer partido.
