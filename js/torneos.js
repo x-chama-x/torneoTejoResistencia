@@ -120,6 +120,12 @@ function mostrarTorneo(texto, nombreTorneo) {
     const sorteo = sorteosPorTorneo[nombreTorneo];
     window.torneoPlantel = sorteo ? sorteo.grupos : null;
 
+    // Ranking FIFA con el que cada uno llegó a este torneo: ordena a los que
+    // quedan empatados en todo de a tres o más (lo lee processStandings).
+    window.rankingDesempate = typeof rankingParaDesempate === 'function'
+        ? rankingParaDesempate(texto, nombreTorneo)
+        : null;
+
     const delTorneo = partidosDeTorneo(texto, nombreTorneo);
 
     // Los pendientes se inyectan recien cuando cargarTorneo termino de

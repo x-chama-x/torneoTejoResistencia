@@ -4,3 +4,8 @@
 # Los comprimidos tampoco: viven en Vercel Blob y la pagina los pide por URL.
 img/Videos/
 img/videos/
+
+# Dependencias de Node (redis, para api/visitas.js): no van en el repo.
+# Vercel las instala solo en cada deploy a partir de package.json y
+# package-lock.json.
+node_modules/

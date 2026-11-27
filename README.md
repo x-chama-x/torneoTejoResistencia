@@ -55,6 +55,7 @@ El menu arrastra el parametro al navegar y abajo de todo tiene un link para pasa
 - `diferenciaPaliza`: desde cuantos goles de diferencia un partido es una "paliza".
 - `nombre`, `nombreLargo`, `nombreFifa`, `nombreLiga`, `sufijoTorneo`: los textos y titulos. En el HTML, un elemento con `data-dtexto="Ranking FIFA {nombreFifa}"` se reescribe con los valores del deporte; el texto escrito en el HTML es el del tejo.
 - `rankingBase` / `torneoIncluidoEnBase`: con que puntos arranca el Ranking FIFA (el tejo, con la base posterior al Torneo 1; el metegol, de cero).
+- `desempatePorRanking`: si los empates de 3 o mas en las tablas de torneo se ordenan por el ranking FIFA con el que se llego al torneo (el tejo si, el metegol todavia no). Ver "Desempate en la tabla".
 - `compartirJugadoresCon`: el metegol ofrece en la app a los jugadores del tejo, porque es el mismo grupo.
 
 La API (`/api/*`) recibe el mismo `?deporte=` y escribe en los archivos de ese deporte; sin parametro es el tejo. Sus rutas estan repetidas en `lib/deportes.js` (el navegador no puede importar un modulo de Node): si sumas un deporte o cambias una ruta, cambialo en los dos. Los commits que no son del tejo llevan un prefijo, ej. `[metegol] Amistoso 15/11/2026: ...`.
@@ -479,7 +480,15 @@ El orden es: puntos, diferencia de gol, goles a favor y **partidos ganados**. Si
 
 En el tejo los puntos ya son los goles a favor, asi que en la practica queda: puntos, diferencia, ganados y directo. Los ganados casi siempre acompañan a la diferencia, pero dos jugadores pueden tener los mismos goles a favor y en contra con distinta cantidad de victorias (uno gano apretado y perdio por mucho, el otro al reves): ahi queda arriba el que gano mas partidos. En los torneos jugados hasta ahora nunca paso, asi que ninguna tabla cambio.
 
-Con tres o mas empatados no se aplica, porque el mano a mano puede ser circular (A le gana a B, B a C y C a A) y no existiria un orden valido. En ese caso la tabla muestra un aviso para definir ese tramo a mano. Es un caso abierto: mas adelante se vera como resolverlo.
+Con tres o mas empatados el mano a mano no sirve, porque puede ser circular (A le gana a B, B a C y C a A) y no existiria un orden valido. En el **tejo** se ordenan por el **ranking FIFA con el que llegaron al torneo**, de mayor a menor, asi no hace falta jugar partidos extra. Debajo de la tabla aparece un aviso azul que lo explica, con los puntos de cada uno.
+
+- "Con el que llegaron" es el ranking procesando el historial hasta justo antes del primer partido del torneo (`rankingParaDesempate()` en `js/rankingCalculator.js`). No se mueve mientras se juega ni cuando despues se suman amistosos, asi la tabla de un torneo ya jugado queda siempre igual. Si el torneo todavia no tiene partidos, es el ranking de hoy (y en el simulador, siempre el de hoy).
+- El que debuta llega con los 15 puntos con los que entra todo jugador nuevo.
+- Si dos de los empatados llegaron con exactamente el mismo ranking (por ejemplo, dos que debutan), entre ellos decide el partido que jugaron. Si son tres o mas con el mismo ranking, ese tramo queda con el aviso amarillo para definirlo a mano.
+- El **Torneo 1** no tiene ranking previo (sus partidos ya vienen sumados en la base del ranking), asi que ahi tampoco se aplica. En los torneos jugados hasta ahora nunca hubo tres empatados en todo.
+- El **metegol** todavia no lo usa (`desempatePorRanking: false` en `js/deportes.js`): ahi los empates de 3 o mas siguen con el aviso para definirlos a mano.
+
+Lo usan las tablas de los torneos, los partidos pendientes, el simulador y el modo Torneo de la app, asi todos ordenan igual. Las paginas dejan el ranking del torneo en `window.rankingDesempate` y `processStandings` se lo pasa a `ordenarPosiciones`.
 
 La regla vive en un solo lugar, `ordenarPosiciones()` en `lib/torneo-formatos.js`, y la usan las tablas de los torneos (y la app, via `processStandings`) y el **simulador**. Antes el simulador tenia su propio orden (puntos, partidos ganados, diferencia) y nunca miraba el enfrentamiento directo, asi que podia clasificar a alguien distinto que un torneo real con los mismos resultados.
 

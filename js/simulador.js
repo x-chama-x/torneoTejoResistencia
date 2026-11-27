@@ -360,6 +360,15 @@ function sumarResultadoGlobal(st, ganador, nombre) {
     else st.pe = (st.pe || 0) + 1;
 }
 
+// Desempate de las tablas simuladas, igual que en los torneos reales: en el
+// tejo, tres o más empatados en todo se ordenan por el ranking FIFA con el
+// que llegan al torneo, que en un torneo simulado es el de hoy.
+function opcionesDesempate() {
+    return DEPORTE.desempatePorRanking
+        ? { rankingDe: nombre => resolverJugador(nombre).ranking }
+        : {};
+}
+
 // --- Helper para la calibración de la maldición del campeón (js/campeon.js) ---
 // Simula un round-robin y devuelve el ranking (1°..n°) sin efectos secundarios.
 // Se inyecta como callback `simGrupo` en calibrarSiCorresponde()/calibrarPesoCampeon().
@@ -378,7 +387,7 @@ function simGrupoBicampeon(jugadoresGrupo) {
         }
     }
     // Mismo orden y desempate que las tablas reales (lib/torneo-formatos.js)
-    return ordenarPosiciones(Object.entries(stats).map(([nombre, s]) => ({ nombre, ...s })), partidos)
+    return ordenarPosiciones(Object.entries(stats).map(([nombre, s]) => ({ nombre, ...s })), partidos, opcionesDesempate())
         .map((fila, i) => ({ pos: i + 1, ...fila }));
 }
 
@@ -442,12 +451,15 @@ function simularGrupo(jugadoresGrupo, nombreGrupo, matchNumberInicial, estadisti
     // puntos, diferencia, y el enfrentamiento directo si quedan dos iguales
     const ordenada = ordenarPosiciones(
         Object.entries(estadisticas).map(([nombre, s]) => ({ nombre, ...s })),
-        partidos.map(p => ({ j1: p.azul, j2: p.rojo, g1: p.golesAzul, g2: p.golesRojo }))
+        partidos.map(p => ({ j1: p.azul, j2: p.rojo, g1: p.golesAzul, g2: p.golesRojo })),
+        opcionesDesempate()
     );
     const rankingGrupo = ordenada.map((fila, index) => ({ pos: index + 1, ...fila }));
     // El .map() no copia lo que ordenarPosiciones le cuelga a la tabla: los
-    // empates de 3 o más, para el aviso de abajo de la tabla
+    // empates de 3 o más, para los avisos de abajo de la tabla
     rankingGrupo.empatesSinResolver = ordenada.empatesSinResolver;
+    rankingGrupo.desempatadosPorRanking = ordenada.desempatadosPorRanking;
+    rankingGrupo.rankingAplicado = ordenada.rankingAplicado;
 
     return { partidos, rankingGrupo, matchNumber };
 }
@@ -528,7 +540,8 @@ function simularMiniLiga(candidatos, estadisticasGlobales = null) {
 
     const ranking = ordenarPosiciones(
         Object.entries(stats).map(([nombre, s]) => ({ nombre, ...s })),
-        partidos.map(p => ({ j1: p.azul, j2: p.rojo, g1: p.golesAzul, g2: p.golesRojo }))
+        partidos.map(p => ({ j1: p.azul, j2: p.rojo, g1: p.golesAzul, g2: p.golesRojo })),
+        opcionesDesempate()
     );
 
     return { partidos, ranking };
@@ -898,14 +911,10 @@ function htmlLeyenda(texto, enFlex) {
         : `<div class="leyenda-clasificacion" style="margin-top: 10px; font-size: 0.85rem; color: #8b949e;"><span style="display:inline-block; width:12px; height:12px; background: rgba(46, 160, 67, 0.5); border-radius: 2px; margin-right: 5px; vertical-align: middle;"></span> <span style="vertical-align: middle;">${texto}</span></div>`;
 }
 
-// Tres o más empatados en todo: el directo no alcanza. Mismo aviso que
-// renderAvisoEmpates() de historial_torneos.js
+// Tres o más empatados en todo: el directo no alcanza. Mismos avisos que
+// renderAvisoEmpates() de historial_torneos.js (lib/torneo-formatos.js)
 function htmlAvisoEmpates(ranking) {
-    const empates = (ranking && ranking.empatesSinResolver) || [];
-    if (empates.length === 0) return '';
-    return `<div class="aviso-empate-multiple" style="margin-top: 10px; font-size: 0.85rem; color: #d29922; background: rgba(210, 153, 34, 0.1); border: 1px solid rgba(210, 153, 34, 0.35); border-radius: 8px; padding: 10px 12px;">${empates.map(grupo =>
-        `⚠️ <strong>${grupo.join(', ')}</strong> quedaron empatados en puntos, diferencia, goles a favor y partidos ganados. El enfrentamiento directo solo desempata entre dos, así que este orden hay que definirlo a mano.`
-    ).join('<br>')}</div>`;
+    return ranking ? htmlAvisosDeDesempate(ranking) : '';
 }
 
 // Un grupo o un repechaje: título, Posiciones a la izquierda y Resultados
